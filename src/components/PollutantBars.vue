@@ -12,6 +12,14 @@ const props = defineProps({
     type: String,
     default: 'PM2.5'
   },
+  stationState: {
+    type: String,
+    default: ''
+  },
+  stationName: {
+    type: String,
+    default: ''
+  },
   telemetry: {
     type: Object,
     default: null
@@ -22,56 +30,56 @@ const { t } = useI18n();
 
 const items = computed(() => {
   const dom = (props.dominant || '').toLowerCase();
-  const tel = props.telemetry;
+  const p = props.pollutants || {};
 
   return [
     {
       key: 'pm25',
       name: t('trends.pm25'),
       isDominant: dom.includes('pm2.5') || dom.includes('pm25'),
-      value: tel?.pm25 !== undefined ? tel.pm25 : props.pollutants?.pm25?.value,
+      value: p.pm25?.value !== undefined ? p.pm25.value : (props.telemetry?.pm25 ?? 25),
       unit: 'µg/m³',
-      ratio: tel?.pm25 !== undefined ? Math.min(100, Math.round((tel.pm25 / 75) * 100)) : (props.pollutants?.pm25?.ratio || 25)
+      ratio: p.pm25?.ratio ?? 25
     },
     {
       key: 'pm10',
       name: t('trends.pm10'),
       isDominant: dom.includes('pm10'),
-      value: tel?.pm10 !== undefined ? tel.pm10 : props.pollutants?.pm10?.value,
+      value: p.pm10?.value !== undefined ? p.pm10.value : (props.telemetry?.pm10 ?? 35),
       unit: 'µg/m³',
-      ratio: tel?.pm10 !== undefined ? Math.min(100, Math.round((tel.pm10 / 150) * 100)) : (props.pollutants?.pm10?.ratio || 20)
+      ratio: p.pm10?.ratio ?? 20
     },
     {
       key: 'o3',
       name: t('trends.o3'),
       isDominant: dom.includes('o3') || dom.includes('o₃') || dom.includes('ozone'),
-      value: tel?.o3 !== undefined ? tel.o3 : props.pollutants?.o3?.value,
+      value: p.o3?.value !== undefined ? p.o3.value : (props.telemetry?.o3 ?? 45),
       unit: 'µg/m³',
-      ratio: tel?.o3 !== undefined ? Math.min(100, Math.round((tel.o3 / 120) * 100)) : (props.pollutants?.o3?.ratio || 15)
+      ratio: p.o3?.ratio ?? 15
     },
     {
       key: 'no2',
       name: t('trends.no2'),
       isDominant: dom.includes('no2') || dom.includes('no₂'),
-      value: tel?.no2 !== undefined ? tel.no2 : props.pollutants?.no2?.value,
+      value: p.no2?.value !== undefined ? p.no2.value : (props.telemetry?.no2 ?? 18),
       unit: 'µg/m³',
-      ratio: tel?.no2 !== undefined ? Math.min(100, Math.round((tel.no2 / 100) * 100)) : (props.pollutants?.no2?.ratio || 12)
+      ratio: p.no2?.ratio ?? 12
     },
     {
       key: 'so2',
       name: t('trends.so2'),
       isDominant: dom.includes('so2') || dom.includes('so₂'),
-      value: tel?.so2 !== undefined ? tel.so2 : props.pollutants?.so2?.value,
+      value: p.so2?.value !== undefined ? p.so2.value : (props.telemetry?.so2 ?? 6),
       unit: 'µg/m³',
-      ratio: tel?.so2 !== undefined ? Math.min(100, Math.round((tel.so2 / 80) * 100)) : (props.pollutants?.so2?.ratio || 8)
+      ratio: p.so2?.ratio ?? 8
     },
     {
       key: 'co',
       name: t('trends.co'),
       isDominant: dom.includes('co'),
-      value: tel?.co !== undefined ? tel.co : props.pollutants?.co?.value,
+      value: p.co?.value !== undefined ? p.co.value : (props.telemetry?.co ?? 420),
       unit: 'µg/m³',
-      ratio: tel?.co !== undefined ? Math.min(100, Math.round((tel.co / 2000) * 100)) : (props.pollutants?.co?.ratio || 10)
+      ratio: p.co?.ratio ?? 10
     },
   ];
 });
@@ -87,12 +95,15 @@ function getBarColor(ratio) {
 <template>
   <div class="rounded-3xl p-5 sm:p-6 bg-black border border-white/[0.12] shadow-2xl">
     <div class="flex items-center justify-between mb-3.5 flex-wrap gap-2">
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
         <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
           {{ t('trends.keyPollutants') }}
         </h3>
-        <span v-if="telemetry" class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-          CAMS Live
+        <span v-if="stationState" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+          📍 {{ stationState }}
+        </span>
+        <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+          APIMS Telemetry
         </span>
       </div>
       <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">

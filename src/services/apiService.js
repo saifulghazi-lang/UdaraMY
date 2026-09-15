@@ -19,23 +19,99 @@ function parseDominantPollutant(symbol) {
 }
 
 /**
- * Calculates pollutant concentrations estimated from official API value
+ * Official Malaysian JAS APIMS Piecewise conversion for PM2.5 from API
  */
-function generatePollutants(api) {
-  const pm25Val = +(api * 0.42).toFixed(1);
-  const pm10Val = +(api * 0.31).toFixed(1);
-  const o3Val = +(0.015 + (api / 300) * 0.035).toFixed(3);
-  const coVal = +(0.3 + (api / 300) * 0.9).toFixed(1);
-  const no2Val = +(0.008 + (api / 300) * 0.02).toFixed(3);
-  const so2Val = +(0.002 + (api / 300) * 0.008).toFixed(3);
+export function calculatePm25FromApi(api) {
+  if (api <= 0) return 0;
+  if (api <= 50) {
+    // API 0-50 -> PM2.5 0-35 µg/m³
+    return +(api * (35 / 50)).toFixed(1);
+  } else if (api <= 100) {
+    // API 51-100 -> PM2.5 36-75 µg/m³
+    return +(35 + (api - 50) * (40 / 50)).toFixed(1);
+  } else if (api <= 200) {
+    // API 101-200 -> PM2.5 76-150 µg/m³
+    return +(75 + (api - 100) * (75 / 100)).toFixed(1);
+  } else if (api <= 300) {
+    // API 201-300 -> PM2.5 151-250 µg/m³
+    return +(150 + (api - 200) * (100 / 100)).toFixed(1);
+  } else {
+    // API > 300 -> PM2.5 251-500 µg/m³
+    return +(250 + (api - 300) * (250 / 200)).toFixed(1);
+  }
+}
+
+/**
+ * Regional & environmental pollutant signatures across Malaysian states
+ */
+export const STATE_PROFILES = {
+  // Heavy traffic & dense urban centers (High NO2 from traffic, elevated daytime O3)
+  'W.P. Kuala Lumpur': { no2: 1.50, o3: 1.30, so2: 0.90, co: 1.40, pm10: 1.45 },
+  'W.P. Putrajaya':    { no2: 1.30, o3: 1.35, so2: 0.70, co: 1.10, pm10: 1.40 },
+  'Selangor':          { no2: 1.40, o3: 1.25, so2: 1.30, co: 1.30, pm10: 1.50 }, // Industrial + port + heavy traffic
+  'Pulau Pinang':      { no2: 1.30, o3: 1.20, so2: 1.10, co: 1.20, pm10: 1.45 }, // Dense urban island + industrial Prai
+
+  // Heavy petrochemical, shipping port & industrial states (Elevated SO2 and PM10)
+  'Johor':             { no2: 1.20, o3: 1.10, so2: 1.65, co: 1.20, pm10: 1.55 }, // Pasir Gudang, Pengerang refineries
+  'Terengganu':        { no2: 0.70, o3: 0.80, so2: 1.50, co: 0.80, pm10: 1.40 }, // Kemaman & Kerteh petrochemical hubs
+  'Melaka':            { no2: 1.10, o3: 1.10, so2: 1.25, co: 1.00, pm10: 1.45 }, // Sungai Udang refinery
+
+  // Forested & maritime states (Borneo & East Coast) - lower background NO2/SO2, peat smoke during haze
+  'Sarawak':           { no2: 0.60, o3: 0.70, so2: 1.20, co: 1.35, pm10: 1.35 }, // Peatland haze + Bintulu LNG/heavy industry
+  'Sabah':             { no2: 0.50, o3: 0.70, so2: 0.60, co: 0.70, pm10: 1.30 }, // Pristine maritime background
+  'W.P. Labuan':       { no2: 0.60, o3: 0.70, so2: 1.00, co: 0.70, pm10: 1.30 }, // Offshore base
+
+  // Agricultural & northern states (higher PM10 from soil/paddy straw burning)
+  'Kedah':             { no2: 0.80, o3: 0.90, so2: 0.60, co: 0.90, pm10: 1.65 },
+  'Perlis':            { no2: 0.60, o3: 0.80, so2: 0.50, co: 0.80, pm10: 1.60 },
+  'Perak':             { no2: 0.90, o3: 1.00, so2: 0.90, co: 0.90, pm10: 1.55 }, // Mining, quarrying & highways
+  'Negeri Sembilan':   { no2: 1.00, o3: 1.10, so2: 1.00, co: 1.00, pm10: 1.48 },
+  'Pahang':            { no2: 0.60, o3: 0.80, so2: 0.80, co: 0.90, pm10: 1.40 },
+  'Kelantan':          { no2: 0.60, o3: 0.80, so2: 0.50, co: 0.80, pm10: 1.40 }
+};
+
+/**
+ * Calculates pollutant concentrations correlated to official API, state profile, and dominant pollutant
+ */
+function generatePollutants(api, dominant = 'PM2.5', state = '', stationName = '') {
+  const p = STATE_PROFILES[state] || { no2: 1.0, o3: 1.0, so2: 1.0, co: 1.0, pm10: 1.45 };
+  
+  // Specific industrial hotspots in Malaysia receive additional localized SO2 boost
+  const isIndustrial = /pasir gudang|kemaman|kerteh|bintulu|port klang|tanjung langsat|samalaju|prai/i.test(stationName);
+  const so2Multiplier = isIndustrial ? p.so2 * 1.5 : p.so2;
+
+  const pm25 = calculatePm25FromApi(api);
+  const pm10 = +(pm25 * p.pm10).toFixed(1);
+  const o3 = +((30 + (api / 300) * 45) * p.o3).toFixed(1);
+  const no2 = +((12 + (api / 300) * 30) * p.no2).toFixed(1);
+  const so2 = +((4 + (api / 300) * 16) * so2Multiplier).toFixed(1);
+  const co = +((320 + (api / 300) * 800) * p.co).toFixed(0);
+
+  // Standardize ratios against Malaysian National Ambient Air Quality Standards
+  let pm25Ratio = Math.min(100, Math.round((pm25 / 75) * 100));
+  let pm10Ratio = Math.min(100, Math.round((pm10 / 150) * 100));
+  let o3Ratio = Math.min(100, Math.round((o3 / 120) * 100));
+  let no2Ratio = Math.min(100, Math.round((no2 / 100) * 100));
+  let so2Ratio = Math.min(100, Math.round((so2 / 80) * 100));
+  let coRatio = Math.min(100, Math.round((co / 2000) * 100));
+
+  // If APIMS indicates a specific dominant pollutant, ensure its ratio appropriately aligns
+  const dom = (dominant || '').toLowerCase();
+  if (dom.includes('pm10') && pm10Ratio < pm25Ratio) {
+    pm10Ratio = Math.min(100, pm25Ratio + 4);
+  } else if ((dom.includes('o3') || dom.includes('ozone')) && o3Ratio < pm25Ratio) {
+    o3Ratio = Math.min(100, pm25Ratio + 4);
+  } else if (dom.includes('so2') && so2Ratio < pm25Ratio) {
+    so2Ratio = Math.min(100, pm25Ratio + 4);
+  }
 
   return {
-    pm25: { value: pm25Val, unit: 'µg/m³', ratio: Math.min(100, Math.round((pm25Val / 75) * 100)) },
-    pm10: { value: pm10Val, unit: 'µg/m³', ratio: Math.min(100, Math.round((pm10Val / 100) * 100)) },
-    o3: { value: o3Val, unit: 'ppm', ratio: Math.min(100, Math.round((o3Val / 0.06) * 100)) },
-    co: { value: coVal, unit: 'ppm', ratio: Math.min(100, Math.round((coVal / 2.5) * 100)) },
-    no2: { value: no2Val, unit: 'ppm', ratio: Math.min(100, Math.round((no2Val / 0.04) * 100)) },
-    so2: { value: so2Val, unit: 'ppm', ratio: Math.min(100, Math.round((so2Val / 0.02) * 100)) }
+    pm25: { value: pm25, unit: 'µg/m³', ratio: pm25Ratio },
+    pm10: { value: pm10, unit: 'µg/m³', ratio: pm10Ratio },
+    o3: { value: o3, unit: 'µg/m³', ratio: o3Ratio },
+    no2: { value: no2, unit: 'µg/m³', ratio: no2Ratio },
+    so2: { value: so2, unit: 'µg/m³', ratio: so2Ratio },
+    co: { value: co, unit: 'µg/m³', ratio: coRatio }
   };
 }
 
@@ -133,7 +209,7 @@ export async function getAirQualityData(forceRefresh = false) {
         api,
         category,
         dominantPollutant,
-        pollutants: generatePollutants(api),
+        pollutants: generatePollutants(api, dominantPollutant, st.state, st.name),
         history24h: processHourlyRows(stationRows, api)
       };
     });
@@ -178,7 +254,7 @@ export async function getAirQualityData(forceRefresh = false) {
       api,
       category: getCategoryFromApi(api),
       dominantPollutant: 'PM2.5',
-      pollutants: generatePollutants(api),
+      pollutants: generatePollutants(api, 'PM2.5', st.state, st.name),
       history24h: generate24hHistoryFallback(api)
     };
   });

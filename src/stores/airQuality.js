@@ -73,7 +73,7 @@ export const useAirQualityStore = defineStore('airQuality', {
           ...st,
           api,
           category: getCategoryFromApi(api),
-          pollutants: generatePollutants(api),
+          pollutants: generatePollutants(api, st.dominantPollutant, st.state, st.name),
           history24h: generate24hHistory(api)
         };
       }

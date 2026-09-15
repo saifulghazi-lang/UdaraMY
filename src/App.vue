@@ -293,6 +293,8 @@ onMounted(() => {
             <PollutantBars
               :pollutants="store.currentStation.pollutants"
               :dominant="store.currentStation.dominantPollutant"
+              :station-state="store.currentStation.state"
+              :station-name="store.currentStation.name"
               :telemetry="store.forecast?.currentPollutants"
             />
             <HazeCalendarGrid

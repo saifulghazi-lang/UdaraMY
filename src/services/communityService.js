@@ -4,6 +4,8 @@
  * with the US-EPA Tropical Humidity Correction Formula to eliminate morning dew/fog false alarms.
  */
 
+import { generatePollutants } from './apiService.js';
+
 const STORAGE_KEY = 'udaramy_custom_community_nodes';
 
 // Pre-seeded registry of key Malaysian citizen & school community nodes
@@ -239,6 +241,7 @@ export function getAllCommunitySensors(userLocation = null) {
       api,
       category,
       dominantPollutant: 'PM2.5 (Laser Count)',
+      pollutants: generatePollutants(api, 'PM2.5', node.state, node.name),
       isLive: true,
       lastUpdated: now.toISOString(),
       distanceKm: null
