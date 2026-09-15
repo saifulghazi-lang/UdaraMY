@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { X, Download, Sliders, Bell, Globe, ShieldCheck } from 'lucide-vue-next';
+import { X, Download, Sliders, Bell, Globe, ShieldCheck, Users, Plus, Trash2 } from 'lucide-vue-next';
+import { useAirQualityStore } from '../stores/airQuality.js';
+import { saveCustomCommunitySensor } from '../services/communityService.js';
 
 const props = defineProps({
   isOpen: {
@@ -16,6 +18,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'setSimulation', 'clearSimulation']);
 const { t, locale } = useI18n();
+const store = useAirQualityStore();
 
 const deferredPrompt = ref(null);
 const isInstalled = ref(false);
@@ -191,6 +194,31 @@ onMounted(() => {
               class="w-full accent-indigo-500 cursor-pointer"
             />
           </div>
+        </div>
+
+        <!-- Crowdsourced Community Sensors Setting -->
+        <div class="bg-neutral-950 border border-white/10 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <Users class="w-4 h-4 text-purple-400" />
+              <div>
+                <div class="font-bold text-neutral-200">Sensor Komuniti Warga</div>
+                <div class="text-[10px] text-neutral-400">PurpleAir & AirVisual (Kalibrasi EPA)</div>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                :checked="store.showCommunitySensors"
+                @change="store.toggleCommunitySensors()"
+                class="sr-only peer"
+              >
+              <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+            </label>
+          </div>
+          <p class="text-[11px] text-neutral-400 leading-relaxed">
+            Paparkan stesen komuniti sekolah dan kejiranan di atas peta. Dilengkapi formula pelarasan kelembapan US-EPA bagi mengelakkan amaran palsu kabus pagi.
+          </p>
         </div>
 
         <!-- Notification Preferences -->

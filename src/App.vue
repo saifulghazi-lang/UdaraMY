@@ -233,6 +233,7 @@ onMounted(() => {
             <TrendChart
               :history="store.currentStation.history24h"
               :current-api="store.currentStation.api"
+              :forecast="store.forecast"
             />
 
             <HazeHotspotWidget
