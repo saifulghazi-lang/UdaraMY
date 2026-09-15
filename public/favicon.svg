@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="squircle-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141c2b"/>
+      <stop offset="50%" stop-color="#0e1420"/>
+      <stop offset="100%" stop-color="#080b12"/>
+    </linearGradient>
+
+    <!-- Outer Squircle Border Gradient -->
+    <linearGradient id="border-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.2"/>
+    </linearGradient>
+
+    <!-- Left Outer Crest Gradient -->
+    <linearGradient id="crest-left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="30%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <!-- Main Cyan/Blue Ribbon Flow -->
+    <linearGradient id="ribbon-cyan" x1="0%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="40%" stop-color="#0ea5e9"/>
+      <stop offset="75%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+
+    <!-- Bottom Wave Accent Gradient -->
+    <linearGradient id="bottom-waves" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="50%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <!-- Center U-Loop (Transition Cyan to Emerald) -->
+    <linearGradient id="loop-flow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="25%" stop-color="#06b6d4"/>
+      <stop offset="65%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+
+    <!-- Right Emerald Ribbon -->
+    <linearGradient id="ribbon-emerald" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="45%" stop-color="#10b981"/>
+      <stop offset="85%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#6ee7b7"/>
+    </linearGradient>
+
+    <!-- Spark Glow Filter -->
+    <filter id="spark-halo" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="16" result="blur1"/>
+      <feGaussianBlur stdDeviation="8" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <radialGradient id="spark-glow-grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#34d399"/>
+      <stop offset="70%" stop-color="#06b6d4" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Dark Squircle Background -->
+  <rect width="512" height="512" rx="124" fill="url(#squircle-bg)"/>
+  <rect x="3" y="3" width="506" height="506" rx="121" fill="none" stroke="url(#border-grad)" stroke-width="3.5"/>
+
+  <!-- AERODYNAMIC 'U' STREAM -->
+  <g transform="translate(256, 252) scale(1.32) translate(-256, -260)">
+    <!-- 1. Left Wing Flare (Top Outward Wing) -->
+    <path d="M 158 142 C 168 152, 172 178, 172 208 C 172 238, 168 268, 180 292 C 182 280, 182 258, 182 232 C 182 195, 176 165, 158 142 Z"
+          fill="url(#crest-left)"/>
+
+    <!-- 2. Outer Left Swoop Stream -->
+    <path d="M 170 148 C 196 166, 204 220, 202 278 C 200 328, 222 364, 258 368 C 298 372, 342 344, 382 292 C 342 334, 296 350, 256 344 C 220 338, 208 304, 206 262 C 204 212, 196 168, 170 148 Z"
+          fill="url(#ribbon-cyan)"/>
+
+    <!-- 3. Bottom Layered Flow Blades (Aerodynamic Feathers) -->
+    <path d="M 178 272 C 186 312, 214 366, 268 382 C 318 396, 368 364, 404 316 C 362 354, 314 374, 266 364 C 218 354, 188 312, 178 272 Z"
+          fill="url(#bottom-waves)" opacity="0.95"/>
+
+    <path d="M 214 330 C 238 372, 282 400, 332 400 C 374 400, 412 376, 440 340 C 404 370, 362 384, 328 382 C 282 378, 244 354, 214 330 Z"
+          fill="url(#bottom-waves)" opacity="0.8"/>
+
+    <!-- 4. Main Central 'U' Stream (Dual-Tone Cyan-Emerald) -->
+    <path d="M 204 158 C 218 194, 224 252, 228 302 C 232 340, 252 358, 286 354 C 322 350, 344 322, 354 282 C 366 234, 368 184, 348 146 C 354 186, 350 240, 338 284 C 328 318, 308 334, 284 334 C 258 334, 248 314, 244 282 C 238 238, 228 188, 204 158 Z"
+          fill="url(#loop-flow)"/>
+
+    <!-- 5. Right Upward Stream (Emerald Ascent) -->
+    <path d="M 284 334 C 314 334, 332 312, 344 278 C 358 238, 366 192, 346 148 C 352 186, 348 232, 336 270 C 326 304, 308 322, 284 334 Z"
+          fill="url(#ribbon-emerald)"/>
+
+    <!-- 6. Right Wing Tip Crest -->
+    <path d="M 346 148 C 342 168, 334 200, 318 236 C 314 220, 324 186, 338 158 C 342 152, 344 148, 346 148 Z"
+          fill="#6ee7b7" opacity="0.9"/>
+
+    <!-- 7. Glowing Clean Air Particle / Spark -->
+    <g transform="translate(352, 142)">
+      <!-- Diffuse Ambient Glow -->
+      <circle cx="0" cy="0" r="38" fill="url(#spark-glow-grad)" filter="url(#spark-halo)" opacity="0.75"/>
+      <!-- Inner Core Halo -->
+      <circle cx="0" cy="0" r="18" fill="#34d399" opacity="0.4"/>
+      <!-- Brilliant Core -->
+      <circle cx="0" cy="0" r="11" fill="#34d399"/>
+      <circle cx="0" cy="0" r="6.5" fill="#ffffff"/>
+    </g>
+  </g>
+</svg>

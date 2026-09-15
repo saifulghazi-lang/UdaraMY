@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api3/:match*",
+      "destination": "https://eqms.doe.gov.my/api3/:match*"
+    }
+  ]
+}

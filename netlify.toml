@@ -1,0 +1,15 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[[redirects]]
+  from = "/api3/*"
+  to = "https://eqms.doe.gov.my/api3/:splat"
+  status = 200
+  force = true
+  headers = { Referer = "https://eqms.doe.gov.my/APIMS/main", User-Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0" }
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
