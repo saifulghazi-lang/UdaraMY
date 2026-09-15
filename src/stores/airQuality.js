@@ -3,6 +3,8 @@ import { getAirQualityData, generate24hHistory, generatePollutants } from '../se
 import { getCategoryFromApi } from '../data/stations.js';
 import { getUserCoordinates, findNearestStation, calculateDistanceKm } from '../services/locationService.js';
 import { getLiveHotspots } from '../services/hotspotService.js';
+import { getAllCommunitySensors, saveCustomCommunitySensor, removeCustomCommunitySensor } from '../services/communityService.js';
+import { fetchAirQualityForecast } from '../services/airQualityForecastService.js';
 
 const WATCHLIST_STORAGE_KEY = 'udaramy_watchlist';
 const PROFILE_STORAGE_KEY = 'udaramy_profile';
@@ -41,6 +43,10 @@ export const useAirQualityStore = defineStore('airQuality', {
       locationError: null,
       watchlist: savedWatchlist,
       activeProfile: savedProfile,
+      communitySensors: [],
+      showCommunitySensors: true,
+      forecast: null,
+      isForecastLoading: false,
       hotspots: {
         sumatra: 142,
         kalimantan: 89,
@@ -54,7 +60,11 @@ export const useAirQualityStore = defineStore('airQuality', {
 
   getters: {
     currentStation(state) {
-      const st = state.stations.find(s => s.id === state.selectedStationId) || state.stations[0];
+      let st = state.stations.find(s => s.id === state.selectedStationId);
+      if (!st && state.showCommunitySensors) {
+        st = state.communitySensors.find(s => s.id === state.selectedStationId);
+      }
+      if (!st) st = state.stations[0];
       if (!st) return null;
 
       if (state.simulationApi !== null) {
@@ -68,6 +78,26 @@ export const useAirQualityStore = defineStore('airQuality', {
         };
       }
       return st;
+    },
+
+    allDisplayStations(state) {
+      if (!state.showCommunitySensors) return state.stations;
+      return [...state.stations, ...state.communitySensors];
+    },
+
+    nearestCommunitySensor(state) {
+      if (!state.userLocation || !state.communitySensors.length) return null;
+      let closest = null;
+      let minDistance = Infinity;
+
+      for (const node of state.communitySensors) {
+        const dist = calculateDistanceKm(state.userLocation.lat, state.userLocation.lng, node.lat, node.lng);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closest = { ...node, distanceKm: dist };
+        }
+      }
+      return closest;
     },
 
     filteredStations(state) {
@@ -140,13 +170,15 @@ export const useAirQualityStore = defineStore('airQuality', {
     async init() {
       this.isLoading = true;
       try {
+        this.refreshCommunitySensors();
         await Promise.allSettled([
           getAirQualityData().then(data => {
             this.stations = data.stations;
             this.lastUpdated = data.updatedAt;
             this.isLive = data.isLive;
           }),
-          this.fetchHotspots()
+          this.fetchHotspots(),
+          this.fetchForecast()
         ]);
 
         if (navigator.geolocation) {
@@ -165,9 +197,11 @@ export const useAirQualityStore = defineStore('airQuality', {
     async refreshData(includeLocation = true) {
       this.isRefreshing = true;
       try {
+        this.refreshCommunitySensors();
         const [data] = await Promise.all([
           getAirQualityData(true),
           this.fetchHotspots(),
+          this.fetchForecast(),
           includeLocation && navigator.geolocation ? this.detectUserLocation(false) : Promise.resolve()
         ]);
         if (data && Array.isArray(data.stations)) {
@@ -179,6 +213,29 @@ export const useAirQualityStore = defineStore('airQuality', {
         console.error('Refresh air quality error:', err);
       } finally {
         this.isRefreshing = false;
+      }
+    },
+
+    refreshCommunitySensors() {
+      this.communitySensors = getAllCommunitySensors(this.userLocation);
+    },
+
+    toggleCommunitySensors(val) {
+      this.showCommunitySensors = typeof val === 'boolean' ? val : !this.showCommunitySensors;
+    },
+
+    async fetchForecast(coords = null) {
+      this.isForecastLoading = true;
+      try {
+        const loc = coords || (this.currentStation ? { lat: this.currentStation.lat, lng: this.currentStation.lng } : { lat: 3.139, lng: 101.6869 });
+        const res = await fetchAirQualityForecast(loc.lat, loc.lng);
+        if (res) {
+          this.forecast = res;
+        }
+      } catch (err) {
+        console.warn('Forecast fetch error:', err);
+      } finally {
+        this.isForecastLoading = false;
       }
     },
 
@@ -200,6 +257,7 @@ export const useAirQualityStore = defineStore('airQuality', {
       try {
         const coords = await getUserCoordinates();
         this.userLocation = coords;
+        this.refreshCommunitySensors();
 
         if (autoSelect && this.stations.length > 0) {
           const nearest = findNearestStation(coords.lat, coords.lng, this.stations);
@@ -207,8 +265,9 @@ export const useAirQualityStore = defineStore('airQuality', {
             this.selectedStationId = nearest.id;
           }
         }
-        // Update wind for user's detected location
+        // Update wind & forecast for user's detected location
         this.fetchHotspots(coords);
+        this.fetchForecast(coords);
         return coords;
       } catch (err) {
         console.warn('Geolocation detection error:', err.message);
@@ -222,9 +281,10 @@ export const useAirQualityStore = defineStore('airQuality', {
     selectStation(id) {
       this.selectedStationId = id;
       this.simulationApi = null;
-      const st = this.stations.find(s => s.id === id);
+      const st = this.allDisplayStations.find(s => s.id === id);
       if (st) {
         this.fetchHotspots({ lat: st.lat, lng: st.lng });
+        this.fetchForecast({ lat: st.lat, lng: st.lng });
       }
     },
 

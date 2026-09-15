@@ -243,6 +243,7 @@ onMounted(() => {
             <PollutantBars
               :pollutants="store.currentStation.pollutants"
               :dominant="store.currentStation.dominantPollutant"
+              :telemetry="store.forecast?.currentPollutants"
             />
           </div>
         </div>
@@ -257,9 +258,12 @@ onMounted(() => {
       <template v-else-if="currentTab === 'map'">
         <StationMapView
           :stations="store.stations"
+          :community-sensors="store.communitySensors"
+          :show-community="store.showCommunitySensors"
           :selected-station-id="store.selectedStationId"
           :user-location="store.userLocation"
           :is-locating="store.isLocating"
+          @toggle-community="store.toggleCommunitySensors"
           @select-station="(id) => { store.selectStation(id); }"
           @view-dashboard="() => { currentTab = 'dashboard'; }"
           @locate-me="store.detectUserLocation(true)"

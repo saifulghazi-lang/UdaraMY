@@ -11,6 +11,14 @@ const props = defineProps({
     type: Array,
     required: true
   },
+  communitySensors: {
+    type: Array,
+    default: () => []
+  },
+  showCommunity: {
+    type: Boolean,
+    default: true
+  },
   selectedStationId: {
     type: String,
     default: ''
@@ -25,11 +33,12 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['selectStation', 'viewDashboard', 'locateMe']);
+const emit = defineEmits(['selectStation', 'viewDashboard', 'locateMe', 'toggleCommunity']);
 const { t } = useI18n();
 
 const mapContainer = ref(null);
 const currentFilter = ref('All');
+const networkFilter = ref('all'); // 'all' | 'official' | 'community'
 const searchQuery = ref('');
 const sortBy = ref('api_desc'); // 'api_desc' | 'distance_asc' | 'name_asc'
 const mapViewMode = ref('both'); // 'both' | 'heatmap' | 'pins'
@@ -49,9 +58,19 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Combined stations based on network filter and community toggle
+const combinedStations = computed(() => {
+  const official = props.stations.map(s => ({ ...s, isCommunity: false }));
+  const community = (props.showCommunity ? props.communitySensors : []).map(s => ({ ...s, isCommunity: true }));
+  
+  if (networkFilter.value === 'official') return official;
+  if (networkFilter.value === 'community') return community;
+  return [...official, ...community];
+});
+
 // Filter & Sort stations for the side list
 const displayedStations = computed(() => {
-  let list = props.stations.map(st => {
+  let list = combinedStations.value.map(st => {
     const distanceKm = props.userLocation
       ? calculateDistanceKm(props.userLocation.lat, props.userLocation.lng, st.lat, st.lng)
       : null;
@@ -59,7 +78,10 @@ const displayedStations = computed(() => {
   }).filter(st => {
     const matchesRegion = currentFilter.value === 'All' || st.region === currentFilter.value;
     const q = searchQuery.value.toLowerCase().trim();
-    const matchesQuery = !q || st.name.toLowerCase().includes(q) || st.state.toLowerCase().includes(q);
+    const matchesQuery = !q || 
+      st.name.toLowerCase().includes(q) || 
+      st.state.toLowerCase().includes(q) ||
+      (st.subTitle && st.subTitle.toLowerCase().includes(q));
     return matchesRegion && matchesQuery;
   });
 
@@ -75,6 +97,38 @@ const displayedStations = computed(() => {
 function createMarkerIcon(station) {
   const color = getCategoryColor(station.category);
   const isSelected = station.id === props.selectedStationId;
+
+  if (station.isCommunity) {
+    const html = `
+      <div style="
+        background-color: #000000;
+        color: ${color};
+        font-weight: 900;
+        font-size: 10px;
+        font-family: monospace;
+        width: ${isSelected ? '36px' : '28px'};
+        height: ${isSelected ? '36px' : '28px'};
+        border-radius: 9999px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 ${isSelected ? '16px' : '8px'} ${color}99;
+        border: ${isSelected ? '2.5px solid #ffffff' : `2px dashed ${color}`};
+        transform: translate(-50%, -50%);
+        transition: all 0.2s ease;
+        cursor: pointer;
+      ">
+        <span style="font-size: 7px; line-height: 1; margin-top: -1px;">👥</span>
+        <span style="line-height: 1;">${station.api}</span>
+      </div>
+    `;
+    return L.divIcon({
+      html,
+      className: 'custom-community-pin',
+      iconSize: [28, 28]
+    });
+  }
 
   const html = `
     <div style="
@@ -225,18 +279,43 @@ function renderMarkers() {
   const showPins = mapViewMode.value !== 'heatmap';
 
   if (showPins) {
-    props.stations.forEach(st => {
+    combinedStations.value.forEach(st => {
       const icon = createMarkerIcon(st);
       const marker = L.marker([st.lat, st.lng], { icon });
 
       const distStr = st.distanceKm !== undefined && st.distanceKm !== null ? ` • ${st.distanceKm} km away` : '';
 
+      const communityHeaderHtml = st.isCommunity ? `
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 4px;">
+          <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 9999px; background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); text-transform: uppercase;">
+            👥 Citizen Node (Unvalidated)
+          </span>
+          <span style="font-size: 8px; color: #94a3b8; font-family: monospace;">${st.sensorModel?.split(' ')[0] || 'Sensor'}</span>
+        </div>
+      ` : '';
+
+      const communityMetricsHtml = st.isCommunity ? `
+        <div style="background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 8px; margin-top: 6px; font-size: 10px; color: #cbd5e1;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #94a3b8;">PM2.5 Mentah:</span>
+            <span style="font-weight: 700; font-family: monospace;">${st.rawPm25} µg/m³</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 2px;">
+            <span style="color: #38bdf8;">EPA Kalibrasi (RH ${st.humidity}%):</span>
+            <span style="font-weight: 700; color: #38bdf8; font-family: monospace;">${st.calibratedPm25} µg/m³</span>
+          </div>
+        </div>
+      ` : '';
+
       const popupHtml = `
-        <div style="font-family: system-ui, sans-serif; min-width: 170px;">
+        <div style="font-family: system-ui, sans-serif; min-width: 180px;">
+          ${communityHeaderHtml}
           <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">${st.state}${distStr}</div>
-          <div style="font-size: 14px; font-weight: 800; color: #f8fafc; margin-top: 2px;">${st.name}</div>
+          <div style="font-size: 13px; font-weight: 800; color: #f8fafc; margin-top: 2px;">${st.name}</div>
+          ${st.subTitle ? `<div style="font-size: 9px; color: #94a3b8; margin-top: 1px;">${st.subTitle}</div>` : ''}
+          ${communityMetricsHtml}
           <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px;">
-            <span style="font-size: 11px; color: #cbd5e1; text-transform: capitalize;">${st.category}</span>
+            <span style="font-size: 11px; color: #cbd5e1; text-transform: capitalize;">${st.isCommunity ? 'API Setara' : st.category}</span>
             <span style="font-size: 16px; font-weight: 900; color: ${getCategoryColor(st.category)}; font-family: monospace;">API ${st.api}</span>
           </div>
           <div style="display: flex; gap: 6px; margin-top: 10px;">
@@ -302,7 +381,7 @@ function renderMarkers() {
 
 function onStationClick(id, shouldOpenPopup = true) {
   emit('selectStation', id);
-  const st = props.stations.find(s => s.id === id);
+  const st = combinedStations.value.find(s => s.id === id);
   if (st && map) {
     map.flyTo([st.lat, st.lng], 9, { duration: 0.8 });
     if (shouldOpenPopup && markerMap[id]) {
@@ -387,7 +466,7 @@ onMounted(() => {
   });
 });
 
-watch(() => props.stations, () => {
+watch(() => [props.stations, props.communitySensors, props.showCommunity, networkFilter.value], () => {
   renderMarkers();
   drawHeatmap();
 }, { deep: true });
@@ -412,20 +491,48 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="space-y-3">
-    <!-- Header with Subtitle, Mode Switcher & Regional Filters -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+    <!-- Header with Subtitle, Mode Switcher, Network Filter & Regional Filters -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
       <div>
         <h2 class="text-base font-extrabold text-slate-100 flex items-center gap-2">
           <span>{{ t('map.title') }}</span>
           <span class="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-            {{ stations.length }} stesen
+            {{ combinedStations.length }} stesen
+          </span>
+          <span v-if="communitySensors.length > 0" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            👥 +{{ communitySensors.length }} komuniti
           </span>
         </h2>
         <p class="text-xs text-slate-400 mt-0.5">{{ t('map.sub') }}</p>
       </div>
 
-      <!-- Controls: Heatmap Mode & Region Filter -->
+      <!-- Controls: Source Network, Heatmap Mode & Region Filter -->
       <div class="flex flex-wrap items-center gap-2">
+        <!-- Source Network Selector (All, Official JAS, Community) -->
+        <div class="flex items-center gap-1 bg-black border border-white/10 rounded-2xl p-1 text-xs">
+          <button
+            @click="networkFilter = 'all'"
+            :class="['px-2.5 py-1 rounded-xl font-medium transition flex items-center gap-1', networkFilter === 'all' ? 'bg-indigo-600 text-white shadow' : 'text-neutral-400 hover:text-white']"
+            title="Papar semua stesen rasmi JAS dan sensor komuniti"
+          >
+            <span>Semua</span>
+          </button>
+          <button
+            @click="networkFilter = 'official'"
+            :class="['px-2.5 py-1 rounded-xl font-medium transition flex items-center gap-1', networkFilter === 'official' ? 'bg-indigo-600 text-white shadow' : 'text-neutral-400 hover:text-white']"
+            title="Hanya stesen rasmi JAS APIMS"
+          >
+            <span>🏛️ JAS ({{ stations.length }})</span>
+          </button>
+          <button
+            @click="networkFilter = 'community'"
+            :class="['px-2.5 py-1 rounded-xl font-medium transition flex items-center gap-1', networkFilter === 'community' ? 'bg-purple-600 text-white shadow' : 'text-neutral-400 hover:text-white']"
+            title="Sensor komuniti warga (PurpleAir / AirVisual)"
+          >
+            <span>👥 Komuniti ({{ communitySensors.length }})</span>
+          </button>
+        </div>
+
         <!-- Heatmap / Layer Mode Selector -->
         <div class="flex items-center gap-1 bg-black border border-white/10 rounded-2xl p-1 text-xs">
           <button
@@ -575,6 +682,12 @@ onBeforeUnmount(() => {
               <div class="font-bold text-white text-xs truncate flex items-center gap-1.5 flex-wrap">
                 <span class="truncate">{{ st.name }}</span>
                 <span
+                  v-if="st.isCommunity"
+                  class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-500/30 text-purple-300 border border-purple-500/40 shrink-0"
+                >
+                  👥 Komuniti
+                </span>
+                <span
                   v-if="st.id === selectedStationId"
                   class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-500/30 text-indigo-300 shrink-0"
                 >
@@ -588,6 +701,7 @@ onBeforeUnmount(() => {
                 </span>
               </div>
               <div class="text-[10px] text-neutral-400 mt-0.5 truncate">
+                <span v-if="st.isCommunity" class="text-purple-400/90 font-medium">{{ st.sensorModel }} • </span>
                 {{ st.state }} • {{ st.region }}
               </div>
             </div>
