@@ -104,11 +104,11 @@ onMounted(() => {
         </div>
 
         <!-- PWA Install Banner -->
-        <div class="bg-gradient-to-r from-indigo-950/60 to-purple-950/60 border border-indigo-500/30 rounded-2xl p-4 flex items-start gap-3">
+        <div class="bg-neutral-950 border border-white/10 rounded-2xl p-4 flex items-start gap-3">
           <img
             src="/pwa-192x192.png"
             alt="UdaraMY"
-            class="w-10 h-10 rounded-xl shadow-lg shadow-cyan-500/20 shrink-0 select-none object-contain border border-indigo-500/40"
+            class="w-10 h-10 rounded-xl shadow-lg shadow-cyan-500/10 shrink-0 select-none object-contain border border-white/10"
           />
           <div class="flex-1">
             <h4 class="font-bold text-white">{{ t('settings.pwa') }}</h4>

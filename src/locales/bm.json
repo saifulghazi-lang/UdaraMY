@@ -18,7 +18,11 @@
     "resetSimulator": "Kembali ke Data Sebenar",
     "timelapse": "Selang Masa 24 Jam",
     "playTimelapse": "Main Selang Masa",
-    "pauseTimelapse": "Jeda Selang Masa"
+    "pauseTimelapse": "Jeda Selang Masa",
+    "detailedAnalysis": "Analisis Terperinci & Sejarah",
+    "detailedAnalysisSubtitle": "Pecahan kimia (PM2.5, PM10, O₃, NO₂, SO₂, CO) & corak jerebu tahunan 365 hari",
+    "detailedAnalysisDesc": "Klik untuk memaparkan telemetri terperinci",
+    "hideDetailedAnalysis": "Klik untuk menutup data terperinci"
   },
   "location": {
     "locateMe": "Cari Lokasi Saya",
@@ -201,5 +205,26 @@
     "subtitle": "Kitaran Monsun Barat Daya (365 hari)",
     "hazeSeason": "Musim Jerebu (Ogos - Okt)",
     "cleanSeason": "Musim Bersih Tengkujuh (Nov - Feb)"
+  },
+  "community": {
+    "badge": "Sensor Komuniti Warga",
+    "unvalidated": "Tidak Disahkan",
+    "rawPm25": "PM2.5 Mentah",
+    "calibratedPm25": "EPA Kalibrasi",
+    "humidity": "Kelembapan Udara",
+    "equivApi": "API Setara",
+    "layerTitle": "Sensor Komuniti Warga",
+    "layerDesc": "Sensor optik kejiranan dan sekolah (PurpleAir / AirVisual) dengan pelarasan kelembapan tropika."
+  },
+  "forecast": {
+    "title": "48-Jam Ramalan Jerebu",
+    "subtitle": "Projeksi model kimia atmosfera Copernicus CAMS setiap jam",
+    "historyTab": "24j Lalu (JAS)",
+    "forecastTab": "48j Ramalan (CAMS)",
+    "trendImproving": "Bertambah Baik",
+    "trendDeteriorating": "Dijangka Meningkat",
+    "trendSteady": "Stabil",
+    "peakHaze": "Waktu Puncak",
+    "scrubTime": "Waktu Ramalan"
   }
 }

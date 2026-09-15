@@ -1,13 +1,9 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { 
   MapPin, 
-  RefreshCw, 
   ChevronRight, 
-  LocateFixed, 
-  Share2, 
-  Sliders, 
   RotateCcw,
   Sparkles
 } from 'lucide-vue-next';
@@ -33,14 +29,6 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  isLocating: {
-    type: Boolean,
-    default: false
-  },
-  isRefreshing: {
-    type: Boolean,
-    default: false
-  },
   isSimulating: {
     type: Boolean,
     default: false
@@ -49,15 +37,10 @@ const props = defineProps({
 
 const emit = defineEmits([
   'openStationSelector', 
-  'locateMe', 
-  'refreshData', 
-  'openShareModal',
-  'setSimulation',
   'clearSimulation'
 ]);
 
 const { t } = useI18n();
-const isSimulatorOpen = ref(false);
 
 const category = computed(() => props.station.category);
 const api = computed(() => props.station.api);
@@ -157,20 +140,6 @@ const particles = computed(() => {
     duration: (Math.random() * 4 + 4).toFixed(1) + 's'
   }));
 });
-
-function handleSliderChange(e) {
-  const val = parseInt(e.target.value, 10);
-  emit('setSimulation', val);
-}
-
-function handlePreset(val) {
-  emit('setSimulation', val);
-}
-
-function handleResetSimulation() {
-  emit('clearSimulation');
-  isSimulatorOpen.value = false;
-}
 </script>
 
 <template>
@@ -203,75 +172,51 @@ function handleResetSimulation() {
       />
     </div>
 
-    <!-- Header: Station Switcher & Controls -->
+    <!-- Header: Station Switcher & Status -->
     <div class="flex items-start justify-between relative z-10 gap-3">
-      <!-- Station Information -->
+      <!-- Station Information & Quick Switcher -->
       <button
         @click="emit('openStationSelector')"
-        class="text-left group focus:outline-none"
+        class="text-left group focus:outline-none flex-1 transition"
       >
         <div class="flex items-center gap-1.5 text-slate-400 text-xs font-semibold uppercase tracking-wider flex-wrap">
           <MapPin class="w-3.5 h-3.5 text-cyan-400" />
           <span>{{ station.state }}</span>
           <span
             v-if="distanceKm !== null"
-            class="text-[9px] px-2 py-0.5 rounded-full bg-neutral-900 text-slate-300 font-mono border border-white/10"
+            class="text-[10px] px-2 py-0.5 rounded-full bg-neutral-900 text-slate-300 font-mono border border-white/10"
           >
             {{ distanceKm }} km
           </span>
           <span
             v-if="isNearest"
-            class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold"
+            class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold"
           >
             📍 {{ t('location.nearest') }}
           </span>
         </div>
         <div class="flex items-center gap-1.5 mt-1">
-          <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white group-hover:text-cyan-300 transition-colors">
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white group-hover:text-cyan-300 transition-colors">
             {{ station.name }}
           </h2>
-          <ChevronRight class="w-4 h-4 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all" />
+          <ChevronRight class="w-5 h-5 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all" />
         </div>
       </button>
 
-      <!-- Action Buttons (Refresh, Locate, Share) -->
-      <div class="flex items-center gap-1.5 shrink-0">
-        <!-- Dedicated Location & Data Refresh Button -->
-        <button
-          @click="emit('refreshData')"
-          :disabled="isRefreshing"
-          class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-black hover:bg-neutral-950 border border-white/10 hover:border-white/25 text-slate-300 hover:text-white text-xs font-semibold transition shadow-sm focus:outline-none active:scale-95"
-          :title="isRefreshing ? t('app.refreshing') : t('app.refresh')"
-        >
-          <RefreshCw :class="['w-3.5 h-3.5 text-cyan-400', isRefreshing ? 'animate-spin' : '']" />
-          <span class="hidden sm:inline text-[11px]">
-            {{ isRefreshing ? t('app.refreshing') : t('app.refresh') }}
-          </span>
-        </button>
-
-        <!-- Quick GPS Locate Button -->
-        <button
-          @click="emit('locateMe')"
-          :disabled="isLocating"
-          class="p-2 rounded-xl bg-black hover:bg-neutral-950 border border-white/10 hover:border-white/25 text-slate-300 hover:text-white transition focus:outline-none active:scale-95"
-          :title="isLocating ? t('location.locating') : t('location.locateMe')"
-        >
-          <LocateFixed :class="['w-3.5 h-3.5 text-cyan-400', isLocating ? 'animate-spin text-amber-300' : '']" />
-        </button>
-
-        <!-- Share Story Button -->
-        <button
-          @click="emit('openShareModal')"
-          class="p-2 rounded-xl bg-black hover:bg-neutral-950 border border-white/10 hover:border-white/25 text-slate-300 hover:text-white transition focus:outline-none active:scale-95"
-          :title="t('share.button')"
-        >
-          <Share2 class="w-3.5 h-3.5 text-cyan-400" />
-        </button>
-      </div>
+      <!-- Active Simulation Reset Pill if simulation is running -->
+      <button
+        v-if="isSimulating"
+        @click="emit('clearSimulation')"
+        class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-mono font-bold hover:bg-amber-500/30 transition shadow-md active:scale-95 cursor-pointer"
+        :title="t('app.resetSimulator')"
+      >
+        <RotateCcw class="w-3.5 h-3.5 text-amber-400" />
+        <span>SIMULATION</span>
+      </button>
     </div>
 
     <!-- Timestamp & Data Source Indicator -->
-    <div class="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.06] text-[11px] text-neutral-400 relative z-10">
+    <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-white/[0.08] text-xs text-neutral-400 relative z-10">
       <span class="inline-flex items-center gap-1.5 font-mono">
         <span :class="['w-2 h-2 rounded-full', isLive ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-600']"></span>
         <span class="text-neutral-300 font-semibold uppercase tracking-wider text-[10px]">{{ isLive ? t('app.live') : 'CACHED' }}</span>
@@ -279,15 +224,7 @@ function handleResetSimulation() {
         <span>{{ t('app.updatedAt', { time: formattedTime }) }}</span>
       </span>
 
-      <!-- Simulation Badge if active -->
-      <span
-        v-if="isSimulating"
-        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold animate-pulse"
-      >
-        <Sparkles class="w-3 h-3" />
-        SIMULATION
-      </span>
-      <span v-else class="text-[10px] text-slate-500 font-mono hidden sm:inline">
+      <span class="text-[10px] text-slate-500 font-mono hidden sm:inline">
         {{ t('app.dataSource') }}
       </span>
     </div>
@@ -378,80 +315,6 @@ function handleResetSimulation() {
       <p class="text-slate-200 leading-relaxed font-medium flex-1">
         {{ t(`advice.${category}`) }}
       </p>
-    </div>
-
-    <!-- Interactive "Scrub the Sky" Haze Simulator Toggle -->
-    <div class="mt-4 pt-3 border-t border-white/[0.08] relative z-10">
-      <div class="flex items-center justify-between text-xs">
-        <button
-          @click="isSimulatorOpen = !isSimulatorOpen"
-          class="flex items-center gap-1.5 font-medium text-cyan-400 hover:text-cyan-300 transition focus:outline-none"
-        >
-          <Sliders class="w-3.5 h-3.5" />
-          <span>{{ t('app.simulator') }}</span>
-          <span class="text-[10px] text-slate-500 font-mono">({{ isSimulatorOpen ? 'Hide' : 'Interactive' }})</span>
-        </button>
-
-        <button
-          v-if="isSimulating"
-          @click="handleResetSimulation"
-          class="flex items-center gap-1 text-[11px] font-bold text-amber-400 hover:text-amber-300 transition"
-        >
-          <RotateCcw class="w-3 h-3" />
-          <span>{{ t('app.resetSimulator') }}</span>
-        </button>
-      </div>
-
-      <!-- Slide-Out Interactive Simulator Controls -->
-      <div v-if="isSimulatorOpen" class="mt-3 p-3.5 rounded-2xl bg-black border border-cyan-500/40 space-y-3">
-        <div class="flex items-center justify-between text-[11px]">
-          <span class="text-slate-300 font-medium">{{ t('app.simulatePrompt') }}</span>
-          <span class="font-mono font-bold text-cyan-300">API: {{ api }}</span>
-        </div>
-
-        <input
-          type="range"
-          min="10"
-          max="360"
-          :value="api"
-          @input="handleSliderChange"
-          class="w-full h-2.5 bg-gradient-to-r from-blue-500 via-emerald-500 via-amber-500 to-rose-600 rounded-lg appearance-none cursor-pointer"
-        />
-
-        <!-- Scenario Quick Buttons -->
-        <div class="flex flex-wrap gap-1.5 pt-1">
-          <button
-            @click="handlePreset(35)"
-            class="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 text-[10px] font-medium hover:bg-blue-500/30 transition"
-          >
-            Good (35)
-          </button>
-          <button
-            @click="handlePreset(85)"
-            class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-medium hover:bg-emerald-500/30 transition"
-          >
-            Moderate (85)
-          </button>
-          <button
-            @click="handlePreset(155)"
-            class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-medium hover:bg-amber-500/30 transition"
-          >
-            Unhealthy (155)
-          </button>
-          <button
-            @click="handlePreset(250)"
-            class="px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 text-[10px] font-medium hover:bg-rose-500/30 transition"
-          >
-            Very Unhealthy (250)
-          </button>
-          <button
-            @click="handlePreset(320)"
-            class="px-2 py-0.5 rounded-md bg-purple-500/25 text-purple-300 text-[10px] font-medium hover:bg-purple-500/35 transition"
-          >
-            Hazardous (320)
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>

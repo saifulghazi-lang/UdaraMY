@@ -2,7 +2,7 @@
 import { onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAirQualityStore } from './stores/airQuality.js';
-import { Home, Map, Sliders, MapPin, WifiOff, Globe, LocateFixed, Share2, RefreshCw } from 'lucide-vue-next';
+import { Home, Map, Sliders, MapPin, WifiOff, Globe, LocateFixed, Share2, RefreshCw, Activity, ChevronDown } from 'lucide-vue-next';
 
 import AtmosphericCard from './components/AtmosphericCard.vue';
 import HealthAdvicePanel from './components/HealthAdvicePanel.vue';
@@ -23,6 +23,7 @@ const currentTab = ref('dashboard');
 const isStationModalOpen = ref(false);
 const isSettingsModalOpen = ref(false);
 const isShareModalOpen = ref(false);
+const isDeepAnalysisOpen = ref(false);
 
 function toggleLang() {
   const next = locale.value === 'en' ? 'bm' : 'en';
@@ -211,14 +212,8 @@ onMounted(() => {
               :is-live="store.isLive"
               :distance-km="store.distanceToCurrentStation"
               :is-nearest="store.isNearestStationActive"
-              :is-locating="store.isLocating"
-              :is-refreshing="store.isRefreshing"
               :is-simulating="store.simulationApi !== null"
               @open-station-selector="isStationModalOpen = true"
-              @locate-me="store.detectUserLocation(true)"
-              @refresh-data="store.refreshData(true)"
-              @open-share-modal="isShareModalOpen = true"
-              @set-simulation="(val) => store.setSimulationApi(val)"
               @clear-simulation="() => store.clearSimulation()"
             />
 
@@ -228,7 +223,7 @@ onMounted(() => {
             />
           </div>
 
-          <!-- Right Column: 24-Hour Trend, Regional Hotspots & Key Pollutant Bars -->
+          <!-- Right Column: 24-Hour Trend & Regional Wildfire Hotspots -->
           <div class="lg:col-span-6 space-y-5">
             <TrendChart
               :history="store.currentStation.history24h"
@@ -240,19 +235,50 @@ onMounted(() => {
               :hotspots="store.hotspots"
               :trend-analysis="store.trend3hAnalysis"
             />
+          </div>
+        </div>
 
+        <!-- Collapsible Progressive Disclosure: Detailed Chemical Pollutants & 365-Day Annual Seasonality -->
+        <div class="border border-white/10 rounded-3xl bg-neutral-950/80 overflow-hidden shadow-xl transition-all">
+          <button
+            @click="isDeepAnalysisOpen = !isDeepAnalysisOpen"
+            class="w-full px-5 py-4 flex items-center justify-between hover:bg-neutral-900/50 transition text-left cursor-pointer focus:outline-none"
+          >
+            <div class="flex items-center gap-3.5">
+              <div class="p-2.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shrink-0">
+                <Activity class="w-4 h-4" />
+              </div>
+              <div>
+                <h3 class="font-bold text-sm text-white flex items-center gap-2 flex-wrap">
+                  <span>{{ t('app.detailedAnalysis') }}</span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-400">
+                    PM2.5, PM10, O₃, NO₂, SO₂, CO • 365 Hari
+                  </span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">
+                  {{ isDeepAnalysisOpen ? t('app.hideDetailedAnalysis') : t('app.detailedAnalysisDesc') }}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-slate-400 shrink-0 ml-2">
+              <span class="text-xs font-semibold hidden sm:inline">{{ isDeepAnalysisOpen ? 'Tutup' : 'Buka' }}</span>
+              <ChevronDown
+                :class="['w-5 h-5 transition-transform duration-300', isDeepAnalysisOpen ? 'rotate-180 text-indigo-400' : '']"
+              />
+            </div>
+          </button>
+
+          <div v-if="isDeepAnalysisOpen" class="p-4 sm:p-6 border-t border-white/10 space-y-6 bg-black/60">
             <PollutantBars
               :pollutants="store.currentStation.pollutants"
               :dominant="store.currentStation.dominantPollutant"
               :telemetry="store.forecast?.currentPollutants"
             />
+            <HazeCalendarGrid
+              :current-api="store.currentStation.api"
+            />
           </div>
         </div>
-
-        <!-- Full-Width Haze Seasonality Calendar Heatmap -->
-        <HazeCalendarGrid
-          :current-api="store.currentStation.api"
-        />
       </template>
 
       <!-- National Map View (Map + Beside Station List) -->

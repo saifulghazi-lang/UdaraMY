@@ -18,7 +18,11 @@
     "resetSimulator": "Reset to Live",
     "timelapse": "24h Timelapse",
     "playTimelapse": "Play 24h Timelapse",
-    "pauseTimelapse": "Pause Timelapse"
+    "pauseTimelapse": "Pause Timelapse",
+    "detailedAnalysis": "Detailed Analysis & History",
+    "detailedAnalysisSubtitle": "Chemical breakdown (PM2.5, PM10, O₃, NO₂, SO₂, CO) & 365-day annual haze seasonality",
+    "detailedAnalysisDesc": "Click to expand deep atmospheric telemetry",
+    "hideDetailedAnalysis": "Click to collapse detailed data"
   },
   "location": {
     "locateMe": "Locate Me",
@@ -201,5 +205,26 @@
     "subtitle": "Annual Southwest Monsoon cycle (365 days)",
     "hazeSeason": "Haze Window (Aug - Oct)",
     "cleanSeason": "Monsoon Washout (Nov - Feb)"
+  },
+  "community": {
+    "badge": "Citizen Science Node",
+    "unvalidated": "Unvalidated",
+    "rawPm25": "Raw PM2.5",
+    "calibratedPm25": "EPA Calibrated",
+    "humidity": "Relative Humidity",
+    "equivApi": "Equivalent API",
+    "layerTitle": "Community Citizen Sensors",
+    "layerDesc": "Hyperlocal neighborhood sensors (PurpleAir / AirVisual) with tropical humidity correction."
+  },
+  "forecast": {
+    "title": "48-Hour Haze Outlook",
+    "subtitle": "Hourly Copernicus CAMS chemical model projection",
+    "historyTab": "Past 24h (JAS)",
+    "forecastTab": "48h Forecast (CAMS)",
+    "trendImproving": "Improving",
+    "trendDeteriorating": "Deteriorating",
+    "trendSteady": "Steady",
+    "peakHaze": "Peak Window",
+    "scrubTime": "Forecast Time"
   }
 }
