@@ -125,7 +125,7 @@ watch(() => props.isOpen, (newVal) => {
         </div>
         <button
           @click="emit('close')"
-          class="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-neutral-900 transition"
+          class="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition"
         >
           <X class="w-5 h-5" />
         </button>
@@ -137,7 +137,7 @@ watch(() => props.isOpen, (newVal) => {
         <div v-if="isFormOpen" class="space-y-4">
           <!-- 1. Icon Selection -->
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
               {{ t('watchlist.chooseIcon') }}
             </label>
             <div class="flex flex-wrap gap-2">
@@ -160,7 +160,7 @@ watch(() => props.isOpen, (newVal) => {
 
           <!-- 2. Custom Label Input -->
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
               {{ t('watchlist.locationName') }}
             </label>
             <input
@@ -174,7 +174,7 @@ watch(() => props.isOpen, (newVal) => {
 
           <!-- 3. Monitoring Station Selection -->
           <div>
-            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
               {{ t('watchlist.chooseStation') }}
             </label>
 
@@ -182,10 +182,11 @@ watch(() => props.isOpen, (newVal) => {
             <div class="relative mb-2">
               <Search class="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5 pointer-events-none" />
               <input
+                v-stationSearch="stationSearch"
                 v-model="stationSearch"
                 type="text"
                 :placeholder="t('watchlist.searchStationPlaceholder')"
-                class="w-full bg-black border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-[11px] text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+                class="w-full bg-black border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
               />
             </div>
 
@@ -200,7 +201,7 @@ watch(() => props.isOpen, (newVal) => {
                   'w-full text-left p-2 rounded-xl text-xs flex items-center justify-between transition',
                   formStationId === st.id
                     ? 'bg-indigo-600/30 border border-indigo-500/60 text-white'
-                    : 'hover:bg-neutral-900 text-slate-300'
+                    : 'hover:bg-neutral-950 text-slate-300'
                 ]"
               >
                 <div class="truncate pr-2">
@@ -208,7 +209,7 @@ watch(() => props.isOpen, (newVal) => {
                   <span class="text-[10px] text-slate-400 ml-1.5">({{ st.state }})</span>
                 </div>
                 <span
-                  class="shrink-0 text-[10px] font-mono font-bold px-1.5 py-0.2 rounded"
+                  class="shrink-0 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded"
                   :style="{
                     backgroundColor: `${getCategoryColor(st.category)}22`,
                     color: getCategoryColor(st.category)
@@ -229,7 +230,7 @@ watch(() => props.isOpen, (newVal) => {
             <button
               type="button"
               @click="closeForm"
-              class="flex-1 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-slate-300 text-xs font-semibold transition border border-white/10"
+              class="flex-1 py-2 rounded-xl bg-neutral-950 hover:bg-black text-slate-300 text-xs font-semibold transition border border-white/10"
             >
               {{ t('watchlist.cancel') }}
             </button>
@@ -283,7 +284,7 @@ watch(() => props.isOpen, (newVal) => {
                 <!-- Edit Button -->
                 <button
                   @click="openEditForm(item)"
-                  class="p-1.5 rounded-lg bg-neutral-900 hover:bg-indigo-600 text-slate-400 hover:text-white transition border border-white/10"
+                  class="p-1.5 rounded-lg bg-neutral-950 hover:bg-indigo-600 text-white/70 hover:text-white transition border border-white/10"
                   title="Edit"
                 >
                   <Edit3 class="w-3.5 h-3.5" />
@@ -292,7 +293,7 @@ watch(() => props.isOpen, (newVal) => {
                 <!-- Delete Button -->
                 <button
                   @click="deleteItem(item.id)"
-                  class="p-1.5 rounded-lg bg-neutral-900 hover:bg-red-600 text-slate-400 hover:text-white transition border border-white/10"
+                  class="p-1.5 rounded-lg bg-neutral-950 hover:bg-red-600 text-white/70 hover:text-white transition border border-white/10"
                   title="Remove"
                 >
                   <Trash2 class="w-3.5 h-3.5" />

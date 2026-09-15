@@ -10,6 +10,21 @@
   headers = { Referer = "https://eqms.doe.gov.my/APIMS/main", User-Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0" }
 
 [[redirects]]
+  from = "/asmc/*"
+  to = "https://asmc.asean.org/:splat"
+  status = 200
+  force = true
+  headers = { Referer = "https://asmc.asean.org/home/", User-Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0" }
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), payment=()"

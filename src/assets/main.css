@@ -46,34 +46,72 @@
   line-height: 1.4 !important;
 }
 
-.leaflet-popup-tip {
+.dark .leaflet-popup-tip {
   background: #000000 !important;
 }
 
-/* OpenStreetMap Dark Mode Tile Filter */
-.dark-osm-tiles .leaflet-tile {
+.leaflet-popup-tip {
+  background: #ffffff !important;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* OpenStreetMap Tile Filter */
+.dark .dark-osm-tiles .leaflet-tile {
   filter: invert(100%) hue-rotate(180deg) brightness(78%) contrast(130%);
 }
 
-/* Dark Theme Leaflet Controls */
-.leaflet-bar {
+.dark-osm-tiles .leaflet-tile {
+  filter: saturate(110%) contrast(102%);
+}
+
+/* Leaflet Controls - Light and Dark */
+.dark .leaflet-bar {
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 0.75rem !important;
-  overflow: hidden;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.9) !important;
 }
 
-.leaflet-bar a {
+.dark .leaflet-bar a {
   background-color: rgba(0, 0, 0, 0.95) !important;
   color: #cbd5e1 !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .leaflet-bar a:hover {
+  background-color: #171717 !important;
+  color: #ffffff !important;
+}
+
+.leaflet-bar {
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.leaflet-bar a {
+  background-color: #ffffff !important;
+  color: #334155 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
   backdrop-filter: blur(12px);
   transition: all 0.2s ease;
 }
 
 .leaflet-bar a:hover {
-  background-color: #171717 !important;
-  color: #ffffff !important;
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
 }
 
 /* Scrollbar polish */

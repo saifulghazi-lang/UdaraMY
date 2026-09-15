@@ -88,7 +88,11 @@
       "hazardous": "All schools shut down"
     },
     "schoolsClosedAlert": "MOE Closure (API > 200)",
-    "schoolsOpenNormal": "Schools Normal"
+    "schoolsOutdoorSuspended": "Outdoor Recess Suspended (API > 100)",
+    "schoolsOpenNormal": "Schools Normal",
+    "tapToInteractMap": "Tap map to pan & zoom",
+    "clearSearch": "Clear Search",
+    "moreOptions": "More Options"
   },
   "personas": {
     "general": {

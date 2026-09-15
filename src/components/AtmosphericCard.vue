@@ -86,7 +86,7 @@ const badgeBgClass = computed(() => {
     case 'unhealthy': return 'bg-amber-500/20 border-amber-500/40 text-amber-300';
     case 'veryUnhealthy': return 'bg-rose-500/20 border-rose-500/40 text-rose-300';
     case 'hazardous': return 'bg-purple-500/25 border-purple-500/40 text-purple-300';
-    default: return 'bg-neutral-900 border-white/10 text-neutral-300';
+    default: return 'bg-white/5 border-white/10 text-neutral-300';
   }
 });
 
@@ -144,12 +144,12 @@ const particles = computed(() => {
 
 <template>
   <div
-    class="relative rounded-3xl p-5 sm:p-7 text-white overflow-hidden shadow-2xl border border-white/[0.12] bg-black transition-all duration-700"
+    class="relative rounded-3xl p-5 sm:p-7 text-slate-800 dark:text-white overflow-hidden shadow-xl border border-slate-200 dark:border-white/[0.12] bg-white dark:bg-black transition-all duration-700"
   >
     <!-- Dynamic Ambient Colored Backdrop Glow -->
     <div
       :class="[
-        'absolute -top-24 -left-24 w-80 h-80 rounded-full blur-3xl pointer-events-none transition-all duration-1000 bg-gradient-to-br',
+        'absolute -top-24 -left-24 w-80 h-80 rounded-full blur-3xl pointer-events-none transition-all duration-1000 bg-gradient-to-br opacity-40 dark:opacity-100',
         ambientGlowClass
       ]"
       aria-hidden="true"
@@ -160,7 +160,7 @@ const particles = computed(() => {
       <div
         v-for="p in particles"
         :key="p.id"
-        class="absolute rounded-full bg-white/30 animate-particle pointer-events-none"
+        class="absolute rounded-full bg-slate-400/20 dark:bg-white/30 animate-particle pointer-events-none"
         :style="{
           width: p.size + 'px',
           height: p.size + 'px',
@@ -172,34 +172,34 @@ const particles = computed(() => {
       />
     </div>
 
-    <!-- Header: Station Switcher & Status -->
+    <!-- Header: Station Information & Status -->
     <div class="flex items-start justify-between relative z-10 gap-3">
       <!-- Station Information & Quick Switcher -->
       <button
         @click="emit('openStationSelector')"
         class="text-left group focus:outline-none flex-1 transition"
       >
-        <div class="flex items-center gap-1.5 text-slate-400 text-xs font-semibold uppercase tracking-wider flex-wrap">
-          <MapPin class="w-3.5 h-3.5 text-cyan-400" />
+        <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider flex-wrap">
+          <MapPin class="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
           <span>{{ station.state }}</span>
           <span
             v-if="distanceKm !== null"
-            class="text-[10px] px-2 py-0.5 rounded-full bg-neutral-900 text-slate-300 font-mono border border-white/10"
+            class="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 font-mono border border-slate-200 dark:border-white/10"
           >
             {{ distanceKm }} km
           </span>
           <span
             v-if="isNearest"
-            class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold"
+            class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-bold"
           >
             📍 {{ t('location.nearest') }}
           </span>
         </div>
         <div class="flex items-center gap-1.5 mt-1">
-          <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-white group-hover:text-cyan-300 transition-colors">
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">
             {{ station.name }}
           </h2>
-          <ChevronRight class="w-5 h-5 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all" />
+          <ChevronRight class="w-5 h-5 text-slate-400 dark:text-slate-500 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all" />
         </div>
       </button>
 
@@ -207,20 +207,20 @@ const particles = computed(() => {
       <button
         v-if="isSimulating"
         @click="emit('clearSimulation')"
-        class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-mono font-bold hover:bg-amber-500/30 transition shadow-md active:scale-95 cursor-pointer"
+        class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 text-xs font-mono font-bold hover:bg-amber-500/30 transition shadow-sm active:scale-95 cursor-pointer"
         :title="t('app.resetSimulator')"
       >
-        <RotateCcw class="w-3.5 h-3.5 text-amber-400" />
+        <RotateCcw class="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
         <span>SIMULATION</span>
       </button>
     </div>
 
     <!-- Timestamp & Data Source Indicator -->
-    <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-white/[0.08] text-xs text-neutral-400 relative z-10">
+    <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-slate-200 dark:border-white/[0.08] text-xs text-slate-500 dark:text-neutral-400 relative z-10">
       <span class="inline-flex items-center gap-1.5 font-mono">
-        <span :class="['w-2 h-2 rounded-full', isLive ? 'bg-emerald-400 animate-pulse' : 'bg-neutral-600']"></span>
-        <span class="text-neutral-300 font-semibold uppercase tracking-wider text-[10px]">{{ isLive ? t('app.live') : 'CACHED' }}</span>
-        <span class="text-neutral-500">•</span>
+        <span :class="['w-2 h-2 rounded-full', isLive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400 dark:bg-neutral-600']"></span>
+        <span class="text-slate-700 dark:text-neutral-300 font-semibold uppercase tracking-wider text-[10px]">{{ isLive ? t('app.live') : 'CACHED' }}</span>
+        <span class="text-slate-400 dark:text-neutral-500">•</span>
         <span>{{ t('app.updatedAt', { time: formattedTime }) }}</span>
       </span>
 
@@ -286,7 +286,7 @@ const particles = computed(() => {
 
         <!-- Center Readout -->
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none">
-          <div class="text-6xl sm:text-7xl font-black tracking-tighter text-white font-mono drop-shadow-md">
+          <div class="text-6xl sm:text-7xl font-black tracking-tighter text-slate-900 dark:text-white font-mono drop-shadow-sm dark:drop-shadow-md">
             {{ api }}
           </div>
           
@@ -301,18 +301,22 @@ const particles = computed(() => {
             <span>{{ t(`categories.${category}`) }}</span>
           </div>
 
-          <!-- Dominant Pollutant Micro-tag -->
-          <div class="text-[10px] text-slate-400 font-mono mt-1">
-            {{ station.dominantPollutant || 'PM2.5' }}
+          <!-- Dominant Pollutant Micro-tag with explanation badge -->
+          <div 
+            class="text-[10px] text-slate-600 dark:text-slate-400 font-mono mt-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 inline-flex items-center gap-1 pointer-events-auto"
+            title="Pencemar utama mempengaruhi indeks hari ini / Primary pollutant driving today's API"
+          >
+            <span class="text-slate-500">Pencemar:</span>
+            <span class="text-cyan-600 dark:text-cyan-300 font-bold">{{ station.dominantPollutant || 'PM2.5' }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Health Advice Context Banner -->
-    <div class="bg-black rounded-2xl p-4 border border-white/10 text-xs flex items-center gap-3 relative z-10 shadow-lg">
+    <div class="bg-slate-50 dark:bg-black rounded-2xl p-4 border border-slate-200 dark:border-white/10 text-xs flex items-center gap-3 relative z-10 shadow-sm">
       <span class="text-2xl select-none shrink-0" role="img">{{ statusIcon }}</span>
-      <p class="text-slate-200 leading-relaxed font-medium flex-1">
+      <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium flex-1">
         {{ t(`advice.${category}`) }}
       </p>
     </div>

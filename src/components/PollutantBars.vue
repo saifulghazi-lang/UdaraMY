@@ -93,21 +93,22 @@ function getBarColor(ratio) {
 </script>
 
 <template>
-  <div class="rounded-3xl p-5 sm:p-6 bg-black border border-white/[0.12] shadow-2xl">
+  <div class="rounded-3xl p-5 sm:p-6 bg-white dark:bg-black border border-slate-200 dark:border-white/[0.12] shadow-xl dark:shadow-2xl">
     <div class="flex items-center justify-between mb-3.5 flex-wrap gap-2">
       <div class="flex items-center gap-2 flex-wrap">
-        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-mono">
           {{ t('trends.keyPollutants') }}
         </h3>
-        <span v-if="stationState" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+        <span v-if="stationState" class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
           📍 {{ stationState }}
         </span>
-        <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+        <span class="inline-flex items-center gap-1.5 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
           APIMS Telemetry
         </span>
       </div>
-      <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
-        <Sparkles class="w-3 h-3 text-amber-400" />
+      <span class="inline-flex items-center gap-1 text-[10px] px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-500/30 shadow-sm font-mono">
+        <Sparkles class="w-3 h-3 text-amber-500 dark:text-amber-400" />
         {{ t('trends.dominant') }}: {{ dominant }}
       </span>
     </div>
@@ -116,18 +117,18 @@ function getBarColor(ratio) {
       <div v-for="item in items" :key="item.key">
         <div class="flex items-center justify-between text-xs mb-1">
           <div class="flex items-center gap-1">
-            <span :class="['font-semibold', item.isDominant ? 'text-amber-300' : 'text-slate-300']">
+            <span :class="['font-semibold', item.isDominant ? 'text-amber-600 dark:text-amber-300 font-bold' : 'text-slate-700 dark:text-slate-300']">
               {{ item.name }}
             </span>
-            <span v-if="item.isDominant" class="text-amber-400 text-xs">⭐</span>
+            <span v-if="item.isDominant" class="text-amber-500 text-xs">⭐</span>
           </div>
-          <div class="font-mono text-xs font-bold" :class="item.isDominant ? 'text-amber-400' : 'text-slate-300'">
+          <div class="font-mono text-xs font-bold" :class="item.isDominant ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'">
             {{ item.value }} {{ item.unit }}
           </div>
         </div>
 
         <!-- Ratio Bar -->
-        <div class="w-full h-2 bg-neutral-900 rounded-full overflow-hidden">
+        <div class="w-full h-2 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
           <div
             :class="['h-full rounded-full transition-all duration-700', getBarColor(item.ratio)]"
             :style="{ width: `${item.ratio}%` }"

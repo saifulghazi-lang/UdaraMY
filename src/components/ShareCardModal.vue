@@ -213,7 +213,7 @@ watch([() => props.isOpen, format, () => props.station], () => {
           <Share2 class="w-4 h-4 text-indigo-400" />
           <span>{{ t('share.title') }}</span>
         </h3>
-        <button @click="emit('close')" class="p-1 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-900 transition">
+        <button @click="emit('close')" class="p-1 rounded-full text-neutral-400 hover:text-white hover:bg-white/10 transition">
           <X class="w-5 h-5" />
         </button>
       </div>
@@ -265,7 +265,7 @@ watch([() => props.isOpen, format, () => props.station], () => {
 
         <button
           @click="downloadImage"
-          class="p-2.5 rounded-2xl bg-neutral-900 hover:bg-neutral-800 border border-white/10 text-neutral-200 transition"
+          class="p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-200 transition"
           :title="t('share.download')"
         >
           <Download class="w-4 h-4" />
@@ -273,7 +273,7 @@ watch([() => props.isOpen, format, () => props.station], () => {
 
         <button
           @click="copyToClipboard"
-          class="p-2.5 rounded-2xl bg-neutral-900 hover:bg-neutral-800 border border-white/10 text-neutral-200 transition"
+          class="p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-200 transition"
           :title="isCopied ? t('share.copied') : 'Copy Image'"
         >
           <component :is="isCopied ? Check : Copy" :class="['w-4 h-4', isCopied ? 'text-emerald-400' : '']" />

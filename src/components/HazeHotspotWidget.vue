@@ -61,14 +61,14 @@ const practicalTip = computed(() => {
           <Flame class="w-4 h-4 text-amber-500 animate-pulse" />
           <span>{{ t('hotspots.title') }}</span>
         </h3>
-        <p class="text-[11px] text-slate-400 mt-0.5">{{ t('hotspots.subtitle') }}</p>
+        <p class="text-xs text-slate-400 mt-0.5">{{ t('hotspots.subtitle') }}</p>
       </div>
 
       <div class="flex items-center gap-1.5">
         <!-- Live Satellite Badge -->
         <span
           v-if="hotspots.isLive"
-          class="hidden sm:inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-mono uppercase"
+          class="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-mono uppercase"
         >
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
           <span>LIVE ASMC</span>
@@ -77,7 +77,7 @@ const practicalTip = computed(() => {
         <!-- Explanatory "How it works" Info Button -->
         <button
           @click="isGuideModalOpen = true"
-          class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black hover:bg-neutral-900 text-indigo-300 border border-indigo-500/40 text-[11px] font-semibold transition"
+          class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black hover:bg-neutral-950 text-indigo-300 border border-indigo-500/40 text-xs font-semibold transition"
           :title="t('hotspots.howItWorks')"
         >
           <HelpCircle class="w-3.5 h-3.5 text-indigo-400" />
@@ -98,7 +98,7 @@ const practicalTip = computed(() => {
           <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{{ t('hotspots.sumatra') }}</div>
           <div class="text-base sm:text-lg font-black text-amber-400 font-mono mt-0.5">{{ hotspots.sumatra }}</div>
         </div>
-        <div class="text-[9px] text-amber-300/80 font-medium leading-tight mt-1 pt-1 border-t border-white/[0.08]">
+        <div class="text-[10px] text-amber-300/80 font-medium leading-tight mt-1 pt-1 border-t border-white/[0.08]">
           {{ t('hotspots.sumatraImpact') }}
         </div>
       </div>
@@ -109,7 +109,7 @@ const practicalTip = computed(() => {
           <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{{ t('hotspots.kalimantan') }}</div>
           <div class="text-base sm:text-lg font-black text-amber-400 font-mono mt-0.5">{{ hotspots.kalimantan }}</div>
         </div>
-        <div class="text-[9px] text-amber-300/80 font-medium leading-tight mt-1 pt-1 border-t border-white/[0.08]">
+        <div class="text-[10px] text-amber-300/80 font-medium leading-tight mt-1 pt-1 border-t border-white/[0.08]">
           {{ t('hotspots.kalimantanImpact') }}
         </div>
       </div>
@@ -120,7 +120,7 @@ const practicalTip = computed(() => {
           <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{{ t('hotspots.malaysia') }}</div>
           <div class="text-base sm:text-lg font-black text-emerald-400 font-mono mt-0.5">{{ hotspots.malaysia }}</div>
         </div>
-        <div class="text-[9px] text-emerald-400/80 font-medium leading-tight mt-1 pt-1 border-t border-white/[0.08]">
+        <div class="text-[10px] text-emerald-400/80 font-medium leading-tight mt-1 pt-1 border-t border-white/[0.08]">
           {{ t('hotspots.malaysiaImpact') }}
         </div>
       </div>
@@ -132,10 +132,10 @@ const practicalTip = computed(() => {
       <div class="flex items-center justify-between flex-wrap gap-1">
         <div class="flex items-center gap-1.5 text-slate-300">
           <Compass class="w-3.5 h-3.5 text-sky-400 rotate-45" />
-          <span class="font-medium text-[11px]">{{ t('hotspots.wind') }}:</span>
-          <span class="text-[8px] px-1.5 py-0.2 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30 font-mono font-bold uppercase">LIVE MET</span>
+          <span class="font-medium text-xs">{{ t('hotspots.wind') }}:</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30 font-mono font-bold uppercase">LIVE MET</span>
         </div>
-        <span class="font-mono text-[11px] text-sky-300 font-bold">
+        <span class="font-mono text-xs text-sky-300 font-bold">
           {{ hotspots.windDirection }} • {{ hotspots.windSpeedKm }}
         </span>
       </div>
@@ -149,12 +149,12 @@ const practicalTip = computed(() => {
       <!-- Trend Warning / Status -->
       <div
         :class="[
-          'p-2 rounded-xl flex items-center gap-2 font-medium text-[11px]',
+          'p-2 rounded-xl flex items-center gap-2 font-medium text-xs',
           trendAnalysis.status === 'deteriorating'
             ? 'bg-amber-950/40 text-amber-300 border border-amber-500/30'
             : trendAnalysis.status === 'improving'
               ? 'bg-emerald-950/40 text-emerald-300 border border-emerald-500/30'
-              : 'bg-neutral-900 text-slate-400 border border-white/5'
+              : 'bg-neutral-950 text-slate-400 border border-white/10'
         ]"
       >
         <component
@@ -181,7 +181,7 @@ const practicalTip = computed(() => {
       </div>
       <div>
         <div class="font-bold text-[10px] uppercase tracking-wider text-indigo-300">{{ t('hotspots.practicalTipTitle') }}</div>
-        <p class="text-[11px] text-indigo-100 font-medium leading-relaxed mt-0.5">
+        <p class="text-xs text-indigo-100 font-medium leading-relaxed mt-0.5">
           {{ practicalTip }}
         </p>
       </div>
@@ -202,12 +202,12 @@ const practicalTip = computed(() => {
               </div>
               <div>
                 <h3 class="font-bold text-slate-100 text-sm">{{ t('hotspots.guideTitle') }}</h3>
-                <p class="text-[11px] text-slate-400">{{ t('hotspots.guideSubtitle') }}</p>
+                <p class="text-xs text-slate-400">{{ t('hotspots.guideSubtitle') }}</p>
               </div>
             </div>
             <button
               @click="isGuideModalOpen = false"
-              class="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-neutral-900 transition"
+              class="p-1.5 rounded-full text-slate-400 hover:text-white hover:bg-neutral-950 transition"
             >
               <X class="w-5 h-5" />
             </button>
@@ -221,7 +221,7 @@ const practicalTip = computed(() => {
                 <Satellite class="w-4 h-4" />
                 <span>{{ t('hotspots.whatIsAsmc') }}</span>
               </div>
-              <p class="text-slate-300 leading-relaxed text-[11px]">
+              <p class="text-slate-300 leading-relaxed text-xs">
                 {{ t('hotspots.whatIsAsmcDesc') }}
               </p>
             </div>
@@ -232,7 +232,7 @@ const practicalTip = computed(() => {
                 <Flame class="w-4 h-4" />
                 <span>{{ t('hotspots.hotspotScaleTitle') }}</span>
               </div>
-              <div class="space-y-1.5 text-[11px]">
+              <div class="space-y-1.5 text-xs">
                 <div class="flex items-center gap-2 p-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300">
                   <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
                   <span class="font-medium">{{ t('hotspots.scaleLow') }}</span>
@@ -254,7 +254,7 @@ const practicalTip = computed(() => {
                 <Wind class="w-4 h-4" />
                 <span>{{ t('hotspots.whyWindMatters') }}</span>
               </div>
-              <p class="text-slate-300 leading-relaxed text-[11px]">
+              <p class="text-slate-300 leading-relaxed text-xs">
                 {{ t('hotspots.whyWindMattersDesc') }}
               </p>
             </div>
@@ -266,7 +266,7 @@ const practicalTip = computed(() => {
                 <span>{{ t('hotspots.decisionsTitle') }}</span>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                 <!-- Laundry -->
                 <div class="bg-neutral-950 border border-white/10 rounded-xl p-2.5">
                   <div class="flex items-center gap-1.5 font-bold text-slate-200 mb-1">

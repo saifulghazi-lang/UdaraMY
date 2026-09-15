@@ -88,7 +88,11 @@
       "hazardous": "Semua sekolah ditutup"
     },
     "schoolsClosedAlert": "Arahan Tutup KPM (IPU > 200)",
-    "schoolsOpenNormal": "Sekolah Beroperasi Biasa"
+    "schoolsOutdoorSuspended": "Aktiviti Luar Digantung (IPU > 100)",
+    "schoolsOpenNormal": "Sekolah Beroperasi Biasa",
+    "tapToInteractMap": "Ketik peta untuk teroka",
+    "clearSearch": "Kosongkan Carian",
+    "moreOptions": "Pilihan Lain"
   },
   "personas": {
     "general": {

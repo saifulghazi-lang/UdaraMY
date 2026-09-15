@@ -112,7 +112,7 @@ function formatDayDate(d) {
           <Calendar class="w-4 h-4 text-indigo-400" />
           <span>{{ t('calendar.title') }}</span>
         </h3>
-        <p class="text-[11px] text-slate-400 mt-0.5">{{ t('calendar.subtitle') }}</p>
+        <p class="text-xs text-slate-400 mt-0.5">{{ t('calendar.subtitle') }}</p>
       </div>
 
       <!-- Quick Season Legend Badges -->
@@ -132,7 +132,7 @@ function formatDayDate(d) {
     <div class="overflow-x-auto pb-2 custom-scrollbar">
       <div class="min-w-[680px]">
         <!-- Months Labels -->
-        <div class="flex text-[9px] font-semibold text-slate-500 mb-1 px-1">
+        <div class="flex text-[10px] font-semibold text-slate-500 mb-1 px-1">
           <div v-for="(m, idx) in months" :key="idx" class="flex-1 text-left">
             {{ m }}
           </div>
@@ -178,26 +178,26 @@ function formatDayDate(d) {
         </span>
         <span
           v-if="hoveredDay.isToday"
-          class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-bold"
+          class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold"
         >
           TODAY
         </span>
       </div>
 
-      <div v-else class="text-slate-500 text-[11px] flex items-center gap-1.5">
+      <div v-else class="text-slate-500 text-xs flex items-center gap-1.5">
         <Info class="w-3.5 h-3.5 text-slate-400" />
         <span>Hover or tap any date to inspect historical seasonal API trends</span>
       </div>
 
       <!-- Color scale reference -->
-      <div class="flex items-center gap-1 text-[9px] text-slate-400 shrink-0">
+      <div class="flex items-center gap-1 text-[10px] text-slate-400 shrink-0">
         <span>Clean</span>
         <div class="flex gap-0.5">
-          <div class="w-2 h-2 rounded-[2px] bg-blue-500/40"></div>
+          <div class="w-2 h-2 rounded-[2px] bg-[#00d2ff]/40"></div>
           <div class="w-2 h-2 rounded-[2px] bg-emerald-500/70"></div>
           <div class="w-2 h-2 rounded-[2px] bg-amber-500"></div>
           <div class="w-2 h-2 rounded-[2px] bg-red-500"></div>
-          <div class="w-2 h-2 rounded-[2px] bg-purple-500"></div>
+          <div class="w-2 h-2 rounded-[2px] bg-[#881337]"></div>
         </div>
         <span>Haze Peak</span>
       </div>

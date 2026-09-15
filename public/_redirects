@@ -1,2 +1,3 @@
 /api3/*  https://eqms.doe.gov.my/api3/:splat  200!
+/asmc/*  https://asmc.asean.org/:splat  200!
 /*  /index.html  200

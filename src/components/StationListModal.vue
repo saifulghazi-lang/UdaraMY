@@ -81,7 +81,7 @@ onUnmounted(() => {
         </h3>
         <button
           @click="emit('close')"
-          class="p-1 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-900 transition"
+          class="p-1 rounded-full text-neutral-400 hover:text-white hover:bg-white/10 transition"
           aria-label="Tutup / Close"
         >
           <X class="w-5 h-5" />
@@ -103,7 +103,7 @@ onUnmounted(() => {
 
         <!-- Top Affected Hotspots -->
         <div v-if="!query" class="mt-3">
-          <div class="flex items-center gap-1 text-[11px] font-bold text-amber-400 mb-1.5 uppercase tracking-wide">
+          <div class="flex items-center gap-1 text-xs font-bold text-amber-400 mb-1.5 uppercase tracking-wide">
             <Flame class="w-3.5 h-3.5" />
             <span>Top Haze Watch</span>
           </div>
@@ -131,13 +131,13 @@ onUnmounted(() => {
             'w-full text-left p-3 rounded-2xl border transition flex items-center justify-between',
             st.id === selectedStationId
               ? 'bg-indigo-950/60 border-indigo-500/60 ring-1 ring-indigo-500/50'
-              : 'bg-neutral-950 border border-white/10 hover:bg-neutral-900 hover:border-white/20'
+              : 'bg-neutral-950 border border-white/10 hover:bg-black hover:border-white/20'
           ]"
         >
           <div>
             <div class="font-bold text-white text-xs flex items-center gap-1.5">
               <span>{{ st.name }}</span>
-              <span v-if="st.id === selectedStationId" class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-500/30 text-indigo-300 font-normal">Active</span>
+              <span v-if="st.id === selectedStationId" class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/30 text-indigo-300 font-normal">Active</span>
             </div>
             <div class="text-[10px] text-neutral-400 mt-0.5">{{ st.state }} • {{ st.region }}</div>
           </div>
@@ -155,8 +155,14 @@ onUnmounted(() => {
           </div>
         </button>
 
-        <div v-if="filteredStations.length === 0" class="py-12 text-center text-neutral-500 text-xs">
-          No stations found matching "{{ query }}"
+        <div v-if="filteredStations.length === 0" class="py-12 text-center text-neutral-400 text-xs flex flex-col items-center gap-3">
+          <p>Tiada stesen dijumpai untuk carian "{{ query }}"</p>
+          <button
+            @click="query = ''"
+            class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow text-xs"
+          >
+            {{ t('guidance.clearSearch') }}
+          </button>
         </div>
       </div>
     </div>

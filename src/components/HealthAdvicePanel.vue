@@ -79,12 +79,12 @@ const personaGuidance = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-3xl p-5 sm:p-6 bg-black border border-white/[0.12] shadow-2xl space-y-4">
+  <div class="rounded-3xl p-5 sm:p-6 bg-white dark:bg-black border border-slate-200 dark:border-white/[0.12] shadow-xl dark:shadow-2xl space-y-4">
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <HeartPulse class="w-4 h-4 text-cyan-400" />
-        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+        <HeartPulse class="w-4 h-4 text-cyan-500 dark:text-cyan-400" />
+        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider font-mono">
           {{ t('guidance.title') }}
         </h3>
       </div>
@@ -92,13 +92,20 @@ const personaGuidance = computed(() => {
       <!-- School status trigger pill -->
       <span
         v-if="isSchoolClosureTriggered"
-        class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse flex items-center gap-1.5"
+        class="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/40 animate-pulse shadow-sm"
       >
         <School class="w-3.5 h-3.5" />
         <span>{{ t('guidance.schoolsClosedAlert') }}</span>
       </span>
-      <span v-else class="text-[10px] font-mono text-emerald-400 flex items-center gap-1.5">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+      <span
+        v-else-if="props.api > 100"
+        class="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/40 shadow-sm"
+      >
+        <School class="w-3.5 h-3.5" />
+        <span>{{ t('guidance.schoolsOutdoorSuspended') }}</span>
+      </span>
+      <span v-else class="inline-flex items-center gap-1.5 text-[10px] font-mono font-medium px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
         <span>{{ t('guidance.schoolsOpenNormal') }}</span>
       </span>
     </div>
@@ -112,20 +119,20 @@ const personaGuidance = computed(() => {
         :class="[
           'p-2.5 rounded-2xl text-left border transition-all duration-200 flex flex-col justify-between select-none focus:outline-none',
           activePersona === p.id 
-            ? 'bg-black border-cyan-400 text-white shadow-md shadow-cyan-500/20 ring-1 ring-cyan-500/40' 
-            : 'bg-black border-white/10 text-slate-400 hover:text-white hover:bg-neutral-950 hover:border-white/20'
+            ? 'bg-cyan-50/70 dark:bg-neutral-900 border-cyan-500 dark:border-cyan-400 text-slate-900 dark:text-white shadow-sm ring-1 ring-cyan-500/30' 
+            : 'bg-slate-50 dark:bg-black border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 hover:border-slate-300 dark:hover:border-white/20'
         ]"
       >
         <div class="flex items-center justify-between">
           <span class="text-lg">{{ p.icon }}</span>
           <span
             v-if="activePersona === p.id"
-            class="w-1.5 h-1.5 rounded-full bg-cyan-400"
+            class="w-1.5 h-1.5 rounded-full bg-cyan-500 dark:bg-cyan-400"
           ></span>
         </div>
         <div class="mt-1">
           <div class="font-bold text-xs leading-tight">{{ p.label }}</div>
-          <div class="text-[10px] text-slate-500 font-mono mt-0.5">{{ p.sub }}</div>
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">{{ p.sub }}</div>
         </div>
       </button>
     </div>
@@ -135,21 +142,21 @@ const personaGuidance = computed(() => {
       :class="[
         'p-3.5 rounded-2xl border transition-all text-xs flex items-start gap-3',
         personaGuidance.level === 'danger' 
-          ? 'bg-rose-950/30 border-rose-500/40 text-rose-200' 
+          ? 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-500/40 text-rose-900 dark:text-rose-200' 
           : personaGuidance.level === 'warning'
-            ? 'bg-amber-950/30 border-amber-500/40 text-amber-200'
-            : 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200'
+            ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-500/40 text-amber-900 dark:text-amber-200'
+            : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-200'
       ]"
     >
-      <Sparkles class="w-4 h-4 shrink-0 mt-0.5 text-cyan-400" />
+      <Sparkles class="w-4 h-4 shrink-0 mt-0.5 text-cyan-600 dark:text-cyan-400" />
       <div class="space-y-1 flex-1">
         <div class="flex items-center justify-between">
-          <h4 class="font-bold text-white text-xs">{{ personaGuidance.title }}</h4>
-          <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-black/40 border border-white/10">
+          <h4 class="font-bold text-slate-900 dark:text-white text-xs">{{ personaGuidance.title }}</h4>
+          <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/80 dark:bg-black/40 border border-slate-200 dark:border-white/10 shadow-sm">
             {{ personaGuidance.badge }}
           </span>
         </div>
-        <p class="text-slate-300 text-xs leading-relaxed">
+        <p class="text-slate-700 dark:text-slate-300 text-xs leading-relaxed">
           {{ personaGuidance.text }}
         </p>
       </div>
@@ -158,45 +165,45 @@ const personaGuidance = computed(() => {
     <!-- 4 Action Pillars Grid -->
     <div class="grid grid-cols-2 gap-2.5 text-xs pt-1">
       <!-- 1. Outdoor Sports -->
-      <div class="p-3 rounded-2xl bg-black border border-white/10 hover:border-white/20 transition">
-        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 uppercase">
-          <Activity class="w-3 h-3 text-cyan-400" />
+      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition">
+        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">
+          <Activity class="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
           <span>{{ t('guidance.outdoorSports') }}</span>
         </div>
-        <div class="font-bold text-white mt-1 text-xs">
+        <div class="font-bold text-slate-900 dark:text-white mt-1 text-xs">
           {{ t(`guidance.sports.${category}`) }}
         </div>
       </div>
 
       <!-- 2. Mask Protection -->
-      <div class="p-3 rounded-2xl bg-black border border-white/10 hover:border-white/20 transition">
-        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 uppercase">
-          <ShieldCheck class="w-3 h-3 text-emerald-400" />
+      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition">
+        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">
+          <ShieldCheck class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
           <span>{{ t('guidance.maskProtection') }}</span>
         </div>
-        <div class="font-bold text-white mt-1 text-xs">
+        <div class="font-bold text-slate-900 dark:text-white mt-1 text-xs">
           {{ t(`guidance.mask.${category}`) }}
         </div>
       </div>
 
       <!-- 3. Indoor Air / Windows -->
-      <div class="p-3 rounded-2xl bg-black border border-white/10 hover:border-white/20 transition">
-        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 uppercase">
-          <Wind class="w-3 h-3 text-amber-400" />
+      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition">
+        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">
+          <Wind class="w-3 h-3 text-amber-600 dark:text-amber-400" />
           <span>{{ t('guidance.indoorAir') }}</span>
         </div>
-        <div class="font-bold text-white mt-1 text-xs">
+        <div class="font-bold text-slate-900 dark:text-white mt-1 text-xs">
           {{ t(`guidance.windows.${category}`) }}
         </div>
       </div>
 
       <!-- 4. School Status -->
-      <div class="p-3 rounded-2xl bg-black border border-white/10 hover:border-white/20 transition">
-        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 uppercase">
-          <School class="w-3 h-3 text-purple-400" />
+      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition">
+        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">
+          <School class="w-3 h-3 text-purple-600 dark:text-purple-400" />
           <span>{{ t('guidance.schoolStatus') }}</span>
         </div>
-        <div class="font-bold text-white mt-1 text-xs">
+        <div class="font-bold text-slate-900 dark:text-white mt-1 text-xs">
           {{ t(`guidance.schools.${category}`) }}
         </div>
       </div>
