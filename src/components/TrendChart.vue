@@ -247,7 +247,7 @@ onUnmounted(() => {
           class="flex items-center gap-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-lg bg-black border border-white/10"
           :class="forecast.trend === 'improving' ? 'text-emerald-400' : forecast.trend === 'deteriorating' ? 'text-amber-400' : 'text-slate-300'"
         >
-          <span>{{ forecast.trend === 'improving' ? '📉 Bertambah Baik' : forecast.trend === 'deteriorating' ? '⚠️ Jangka Meningkat' : '➡️ Stabil' }}</span>
+          <span>{{ forecast.trend === 'improving' ? `📉 ${t('forecast.trendImproving')}` : forecast.trend === 'deteriorating' ? `⚠️ ${t('forecast.trendDeteriorating')}` : `➡️ ${t('forecast.trendSteady')}` }}</span>
         </div>
       </div>
     </div>
@@ -255,8 +255,8 @@ onUnmounted(() => {
     <!-- Active Scrubber Readout Bar -->
     <div class="flex items-center justify-between p-2.5 rounded-xl bg-black border border-white/10 text-xs font-mono">
       <div class="flex items-center gap-2">
-        <span class="text-slate-400">{{ chartTab === 'forecast' ? 'Waktu:' : 'Scrub Time:' }}</span>
-        <span class="text-white font-bold">{{ activePoint?.timeLabel || 'Sekarang' }}</span>
+        <span class="text-slate-400">{{ chartTab === 'forecast' ? t('trends.time') : t('trends.scrubTime') }}</span>
+        <span class="text-white font-bold">{{ activePoint?.timeLabel || t('trends.now') }}</span>
       </div>
       <div class="flex items-center gap-3">
         <span v-if="chartTab === 'forecast' && activePoint?.pm25" class="text-[11px] text-cyan-300 hidden sm:inline">
@@ -281,7 +281,6 @@ onUnmounted(() => {
     >
       <!-- Horizontal Reference Threshold Grid -->
       <div class="absolute inset-0 pointer-events-none flex flex-col justify-between text-[8px] font-mono text-slate-600 opacity-60">
-        <div class="border-b border-purple-500/20 w-full flex justify-between pr-1"><span>300 HAZARDOUS</span></div>
         <div class="border-b border-rose-500/20 w-full flex justify-between pr-1"><span>200 V. UNHEALTHY</span></div>
         <div class="border-b border-amber-500/20 w-full flex justify-between pr-1"><span>100 UNHEALTHY</span></div>
         <div class="border-b border-emerald-500/20 w-full flex justify-between pr-1"><span>50 MODERATE</span></div>
@@ -350,11 +349,11 @@ onUnmounted(() => {
 
     <!-- Time Labels -->
     <div class="flex justify-between text-[10px] font-mono text-slate-500 pt-1 border-t border-white/[0.04]">
-      <span>24h ago</span>
-      <span>18h</span>
-      <span>12h</span>
-      <span>6h</span>
-      <span class="font-bold text-cyan-400">Live Now</span>
+      <span>{{ t('trends.hoursAgo', { n: 24 }) }}</span>
+      <span>{{ t('trends.hours', { n: 18 }) }}</span>
+      <span>{{ t('trends.hours', { n: 12 }) }}</span>
+      <span>{{ t('trends.hours', { n: 6 }) }}</span>
+      <span class="font-bold text-cyan-400">{{ t('trends.liveNow') }}</span>
     </div>
   </div>
 </template>

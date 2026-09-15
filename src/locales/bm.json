@@ -86,6 +86,91 @@
       "unhealthy": "Aktiviti luar digantung",
       "veryUnhealthy": "Ditutup (IPU > 200 Garis KPM)",
       "hazardous": "Semua sekolah ditutup"
+    },
+    "schoolsClosedAlert": "Arahan Tutup KPM (IPU > 200)",
+    "schoolsOpenNormal": "Sekolah Beroperasi Biasa"
+  },
+  "personas": {
+    "general": {
+      "label": "Aktif & Kardio",
+      "sub": "Larian & Sukan Luar"
+    },
+    "toddler": {
+      "label": "Sekolah & Anak",
+      "sub": "Waktu Rehat & Taman"
+    },
+    "asthma": {
+      "label": "Sensitif & Asma",
+      "sub": "Saluran Pernafasan"
+    },
+    "elderly": {
+      "label": "Warga Emas",
+      "sub": "Pengudaraan & Rehat"
+    }
+  },
+  "personaAdvice": {
+    "asthma": {
+      "danger": {
+        "badge": "Amaran Tinggi",
+        "title": "Kepekaan saluran pernafasan tinggi",
+        "text": "Pastikan ubat sedut pelega (inhaler) mudah dicapai dan kekal di dalam rumah. Tutup tingkap serta pasang penapis udara."
+      },
+      "warning": {
+        "badge": "Langkah Berjaga-jaga",
+        "title": "Zarah halus merengsa saluran pernafasan",
+        "text": "Hadkan aktiviti lasak di luar. Sediakan ubat pelega jika mula mengalami sesak atau ketat dada."
+      },
+      "good": {
+        "badge": "Udara Selesa",
+        "title": "Kondisi pernafasan baik",
+        "text": "Tahap habuk dan zarah berada dalam lingkungan selamat. Teruskan aktiviti harian seperti biasa."
+      }
+    },
+    "toddler": {
+      "danger": {
+        "badge": "Makluman Sekolah",
+        "title": "Ambang penutupan rasmi KPM dicapai",
+        "text": "Kanak-kanak dinasihatkan kekal di dalam rumah. Pastikan tingkap bilik ditutup dan kurangkan pergerakan luar."
+      },
+      "warning": {
+        "badge": "Hadkan Rehat Luar",
+        "title": "Aktiviti luar padang disekat",
+        "text": "Pihak sekolah dan tadika perlu memindahkan aktiviti jasmani (PJPK) serta waktu rehat ke ruang tertutup."
+      },
+      "good": {
+        "badge": "Selamat Bermain",
+        "title": "Aktiviti padang & taman permainan selamat",
+        "text": "Kanak-kanak boleh beriadah, bersukan dan bermain di taman permainan dengan selamat."
+      }
+    },
+    "elderly": {
+      "warning": {
+        "badge": "Kekal Di Rumah",
+        "title": "Langkah penjagaan jantung & pernafasan",
+        "text": "Elakkan berjalan santai pada awal pagi dan lewat malam ketika jerebu terkumpul dekat paras bumi. Minum air secukupnya."
+      },
+      "good": {
+        "badge": "Udara Sihat",
+        "title": "Sesuai untuk riadah dan berkebun",
+        "text": "Kualiti udara baik dan menyegarkan. Sangat sesuai untuk senaman ringan warga emas di luar."
+      }
+    },
+    "general": {
+      "danger": {
+        "badge": "Dalam Bangunan",
+        "title": "Tangguhkan senaman kardio luar",
+        "text": "Pernafasan deras ketika berlari menyerap zarah halus ke dalam paru-paru. Alihkan larian atau kayuhan ke dalam gimnasium."
+      },
+      "warning": {
+        "badge": "Kadar Sederhana",
+        "title": "Kurangkan intensiti latihan luar",
+        "text": "Hadkan larian luar kepada bawah 30 minit pada kadar santai, atau beralih kepada senaman dalam rumah."
+      },
+      "good": {
+        "badge": "Kondisi Terbaik",
+        "title": "Kualiti udara prima untuk latihan luar",
+        "text": "Tiada halangan pernafasan. Keadaan sangat baik untuk larian jarak jauh, berbasikal dan riadah luar."
+      }
     }
   },
   "trends": {
@@ -98,7 +183,13 @@
     "o3": "Ozon (O₃)",
     "co": "Karbon Monoksida (CO)",
     "no2": "Nitrogen Dioksida (NO₂)",
-    "so2": "Sulfur Dioksida (SO₂)"
+    "so2": "Sulfur Dioksida (SO₂)",
+    "scrubTime": "Waktu Dipilih:",
+    "time": "Waktu:",
+    "now": "Sekarang",
+    "liveNow": "Terkini",
+    "hoursAgo": "{n}j lalu",
+    "hours": "{n}j"
   },
   "map": {
     "title": "Peta Kualiti Udara Kebangsaan",
@@ -107,7 +198,10 @@
     "filterPeninsular": "Semenanjung",
     "filterSabah": "Sabah",
     "filterSarawak": "Sarawak",
-    "selectPrompt": "Klik mana-mana penanda stesen untuk maklumat segera"
+    "selectPrompt": "Klik mana-mana penanda stesen untuk maklumat segera",
+    "select": "Pilih Stesen",
+    "dashboard": "Papan Pemuka ↗",
+    "distanceAway": " • {km} km dari anda"
   },
   "settings": {
     "title": "Tetapan Aplikasi & PWA",
@@ -226,5 +320,30 @@
     "trendSteady": "Stabil",
     "peakHaze": "Waktu Puncak",
     "scrubTime": "Waktu Ramalan"
+  },
+  "national": {
+    "title": "Sorotan Harian Malaysia",
+    "viewLeaderboard": "Papan Kedudukan 16 Negeri",
+    "leaderboard": "Papan Negeri",
+    "worstStation": "Paling Terjejas Hari Ini",
+    "cleanestStation": "Udara Paling Bersih Hari Ini",
+    "schoolRule": "Garis Panduan KPM",
+    "schoolNormal": "Sekolah Normal",
+    "nationalAverage": "Purata Kebangsaan"
+  },
+  "leaderboard": {
+    "title": "Papan Kedudukan Kualiti Udara Negeri",
+    "subtitle": "Kedudukan 16 negeri & wilayah berdasarkan bacaan stesen hari ini",
+    "copyWhatsApp": "Salin Laporan WhatsApp",
+    "copied": "Disalin ke WhatsApp!",
+    "sortPeak": "Puncak",
+    "sortAverage": "Purata",
+    "sortName": "A-Z",
+    "peak": "Puncak",
+    "average": "Purata",
+    "stationsIn": "Stesen Pemantauan di {state}",
+    "selectToMonitor": "Pilih untuk pantau",
+    "trend24h": "Trend 24j (AM→PM)",
+    "active": "Aktif"
   }
 }

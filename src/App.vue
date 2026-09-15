@@ -15,6 +15,9 @@ import WatchlistBar from './components/WatchlistBar.vue';
 import ShareCardModal from './components/ShareCardModal.vue';
 import HazeHotspotWidget from './components/HazeHotspotWidget.vue';
 import HazeCalendarGrid from './components/HazeCalendarGrid.vue';
+import NationalOverviewBar from './components/NationalOverviewBar.vue';
+import StateLeaderboardModal from './components/StateLeaderboardModal.vue';
+import { Trophy } from 'lucide-vue-next';
 
 const store = useAirQualityStore();
 const { t, locale } = useI18n();
@@ -23,6 +26,7 @@ const currentTab = ref('dashboard');
 const isStationModalOpen = ref(false);
 const isSettingsModalOpen = ref(false);
 const isShareModalOpen = ref(false);
+const isLeaderboardModalOpen = ref(false);
 const isDeepAnalysisOpen = ref(false);
 
 function toggleLang() {
@@ -107,6 +111,16 @@ onMounted(() => {
           >
             {{ store.distanceToCurrentStation }} km
           </span>
+        </button>
+
+        <!-- State Leaderboard Trigger in Top Bar -->
+        <button
+          @click="isLeaderboardModalOpen = true"
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-black border border-white/10 text-xs font-semibold text-slate-300 hover:text-white hover:border-white/25 hover:bg-neutral-950 transition"
+          :title="t('national.viewLeaderboard') || 'Papan Kedudukan Negeri'"
+        >
+          <Trophy class="w-3.5 h-3.5 text-amber-400" />
+          <span class="hidden lg:inline">{{ t('national.leaderboard') || 'Papan Negeri' }}</span>
         </button>
 
         <!-- Share Story Trigger in Top Bar -->
@@ -200,6 +214,13 @@ onMounted(() => {
           @remove-station="(id) => store.removeFromWatchlist(id)"
           @update-item="(oldId, data) => store.updateWatchlistItem(oldId, data)"
           @add-item="(data) => store.addToWatchlist(data)"
+        />
+
+        <!-- National Highs & Lows Glance Bar -->
+        <NationalOverviewBar
+          :summary="store.nationalSummary"
+          @select-station="(id) => store.selectStation(id)"
+          @open-leaderboard="isLeaderboardModalOpen = true"
         />
 
         <!-- Core Dashboard Grid -->
@@ -370,6 +391,15 @@ onMounted(() => {
       :station="store.currentStation"
       :last-updated="store.lastUpdated"
       @close="isShareModalOpen = false"
+    />
+
+    <StateLeaderboardModal
+      :is-open="isLeaderboardModalOpen"
+      :state-rankings="store.stateRankings"
+      :national-summary="store.nationalSummary"
+      :selected-station-id="store.selectedStationId"
+      @close="isLeaderboardModalOpen = false"
+      @select-station="handleStationSelect"
     />
   </div>
 </template>

@@ -86,6 +86,91 @@
       "unhealthy": "Outdoor sports prohibited",
       "veryUnhealthy": "Closed (API > 200 MOE Rule)",
       "hazardous": "All schools shut down"
+    },
+    "schoolsClosedAlert": "MOE Closure (API > 200)",
+    "schoolsOpenNormal": "Schools Normal"
+  },
+  "personas": {
+    "general": {
+      "label": "Active & Cardio",
+      "sub": "Outdoors & Fitness"
+    },
+    "toddler": {
+      "label": "School & Kids",
+      "sub": "Recess & Rec"
+    },
+    "asthma": {
+      "label": "Sensitive Airways",
+      "sub": "Asthma & Care"
+    },
+    "elderly": {
+      "label": "Seniors & Home",
+      "sub": "Ventilation & Rest"
+    }
+  },
+  "personaAdvice": {
+    "asthma": {
+      "danger": {
+        "badge": "High Alert",
+        "title": "High respiratory sensitivity",
+        "text": "Keep reliever inhaler accessible and remain indoors. Keep windows closed and run an air purifier if available."
+      },
+      "warning": {
+        "badge": "Elevated Caution",
+        "title": "Fine particles irritating airways",
+        "text": "Limit prolonged outdoor exertion. Have prescribed preventers or inhalers nearby if chest tightness develops."
+      },
+      "good": {
+        "badge": "Comfortable Air",
+        "title": "Airway conditions favorable",
+        "text": "Particulate levels are within normal limits. Maintain regular daily routines."
+      }
+    },
+    "toddler": {
+      "danger": {
+        "badge": "School Advisory",
+        "title": "Official MOE closure threshold reached",
+        "text": "Children should stay indoors. Keep classroom windows closed and avoid outdoor transit."
+      },
+      "warning": {
+        "badge": "Limit Recess",
+        "title": "Outdoor activities restricted",
+        "text": "Schools and preschools should move physical activities, field trips, and playground sessions indoors."
+      },
+      "good": {
+        "badge": "Safe Recess",
+        "title": "Normal playground activities safe",
+        "text": "Children can play outside freely in physical education and playground sessions."
+      }
+    },
+    "elderly": {
+      "warning": {
+        "badge": "Stay Indoors",
+        "title": "Cardiovascular caution window",
+        "text": "Limit early morning and late evening strolls when haze settles near ground level. Stay well-hydrated indoors."
+      },
+      "good": {
+        "badge": "Healthy Air",
+        "title": "Ideal for morning walks and garden time",
+        "text": "Air quality is good. Great conditions for senior strolls and fresh outdoor leisure."
+      }
+    },
+    "general": {
+      "danger": {
+        "badge": "Indoor Only",
+        "title": "Postpone strenuous outdoor exercise",
+        "text": "Vigorous breathing draws smoke particles deep into your lungs. Move running, cycling, or football sessions indoors."
+      },
+      "warning": {
+        "badge": "Moderate Pace",
+        "title": "Reduce intense outdoor workouts",
+        "text": "Shorten runs to under 30 minutes at an easy pace, or shift intense training indoors."
+      },
+      "good": {
+        "badge": "Great Conditions",
+        "title": "Prime air quality for outdoor training",
+        "text": "No respiratory restrictions. Ideal conditions for long runs, cycling, and outdoor recreation."
+      }
     }
   },
   "trends": {
@@ -98,7 +183,13 @@
     "o3": "Ozone (O₃)",
     "co": "Carbon Monoxide (CO)",
     "no2": "Nitrogen Dioxide (NO₂)",
-    "so2": "Sulphur Dioxide (SO₂)"
+    "so2": "Sulphur Dioxide (SO₂)",
+    "scrubTime": "Scrub Time:",
+    "time": "Time:",
+    "now": "Now",
+    "liveNow": "Live Now",
+    "hoursAgo": "{n}h ago",
+    "hours": "{n}h"
   },
   "map": {
     "title": "National Air Quality Map",
@@ -107,7 +198,10 @@
     "filterPeninsular": "Peninsular",
     "filterSabah": "Sabah",
     "filterSarawak": "Sarawak",
-    "selectPrompt": "Click any station marker for instant details"
+    "selectPrompt": "Click any station marker for instant details",
+    "select": "Select",
+    "dashboard": "Dashboard ↗",
+    "distanceAway": " • {km} km away"
   },
   "settings": {
     "title": "App Settings & PWA",
@@ -226,5 +320,30 @@
     "trendSteady": "Steady",
     "peakHaze": "Peak Window",
     "scrubTime": "Forecast Time"
+  },
+  "national": {
+    "title": "Malaysia Daily Overview",
+    "viewLeaderboard": "16 States Leaderboard",
+    "leaderboard": "State Board",
+    "worstStation": "Most Affected Today",
+    "cleanestStation": "Cleanest Air Today",
+    "schoolRule": "MOE School Alert",
+    "schoolNormal": "Schools Normal",
+    "nationalAverage": "National Average"
+  },
+  "leaderboard": {
+    "title": "State Air Quality Leaderboard",
+    "subtitle": "Rankings across 16 states & federal territories based on live readings",
+    "copyWhatsApp": "Copy WhatsApp Report",
+    "copied": "Copied to WhatsApp!",
+    "sortPeak": "Peak",
+    "sortAverage": "Average",
+    "sortName": "A-Z",
+    "peak": "Peak",
+    "average": "Average",
+    "stationsIn": "Monitoring Stations in {state}",
+    "selectToMonitor": "Select to monitor",
+    "trend24h": "24h Trend (AM→PM)",
+    "active": "Active"
   }
 }

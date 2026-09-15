@@ -117,6 +117,119 @@ export const useAirQualityStore = defineStore('airQuality', {
         .slice(0, 5);
     },
 
+    nationalSummary(state) {
+      if (!state.stations || state.stations.length === 0) {
+        return {
+          highestStation: null,
+          cleanestStation: null,
+          nationalAverage: 0,
+          unhealthyCount: 0,
+          schoolAlertCount: 0,
+          totalStations: 0
+        };
+      }
+
+      let highest = state.stations[0];
+      let cleanest = state.stations[0];
+      let totalApi = 0;
+      let unhealthyCount = 0;
+      let schoolAlertCount = 0;
+
+      for (const st of state.stations) {
+        totalApi += st.api;
+        if (st.api > highest.api) highest = st;
+        if (st.api < cleanest.api) cleanest = st;
+        if (st.api > 100) unhealthyCount++;
+        if (st.api > 200) schoolAlertCount++;
+      }
+
+      return {
+        highestStation: highest,
+        cleanestStation: cleanest,
+        nationalAverage: Math.round(totalApi / state.stations.length),
+        unhealthyCount,
+        schoolAlertCount,
+        totalStations: state.stations.length
+      };
+    },
+
+    stateRankings(state) {
+      if (!state.stations || state.stations.length === 0) return [];
+
+      const groups = {};
+      for (const st of state.stations) {
+        const stateName = st.state || 'Lain-lain';
+        if (!groups[stateName]) {
+          groups[stateName] = [];
+        }
+        groups[stateName].push(st);
+      }
+
+      const results = [];
+      for (const [stateName, stList] of Object.entries(groups)) {
+        let highest = stList[0];
+        let cleanest = stList[0];
+        let totalApi = 0;
+
+        for (const st of stList) {
+          totalApi += st.api;
+          if (st.api > highest.api) highest = st;
+          if (st.api < cleanest.api) cleanest = st;
+        }
+
+        const averageApi = Math.round(totalApi / stList.length);
+
+        // Compute 24-hour diurnal progression across all stations in this state (AM to PM)
+        const hourlyProgression24h = [];
+        for (let h = 0; h < 24; h++) {
+          let sumHourApi = 0;
+          let maxHourApi = 0;
+          let count = 0;
+
+          for (const st of stList) {
+            if (st.history24h && st.history24h[h]) {
+              const val = st.history24h[h].api;
+              sumHourApi += val;
+              if (val > maxHourApi) maxHourApi = val;
+              count++;
+            }
+          }
+
+          const avgAtHour = count > 0 ? Math.round(sumHourApi / count) : averageApi;
+          const peakAtHour = count > 0 ? maxHourApi : highest.api;
+          const timeLabel = stList[0]?.history24h?.[h]?.timeLabel || `${h}:00`;
+
+          hourlyProgression24h.push({
+            hour: h,
+            timeLabel,
+            avgApi: avgAtHour,
+            peakApi: peakAtHour,
+            category: getCategoryFromApi(avgAtHour)
+          });
+        }
+
+        const morningApi = hourlyProgression24h[8]?.avgApi || averageApi;
+        const currentAvg = hourlyProgression24h[hourlyProgression24h.length - 1]?.avgApi || averageApi;
+        const trendDelta = currentAvg - morningApi;
+
+        results.push({
+          state: stateName,
+          region: stList[0]?.region || 'Peninsular',
+          stationCount: stList.length,
+          stations: [...stList].sort((a, b) => b.api - a.api),
+          peakStation: highest,
+          cleanestStation: cleanest,
+          averageApi,
+          category: getCategoryFromApi(averageApi),
+          peakCategory: getCategoryFromApi(highest.api),
+          hourlyProgression24h,
+          trendDelta
+        });
+      }
+
+      return results.sort((a, b) => b.peakStation.api - a.peakStation.api);
+    },
+
     distanceToCurrentStation(state) {
       if (!state.userLocation || !this.currentStation) return null;
       return calculateDistanceKm(

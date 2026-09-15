@@ -283,12 +283,12 @@ function renderMarkers() {
       const icon = createMarkerIcon(st);
       const marker = L.marker([st.lat, st.lng], { icon });
 
-      const distStr = st.distanceKm !== undefined && st.distanceKm !== null ? ` • ${st.distanceKm} km away` : '';
+      const distStr = st.distanceKm !== undefined && st.distanceKm !== null ? t('map.distanceAway', { km: st.distanceKm }) : '';
 
       const communityHeaderHtml = st.isCommunity ? `
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 4px;">
           <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 9999px; background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); text-transform: uppercase;">
-            👥 Citizen Node (Unvalidated)
+            👥 ${t('community.badge')} (${t('community.unvalidated')})
           </span>
           <span style="font-size: 8px; color: #94a3b8; font-family: monospace;">${st.sensorModel?.split(' ')[0] || 'Sensor'}</span>
         </div>
@@ -297,11 +297,11 @@ function renderMarkers() {
       const communityMetricsHtml = st.isCommunity ? `
         <div style="background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 8px; margin-top: 6px; font-size: 10px; color: #cbd5e1;">
           <div style="display: flex; justify-content: space-between;">
-            <span style="color: #94a3b8;">PM2.5 Mentah:</span>
+            <span style="color: #94a3b8;">${t('community.rawPm25')}:</span>
             <span style="font-weight: 700; font-family: monospace;">${st.rawPm25} µg/m³</span>
           </div>
           <div style="display: flex; justify-content: space-between; margin-top: 2px;">
-            <span style="color: #38bdf8;">EPA Kalibrasi (RH ${st.humidity}%):</span>
+            <span style="color: #38bdf8;">${t('community.calibratedPm25')} (RH ${st.humidity}%):</span>
             <span style="font-weight: 700; color: #38bdf8; font-family: monospace;">${st.calibratedPm25} µg/m³</span>
           </div>
         </div>
@@ -315,13 +315,13 @@ function renderMarkers() {
           ${st.subTitle ? `<div style="font-size: 9px; color: #94a3b8; margin-top: 1px;">${st.subTitle}</div>` : ''}
           ${communityMetricsHtml}
           <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px;">
-            <span style="font-size: 11px; color: #cbd5e1; text-transform: capitalize;">${st.isCommunity ? 'API Setara' : st.category}</span>
+            <span style="font-size: 11px; color: #cbd5e1; text-transform: capitalize;">${st.isCommunity ? t('community.equivApi') : st.category}</span>
             <span style="font-size: 16px; font-weight: 900; color: ${getCategoryColor(st.category)}; font-family: monospace;">API ${st.api}</span>
           </div>
           <div style="display: flex; gap: 6px; margin-top: 10px;">
             <button id="btn-select-${st.id}" style="
               flex: 1;
-              background: #4f46e5;
+              background: #0284c7;
               color: white;
               border: none;
               padding: 6px 8px;
@@ -330,7 +330,7 @@ function renderMarkers() {
               font-weight: 700;
               cursor: pointer;
             ">
-              Select
+              ${t('map.select')}
             </button>
             <button id="btn-dash-${st.id}" style="
               background: rgba(255,255,255,0.1);
@@ -342,7 +342,7 @@ function renderMarkers() {
               font-weight: 700;
               cursor: pointer;
             ">
-              Dashboard ↗
+              ${t('map.dashboard')}
             </button>
           </div>
         </div>

@@ -32,12 +32,12 @@ const { t } = useI18n();
 
 const isSchoolClosureTriggered = computed(() => props.api > 200);
 
-const personas = [
-  { id: 'general', icon: '🏃', label: 'Runner / Active', sub: 'Cardio & Outdoors' },
-  { id: 'toddler', icon: '👶', label: 'School & Kids', sub: 'Recess & Rec' },
-  { id: 'asthma', icon: '🫁', label: 'Sensitive / Asthma', sub: 'Airway Care' },
-  { id: 'elderly', icon: '👵', label: 'Senior & Home', sub: 'Ventilation' }
-];
+const personas = computed(() => [
+  { id: 'general', icon: '🏃', label: t('personas.general.label'), sub: t('personas.general.sub') },
+  { id: 'toddler', icon: '👶', label: t('personas.toddler.label'), sub: t('personas.toddler.sub') },
+  { id: 'asthma', icon: '🫁', label: t('personas.asthma.label'), sub: t('personas.asthma.sub') },
+  { id: 'elderly', icon: '👵', label: t('personas.elderly.label'), sub: t('personas.elderly.sub') }
+]);
 
 const activePersona = computed(() => store.activeProfile || 'general');
 
@@ -45,100 +45,35 @@ function selectPersona(id) {
   store.setProfile(id);
 }
 
-// Persona specific dynamic advice
+// Persona specific dynamic advice from locale dictionary
 const personaGuidance = computed(() => {
   const p = activePersona.value;
   const api = props.api;
 
+  let level = 'good';
   if (p === 'asthma') {
-    if (api > 200) {
-      return {
-        level: 'danger',
-        badge: 'HIGH ALERT',
-        title: 'Severe bronchospasm trigger',
-        text: 'Keep rescue bronchodilator (reliever) in immediate reach. Run HEPA filtration indoors on high.'
-      };
-    }
-    if (api > 100) {
-      return {
-        level: 'warning',
-        badge: 'ELEVATED RISK',
-        title: 'Micro-particles irritating airways',
-        text: 'Avoid outdoor exercise. Pre-medicate with doctor-prescribed preventer if throat tightness develops.'
-      };
-    }
-    return {
-      level: 'good',
-      badge: 'SAFE TO BREATHE',
-      title: 'Minimal airway resistance',
-      text: 'Air particulate levels are within safe respiratory thresholds. Carry standard inhaler as normal routine.'
-    };
+    if (api > 200) level = 'danger';
+    else if (api > 100) level = 'warning';
+    else level = 'good';
+  } else if (p === 'toddler') {
+    if (api > 200) level = 'danger';
+    else if (api > 100) level = 'warning';
+    else level = 'good';
+  } else if (p === 'elderly') {
+    if (api > 100) level = 'warning';
+    else level = 'good';
+  } else {
+    // general
+    if (api > 150) level = 'danger';
+    else if (api > 100) level = 'warning';
+    else level = 'good';
   }
 
-  if (p === 'toddler') {
-    if (api > 200) {
-      return {
-        level: 'danger',
-        badge: 'SCHOOLS SHUT',
-        title: 'Official MOE Closure Triggered',
-        text: 'Children must remain strictly indoors. Keep windows sealed and avoid unventilated hallways.'
-      };
-    }
-    if (api > 100) {
-      return {
-        level: 'warning',
-        badge: 'CANCEL RECESS',
-        title: 'Outdoor sports prohibited by MOE',
-        text: 'Schools and kindergartens must suspend outdoor field activities and playground sessions.'
-      };
-    }
-    return {
-      level: 'good',
-      badge: 'SAFE FOR RECESS',
-      title: 'Normal playground activities safe',
-      text: 'Children can participate fully in physical education, playground games, and outdoor sports.'
-    };
-  }
-
-  if (p === 'elderly') {
-    if (api > 100) {
-      return {
-        level: 'warning',
-        badge: 'STAY INDOORS',
-        title: 'Cardiovascular strain window',
-        text: 'Avoid early morning walks when haze settles near ground level. Monitor blood pressure and resting pulse.'
-      };
-    }
-    return {
-      level: 'good',
-      badge: 'HEALTHY AIR',
-      title: 'Safe for garden and morning walks',
-      text: 'Atmospheric oxygenation is optimal. Excellent conditions for senior walking and outdoor leisure.'
-    };
-  }
-
-  // Default: General Runner / Athlete
-  if (api > 150) {
-    return {
-      level: 'danger',
-      badge: 'INDOOR ONLY',
-      title: 'Heavy cardio prohibited outdoors',
-      text: 'High air intake during runs will deposit particulate matter deep into alveoli. Shift to indoor treadmill/gym.'
-    };
-  }
-  if (api > 100) {
-    return {
-      level: 'warning',
-      badge: 'MODERATE RUNS',
-      title: 'Limit marathon & interval training',
-      text: 'Keep outdoor runs below 30 minutes at easy pace. Sensitive runners should wear KF94 mask.'
-    };
-  }
   return {
-    level: 'good',
-    badge: 'OPTIMAL RUNNING',
-    title: 'Peak conditions for outdoor cardio',
-    text: 'Zero respiration impairment detected. Ideal for long-distance runs, cycling, and vigorous training.'
+    level,
+    badge: t(`personaAdvice.${p}.${level}.badge`),
+    title: t(`personaAdvice.${p}.${level}.title`),
+    text: t(`personaAdvice.${p}.${level}.text`)
   };
 });
 </script>
@@ -157,14 +92,14 @@ const personaGuidance = computed(() => {
       <!-- School status trigger pill -->
       <span
         v-if="isSchoolClosureTriggered"
-        class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse flex items-center gap-1"
+        class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse flex items-center gap-1.5"
       >
-        <School class="w-3 h-3" />
-        <span>MOE Closure (API > 200)</span>
+        <School class="w-3.5 h-3.5" />
+        <span>{{ t('guidance.schoolsClosedAlert') }}</span>
       </span>
-      <span v-else class="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+      <span v-else class="text-[10px] font-mono text-emerald-400 flex items-center gap-1.5">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-        Schools Normal
+        <span>{{ t('guidance.schoolsOpenNormal') }}</span>
       </span>
     </div>
 
@@ -207,14 +142,14 @@ const personaGuidance = computed(() => {
       ]"
     >
       <Sparkles class="w-4 h-4 shrink-0 mt-0.5 text-cyan-400" />
-      <div class="space-y-0.5 flex-1">
+      <div class="space-y-1 flex-1">
         <div class="flex items-center justify-between">
           <h4 class="font-bold text-white text-xs">{{ personaGuidance.title }}</h4>
-          <span class="text-[9px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-black/40 border border-white/10">
+          <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-black/40 border border-white/10">
             {{ personaGuidance.badge }}
           </span>
         </div>
-        <p class="text-slate-300 text-[11px] leading-relaxed">
+        <p class="text-slate-300 text-xs leading-relaxed">
           {{ personaGuidance.text }}
         </p>
       </div>
