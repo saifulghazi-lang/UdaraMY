@@ -33,6 +33,8 @@ import HazeHotspotWidget from './components/HazeHotspotWidget.vue';
 import HazeCalendarGrid from './components/HazeCalendarGrid.vue';
 import NationalOverviewBar from './components/NationalOverviewBar.vue';
 import StateLeaderboardModal from './components/StateLeaderboardModal.vue';
+import NewsBroadcastCarousel from './components/NewsBroadcastCarousel.vue';
+import CivicActionBadge from './components/CivicActionBadge.vue';
 
 const store = useAirQualityStore();
 const { t, locale } = useI18n();
@@ -78,12 +80,6 @@ function updateLiveClock() {
     second: '2-digit',
     hour12: false
   }) + ' MYT';
-}
-
-function toggleLang() {
-  const next = locale.value === 'en' ? 'bm' : 'en';
-  locale.value = next;
-  localStorage.setItem('udaramy_lang', next);
 }
 
 function handleStationSelect(id) {
@@ -273,18 +269,6 @@ onBeforeUnmount(() => {
               <span>{{ t('share.button') }}</span>
             </button>
 
-            <!-- Language Switcher -->
-            <button
-              @click="toggleLang(); isOverflowMenuOpen = false"
-              class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 transition text-left"
-            >
-              <div class="flex items-center gap-2.5">
-                <Globe class="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
-                <span>{{ locale === 'en' ? 'Bahasa Melayu' : 'English' }}</span>
-              </div>
-              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 uppercase">{{ locale }}</span>
-            </button>
-
             <!-- Theme Toggle in Menu -->
             <button
               @click="toggleTheme(); isOverflowMenuOpen = false"
@@ -359,9 +343,12 @@ onBeforeUnmount(() => {
           @open-leaderboard="isLeaderboardModalOpen = true"
         />
 
+        <!-- Official Civic News & Directives Broadcast Carousel -->
+        <NewsBroadcastCarousel />
+
         <!-- Core Dashboard Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          <!-- Left Column: Atmospheric Card & Health Advice -->
+          <!-- Left Column: Atmospheric Card, Civic Action Badge & Health Advice -->
           <div class="lg:col-span-6 space-y-5">
             <AtmosphericCard
               :station="store.currentStation"
@@ -372,6 +359,12 @@ onBeforeUnmount(() => {
               :is-simulating="store.simulationApi !== null"
               @open-station-selector="isStationModalOpen = true"
               @clear-simulation="() => store.clearSimulation()"
+            />
+
+            <!-- Real-Time Civic Action & School Status Badge (MOE 1/2019) -->
+            <CivicActionBadge
+              :api="store.currentStation.api"
+              :station-name="store.currentStation.name"
             />
 
             <HealthAdvicePanel

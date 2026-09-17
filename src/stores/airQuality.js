@@ -7,9 +7,7 @@ import {
   getAllCommunitySensors,
   fetchLiveOpenAqSensors,
   getOpenAqApiKey,
-  setOpenAqApiKey,
-  saveCustomCommunitySensor,
-  removeCustomCommunitySensor
+  setOpenAqApiKey
 } from '../services/communityService.js';
 import { fetchAirQualityForecast } from '../services/airQualityForecastService.js';
 

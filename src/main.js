@@ -6,17 +6,13 @@ import App from './App.vue';
 import './assets/main.css';
 
 import en from './locales/en.json';
-import bm from './locales/bm.json';
-
-const savedLang = localStorage.getItem('udaramy_lang') || 'bm';
 
 const i18n = createI18n({
   legacy: false,
-  locale: savedLang,
+  locale: 'en',
   fallbackLocale: 'en',
   messages: {
-    en,
-    bm
+    en
   }
 });
 

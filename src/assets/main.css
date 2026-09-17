@@ -129,3 +129,200 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.4);
 }
+
+/* ==========================================================================
+   Station Map Popup Theme System (Dual-Theme Light + AMOLED Dark)
+   ========================================================================== */
+.ud-popup {
+  min-width: 190px;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.ud-popup-community-tag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.ud-popup-badge-community {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: rgba(168, 85, 247, 0.15);
+  color: #9333ea;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  text-transform: uppercase;
+  font-family: ui-monospace, monospace;
+}
+
+.dark .ud-popup-badge-community {
+  color: #c084fc;
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.ud-popup-sensor-model {
+  font-size: 10px;
+  font-family: ui-monospace, monospace;
+  color: #64748b;
+}
+
+.dark .ud-popup-sensor-model {
+  color: #94a3b8;
+}
+
+.ud-popup-state {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  font-family: system-ui, sans-serif;
+}
+
+.dark .ud-popup-state {
+  color: #94a3b8;
+}
+
+.ud-popup-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 2px;
+  line-height: 1.25;
+}
+
+.dark .ud-popup-name {
+  color: #ffffff;
+}
+
+.ud-popup-subtitle {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.dark .ud-popup-subtitle {
+  color: #94a3b8;
+}
+
+.ud-popup-metrics {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin-top: 6px;
+  font-size: 10px;
+  color: #334155;
+}
+
+.dark .ud-popup-metrics {
+  background: #0a0a0a;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+.ud-popup-metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ud-popup-metric-row + .ud-popup-metric-row {
+  margin-top: 3px;
+}
+
+.ud-popup-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 6px;
+}
+
+.dark .ud-popup-footer {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.ud-popup-category {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: capitalize;
+}
+
+.dark .ud-popup-category {
+  color: #cbd5e1;
+}
+
+.ud-popup-api {
+  font-size: 18px;
+  font-weight: 900;
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  letter-spacing: -0.02em;
+}
+
+.ud-popup-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.ud-popup-btn-select {
+  flex: 1;
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.ud-popup-btn-select:hover {
+  background: #4338ca;
+}
+
+.ud-popup-btn-select:active {
+  transform: scale(0.97);
+}
+
+.ud-popup-btn-dash {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.ud-popup-btn-dash:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.dark .ud-popup-btn-dash {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark .ud-popup-btn-dash:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.ud-popup-btn-dash:active {
+  transform: scale(0.97);
+}
+

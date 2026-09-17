@@ -68,6 +68,16 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Combined stations based on network filter and community toggle
 const combinedStations = computed(() => {
   const isMalaysia = (s) => typeof s.lat === 'number' && typeof s.lng === 'number' && s.lat >= 0.8 && s.lat <= 7.5 && s.lng >= 99.5 && s.lng <= 119.5;
@@ -109,39 +119,6 @@ const displayedStations = computed(() => {
 function createMarkerIcon(station) {
   const color = getCategoryColor(station.category);
   const isSelected = station.id === props.selectedStationId;
-
-  if (station.isCommunity) {
-    const html = `
-      <div style="
-        background-color: #000000;
-        color: ${color};
-        font-weight: 900;
-        font-size: 10px;
-        font-family: monospace;
-        width: ${isSelected ? '36px' : '28px'};
-        height: ${isSelected ? '36px' : '28px'};
-        border-radius: 9999px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 ${isSelected ? '16px' : '8px'} ${color}99;
-        border: ${isSelected ? '2.5px solid #ffffff' : `2px dashed ${color}`};
-        transform: translate(-50%, -50%);
-        transition: all 0.2s ease;
-        cursor: pointer;
-      ">
-        <span style="font-size: 7px; line-height: 1; margin-top: -1px;">👥</span>
-        <span style="line-height: 1;">${station.api}</span>
-      </div>
-    `;
-    return L.divIcon({
-      html,
-      className: 'custom-community-pin',
-      iconSize: [28, 28]
-    });
-  }
-
   const zoom = map ? map.getZoom() : 6;
 
   // Zoom-adaptive sizing:
@@ -173,7 +150,7 @@ function createMarkerIcon(station) {
         color: ${color};
         font-weight: 900;
         font-size: ${fontSize}px;
-        font-family: monospace;
+        font-family: ui-monospace, monospace;
         width: ${pinSize}px;
         height: ${pinSize}px;
         border-radius: 9999px;
@@ -187,7 +164,7 @@ function createMarkerIcon(station) {
         transition: all 0.15s ease;
         cursor: pointer;
       ">
-        ${zoom >= 7 ? '<span style="font-size: 7px; line-height: 1; margin-top: -1px;">👥</span>' : ''}
+        ${zoom >= 7 ? '<span style="font-size: 10px; line-height: 1; transform: scale(0.8); margin-top: -1px;">👥</span>' : ''}
         <span style="line-height: 1;">${station.api}</span>
       </div>
     `;
@@ -201,7 +178,7 @@ function createMarkerIcon(station) {
   const html = `
     <div style="
       background-color: ${color};
-      color: #090d16;
+      color: #0f172a;
       font-weight: 800;
       font-size: ${fontSize}px;
       font-family: monospace;
@@ -321,12 +298,12 @@ function renderUserLocation() {
 
   const { lat, lng, accuracy } = props.userLocation;
 
-  // Blue pulsing dot for user GPS position
+  // Cyan pulsing dot for user GPS position (Cyan Pulse token)
   const userIcon = L.divIcon({
     html: `
       <div style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-        <span style="position: absolute; width: 100%; height: 100%; border-radius: 9999px; background: #3b82f6; opacity: 0.75; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
-        <span style="position: relative; width: 14px; height: 14px; border-radius: 9999px; background: #2563eb; border: 2.5px solid #ffffff; box-shadow: 0 0 12px rgba(37,99,235,0.9);"></span>
+        <span style="position: absolute; width: 100%; height: 100%; border-radius: 9999px; background: #00d2ff; opacity: 0.75; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
+        <span style="position: relative; width: 14px; height: 14px; border-radius: 9999px; background: #0284c7; border: 2.5px solid #ffffff; box-shadow: 0 0 12px rgba(0,210,255,0.9);"></span>
       </div>
     `,
     className: 'user-gps-marker',
@@ -335,8 +312,8 @@ function renderUserLocation() {
 
   const marker = L.marker([lat, lng], { icon: userIcon });
   marker.bindPopup(`
-    <div style="font-family: system-ui, sans-serif; font-size: 12px; font-weight: 700; color: #f8fafc; padding: 2px;">
-      📍 ${t('location.nearest') || 'Your Location'}
+    <div class="ud-popup text-xs font-bold text-slate-900 dark:text-white p-0.5">
+      📍 ${t('location.nearest') || 'Lokasi Anda'}
     </div>
   `);
   userLocationLayer.addLayer(marker);
@@ -344,9 +321,9 @@ function renderUserLocation() {
   if (accuracy && accuracy < 8000) {
     const halo = L.circle([lat, lng], {
       radius: accuracy,
-      color: '#3b82f6',
+      color: '#00d2ff',
       weight: 1,
-      fillColor: '#3b82f6',
+      fillColor: '#00d2ff',
       fillOpacity: 0.12
     });
     userLocationLayer.addLayer(halo);
@@ -380,64 +357,51 @@ function renderMarkers() {
       });
 
       const distStr = st.distanceKm !== undefined && st.distanceKm !== null ? t('map.distanceAway', { km: st.distanceKm }) : '';
+      const safeSensorModel = escapeHtml(st.sensorModel?.split(' ')[0] || 'Sensor');
+      const safeState = escapeHtml(st.state);
+      const safeDistStr = escapeHtml(distStr);
+      const safeName = escapeHtml(st.name);
+      const safeSubTitle = st.subTitle ? escapeHtml(st.subTitle) : '';
+      const safeElementId = encodeURIComponent(st.id);
 
       const communityHeaderHtml = st.isCommunity ? `
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 4px;">
-          <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 9999px; background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); text-transform: uppercase;">
+        <div class="ud-popup-community-tag">
+          <span class="ud-popup-badge-community">
             👥 ${t('community.badge')} (${t('community.unvalidated')})
           </span>
-          <span style="font-size: 8px; color: #94a3b8; font-family: monospace;">${st.sensorModel?.split(' ')[0] || 'Sensor'}</span>
+          <span class="ud-popup-sensor-model">${safeSensorModel}</span>
         </div>
       ` : '';
 
       const communityMetricsHtml = st.isCommunity ? `
-        <div style="background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 6px 8px; margin-top: 6px; font-size: 10px; color: #cbd5e1;">
-          <div style="display: flex; justify-content: space-between;">
-            <span style="color: #94a3b8;">${t('community.rawPm25')}:</span>
-            <span style="font-weight: 700; font-family: monospace;">${st.rawPm25} µg/m³</span>
+        <div class="ud-popup-metrics">
+          <div class="ud-popup-metric-row">
+            <span class="text-slate-500 dark:text-neutral-400">${t('community.rawPm25')}:</span>
+            <span class="font-bold font-mono">${Number(st.rawPm25) || 0} µg/m³</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-top: 2px;">
-            <span style="color: #38bdf8;">${t('community.calibratedPm25')} (RH ${st.humidity}%):</span>
-            <span style="font-weight: 700; color: #38bdf8; font-family: monospace;">${st.calibratedPm25} µg/m³</span>
+          <div class="ud-popup-metric-row">
+            <span class="text-cyan-600 dark:text-cyan-400">${t('community.calibratedPm25')} (RH ${Number(st.humidity) || 0}%):</span>
+            <span class="font-bold font-mono text-cyan-600 dark:text-cyan-400">${Number(st.calibratedPm25) || 0} µg/m³</span>
           </div>
         </div>
       ` : '';
 
       const popupHtml = `
-        <div style="font-family: system-ui, sans-serif; min-width: 180px;">
+        <div class="ud-popup">
           ${communityHeaderHtml}
-          <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">${st.state}${distStr}</div>
-          <div style="font-size: 13px; font-weight: 800; color: #f8fafc; margin-top: 2px;">${st.name}</div>
-          ${st.subTitle ? `<div style="font-size: 9px; color: #94a3b8; margin-top: 1px;">${st.subTitle}</div>` : ''}
+          <div class="ud-popup-state">${safeState}${safeDistStr}</div>
+          <div class="ud-popup-name">${safeName}</div>
+          ${safeSubTitle ? `<div class="ud-popup-subtitle">${safeSubTitle}</div>` : ''}
           ${communityMetricsHtml}
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px;">
-            <span style="font-size: 11px; color: #cbd5e1; text-transform: capitalize;">${st.isCommunity ? t('community.equivApi') : st.category}</span>
-            <span style="font-size: 16px; font-weight: 900; color: ${getCategoryColor(st.category)}; font-family: monospace;">API ${st.api}</span>
+          <div class="ud-popup-footer">
+            <span class="ud-popup-category">${st.isCommunity ? t('community.equivApi') : st.category}</span>
+            <span class="ud-popup-api" style="color: ${getCategoryColor(st.category)};">API ${Number(st.api) || 0}</span>
           </div>
-          <div style="display: flex; gap: 6px; margin-top: 10px;">
-            <button id="btn-select-${st.id}" style="
-              flex: 1;
-              background: #0284c7;
-              color: white;
-              border: none;
-              padding: 6px 8px;
-              border-radius: 8px;
-              font-size: 11px;
-              font-weight: 700;
-              cursor: pointer;
-            ">
+          <div class="ud-popup-actions">
+            <button id="btn-select-${safeElementId}" class="ud-popup-btn-select">
               ${t('map.select')}
             </button>
-            <button id="btn-dash-${st.id}" style="
-              background: rgba(255,255,255,0.1);
-              color: #cbd5e1;
-              border: 1px solid rgba(255,255,255,0.2);
-              padding: 6px 8px;
-              border-radius: 8px;
-              font-size: 11px;
-              font-weight: 700;
-              cursor: pointer;
-            ">
+            <button id="btn-dash-${safeElementId}" class="ud-popup-btn-dash">
               ${t('map.dashboard')}
             </button>
           </div>
@@ -447,13 +411,13 @@ function renderMarkers() {
       marker.bindPopup(popupHtml, { closeOnClick: false, autoPan: true });
 
       marker.on('popupopen', () => {
-        const btnSelect = document.getElementById(`btn-select-${st.id}`);
+        const btnSelect = document.getElementById(`btn-select-${safeElementId}`);
         if (btnSelect) {
           btnSelect.onclick = () => {
             onStationClick(st.id, false);
           };
         }
-        const btnDash = document.getElementById(`btn-dash-${st.id}`);
+        const btnDash = document.getElementById(`btn-dash-${safeElementId}`);
         if (btnDash) {
           btnDash.onclick = () => {
             emit('selectStation', st.id);
@@ -525,6 +489,24 @@ function zoomToRegion(region) {
   } else {
     map.flyTo([4.2105, 108.5], 6);
   }
+}
+
+function getFilterPillClass(isActive) {
+  return isActive
+    ? 'bg-indigo-600 text-white shadow-sm'
+    : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white';
+}
+
+function getSortPillClass(isActive) {
+  return isActive
+    ? 'bg-indigo-600 text-white shadow-sm'
+    : 'bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white';
+}
+
+function getDrawerButtonClass(isOpen) {
+  return isOpen
+    ? 'bg-indigo-50 border-indigo-500/40 text-indigo-700 dark:bg-indigo-950/80 dark:border-indigo-500/60 dark:text-indigo-200'
+    : 'bg-white dark:bg-black border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white';
 }
 
 onMounted(() => {
@@ -659,28 +641,28 @@ onBeforeUnmount(() => {
         <div class="flex items-center gap-1 bg-slate-100 dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-1 text-xs">
           <button
             @click="networkFilter = 'all'"
-            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', networkFilter === 'all' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'all')]"
             title="Papar semua stesen rasmi JAS dan sensor komuniti"
           >
             <span>Semua</span>
           </button>
           <button
             @click="networkFilter = 'official'"
-            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', networkFilter === 'official' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'official')]"
             title="Hanya stesen rasmi JAS APIMS"
           >
             <span>🏛️ JAS ({{ stations.length }})</span>
           </button>
           <button
             @click="networkFilter = 'community'"
-            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', networkFilter === 'community' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'community')]"
             title="Sensor komuniti warga (PurpleAir / AirVisual)"
           >
             <span>👥 Komuniti ({{ communitySensors.length }})</span>
           </button>
           <button
             @click="isFilterDrawerOpen = !isFilterDrawerOpen"
-            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1.5 border', isFilterDrawerOpen ? 'bg-indigo-50 border-indigo-500/40 text-indigo-700 dark:bg-indigo-950/80 dark:border-indigo-500/60 dark:text-indigo-200' : 'bg-white dark:bg-black border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1.5 border', getDrawerButtonClass(isFilterDrawerOpen)]"
           >
             <Layers class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
             <span>{{ isFilterDrawerOpen ? 'Tutup Penapis' : 'Lapisan & Wilayah' }}</span>
@@ -697,19 +679,19 @@ onBeforeUnmount(() => {
         <div class="flex items-center gap-1 bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-0.5">
           <button
             @click="setViewMode('both')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', mapViewMode === 'both' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(mapViewMode === 'both')]"
           >
             🌫️ Haze + Pins
           </button>
           <button
             @click="setViewMode('heatmap')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', mapViewMode === 'heatmap' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(mapViewMode === 'heatmap')]"
           >
             ☁️ Heatmap
           </button>
           <button
             @click="setViewMode('pins')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', mapViewMode === 'pins' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(mapViewMode === 'pins')]"
           >
             📍 Pins
           </button>
@@ -722,25 +704,25 @@ onBeforeUnmount(() => {
         <div class="flex items-center gap-1 bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-0.5">
           <button
             @click="zoomToRegion('All')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', currentFilter === 'All' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'All')]"
           >
             {{ t('map.filterAll') }}
           </button>
           <button
             @click="zoomToRegion('Peninsular')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', currentFilter === 'Peninsular' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'Peninsular')]"
           >
             {{ t('map.filterPeninsular') }}
           </button>
           <button
             @click="zoomToRegion('Sabah')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', currentFilter === 'Sabah' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'Sabah')]"
           >
             {{ t('map.filterSabah') }}
           </button>
           <button
             @click="zoomToRegion('Sarawak')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', currentFilter === 'Sarawak' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'Sarawak')]"
           >
             {{ t('map.filterSarawak') }}
           </button>
@@ -812,19 +794,19 @@ onBeforeUnmount(() => {
               <button
                 v-if="userLocation"
                 @click="sortBy = 'distance_asc'"
-                :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', sortBy === 'distance_asc' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white']"
+                :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getSortPillClass(sortBy === 'distance_asc')]"
               >
                 📍 Terdekat
               </button>
               <button
                 @click="sortBy = 'api_desc'"
-                :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', sortBy === 'api_desc' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white']"
+                :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getSortPillClass(sortBy === 'api_desc')]"
               >
                 🔥 Haze Watch
               </button>
               <button
                 @click="sortBy = 'name_asc'"
-                :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', sortBy === 'name_asc' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white']"
+                :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getSortPillClass(sortBy === 'name_asc')]"
               >
                 A-Z
               </button>
@@ -892,7 +874,7 @@ onBeforeUnmount(() => {
               <!-- Quick Switch to Full Dashboard Button -->
               <button
                 @click.stop="() => { emit('selectStation', st.id); emit('viewDashboard'); }"
-                class="p-1.5 rounded-full bg-slate-100 dark:bg-neutral-950 hover:bg-indigo-600 text-slate-500 dark:text-neutral-400 hover:text-white transition opacity-80 group-hover:opacity-100 border border-slate-200 dark:border-white/10"
+                class="p-1.5 rounded-full bg-slate-100 dark:bg-neutral-950 hover:bg-slate-200 dark:hover:bg-neutral-800 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white transition opacity-80 group-hover:opacity-100 border border-slate-200 dark:border-white/10"
                 title="View full dashboard for this station"
               >
                 <ExternalLink class="w-3.5 h-3.5" />

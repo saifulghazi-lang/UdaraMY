@@ -11,7 +11,9 @@ const cache = new Map();
  * Fetch 48-hour forward air quality forecast for given coordinates
  */
 export async function fetchAirQualityForecast(lat = 3.139, lng = 101.6869) {
-  const cacheKey = `${lat.toFixed(2)},${lng.toFixed(2)}`;
+  const roundedLat = typeof lat === 'number' ? lat.toFixed(2) : '3.14';
+  const roundedLng = typeof lng === 'number' ? lng.toFixed(2) : '101.69';
+  const cacheKey = `${roundedLat},${roundedLng}`;
   const cached = cache.get(cacheKey);
   const now = Date.now();
 
@@ -21,7 +23,7 @@ export async function fetchAirQualityForecast(lat = 3.139, lng = 101.6869) {
   }
 
   try {
-    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lng}&hourly=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone&forecast_days=3`;
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${roundedLat}&longitude=${roundedLng}&hourly=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone&forecast_days=3`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Open-Meteo API error: ${response.status}`);

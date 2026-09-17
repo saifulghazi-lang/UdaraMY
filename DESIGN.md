@@ -1,17 +1,25 @@
 ---
 name: UdaraMY
-description: Malaysia's real-time air quality and haze health monitor for everyday citizens — actionable, precise, and calm at midnight.
+description: Malaysia's real-time air quality and haze health monitor for everyday citizens — actionable, clinical, and precise in daylight and at midnight.
 colors:
+  paper-bg: "#f8fafc"
+  surface-light: "#ffffff"
+  surface-light-inset: "#f1f5f9"
+  border-light: "#e2e8f0"
+  border-light-strong: "#cbd5e1"
+  text-light-primary: "#0f172a"
+  text-light-secondary: "#475569"
+  text-light-muted: "#94a3b8"
   void-black: "#000000"
   surface-raised: "#0a0a0a"
   surface-muted: "#171717"
-  border-subtle: "rgba(255,255,255,0.10)"
-  border-faint: "rgba(255,255,255,0.06)"
-  text-primary: "#ffffff"
-  text-secondary: "#e2e8f0"
-  text-muted: "#94a3b8"
-  text-dim: "#64748b"
+  border-dark: "rgba(255,255,255,0.10)"
+  border-dark-faint: "rgba(255,255,255,0.06)"
+  text-dark-primary: "#ffffff"
+  text-dark-secondary: "#cbd5e1"
+  text-dark-muted: "#94a3b8"
   accent-indigo: "#6366f1"
+  accent-indigo-hover: "#4f46e5"
   accent-indigo-deep: "#4338ca"
   status-good: "#00d2ff"
   status-good-secondary: "#0284c7"
@@ -23,11 +31,8 @@ colors:
   status-very-unhealthy-secondary: "#b91c1c"
   status-hazardous: "#881337"
   status-hazardous-secondary: "#4c0519"
-  signal-cyan: "#22d3ee"
-  signal-emerald: "#34d399"
-  signal-amber: "#fbbf24"
-  signal-rose: "#fb7185"
-  signal-violet: "#a78bfa"
+  community-purple: "#a855f7"
+  community-purple-light: "#c084fc"
 typography:
   display:
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif"
@@ -76,243 +81,202 @@ spacing:
 components:
   button-primary:
     backgroundColor: "{colors.accent-indigo}"
-    textColor: "{colors.text-primary}"
+    textColor: "{colors.text-dark-primary}"
     rounded: "{rounded.xl}"
-    padding: "0.375rem 0.875rem"
+    padding: "0.5rem 1rem"
   button-primary-hover:
-    backgroundColor: "{colors.accent-indigo-deep}"
+    backgroundColor: "{colors.accent-indigo-hover}"
   button-ghost:
-    backgroundColor: "{colors.void-black}"
-    textColor: "{colors.text-secondary}"
+    backgroundColor: "transparent"
+    textColor: "{colors.text-light-secondary}"
     rounded: "{rounded.xl}"
     padding: "0.375rem 0.75rem"
-  button-ghost-hover:
-    backgroundColor: "{colors.surface-muted}"
   chip-default:
-    backgroundColor: "{colors.void-black}"
-    textColor: "{colors.text-secondary}"
+    backgroundColor: "transparent"
+    textColor: "{colors.text-light-secondary}"
     rounded: "{rounded.full}"
     padding: "0.375rem 0.75rem"
   chip-active:
-    backgroundColor: "{colors.void-black}"
-    textColor: "{colors.text-primary}"
+    backgroundColor: "{colors.accent-indigo}"
+    textColor: "{colors.text-dark-primary}"
     rounded: "{rounded.full}"
     padding: "0.375rem 0.75rem"
   card-surface:
-    backgroundColor: "{colors.void-black}"
-    textColor: "{colors.text-primary}"
+    backgroundColor: "{colors.surface-light}"
+    textColor: "{colors.text-light-primary}"
     rounded: "{rounded.3xl}"
     padding: "{spacing.xl}"
   input-search:
-    backgroundColor: "{colors.surface-raised}"
-    textColor: "{colors.text-primary}"
+    backgroundColor: "{colors.surface-light-inset}"
+    textColor: "{colors.text-light-primary}"
     rounded: "{rounded.2xl}"
     padding: "0.5rem 0.75rem 0.5rem 2.25rem"
+  community-badge:
+    backgroundColor: "rgba(168,85,247,0.15)"
+    textColor: "{colors.community-purple}"
+    rounded: "{rounded.full}"
+    padding: "0.25rem 0.625rem"
 ---
 
 # Design System: UdaraMY
 
 ## Overview
 
-**Creative North Star: "The Night Clinic"**
+**Creative North Star: "The Clinical Instrument"**
 
-UdaraMY is a civic health instrument designed to be trusted at midnight. Not a weather widget. Not a data dashboard. A clinical decision surface — the kind of thing a parent looks at before deciding whether to let their child run outside, or a healthcare worker checks before advising a patient. That civic weight is the design brief. Every choice must earn the user's trust under low-ambient-light conditions, on a glowing phone screen in the dark.
+UdaraMY is a civic health instrument engineered for Malaysian citizens, parents, and healthcare personnel. It is not an ambient weather widget or a playful consumer toy; it is an authoritative public decision surface. Whether evaluated under the tropical noon sun or checked at midnight in a dark bedroom before opening windows, every pixel must communicate precision, reliability, and calm authority.
 
-The visual language is built on a single premise: darkness is not decoration, it is the working environment. The `#000000` AMOLED void is not a color choice — it is the canvas every signal is written against. The pulsing neon gauge arc, the luminous API numeral, the cyan GPS icon: these glow precisely because they have nothing competing with them. When air quality deteriorates, the system shifts from cyan through amber to crimson; the user's eye learns this vocabulary faster than any legend because the hue is the threat level.
+The system is built on a **Dual-Theme Paradigm**:
+- **Daylight Mode (Default):** A pristine, crisp clinical environment (`bg-slate-50` with pure white cards and precision `border-slate-200/80` borders). High legibility under bright ambient light, mirroring modern medical instrumentation and official scientific dashboards.
+- **Night / Midnight Mode (AMOLED):** An uncompromised `#000000` AMOLED void where status signals, glowing gauge arcs, and neon measurement readouts float without visual noise or battery waste.
 
-Typography is disciplined, compact, and bilingual. Numbers are the hero; labels are subservient to them. Monospace font stacks appear wherever data precision is conveyed — timestamps, API readings, distance badges — because monospace signals measurement, not style.
+Typography is disciplined, compact, and bilingual (Bahasa Melayu / English). Measurements are heroic; narrative labels defer to them. Monospace font stacks govern data values (API numerals, PM2.5 concentrations, relative humidity, distance, timestamps) because monospace communicates empirical measurement rather than styling.
 
 **Key Characteristics:**
-- Pure AMOLED black (`#000000`) canvas throughout — no dark-gray washes, no muddy blur backgrounds
-- Status-reactive ambient neons: Cyan (Good) → Emerald (Moderate) → Amber (Unhealthy) → Red (Very Unhealthy) → Crimson (Hazardous)
-- Monospace numerals and labels wherever precision matters (readings, timestamps, distances)
-- `border-white/10` as the universal separator — thin, crisp, never gray
-- Radial gauge as the product's signature object: glowing, physically weighted, the single most important visual
+- **Dual-Fidelity Theme:** Clean clinical white/slate daylight default with an authentic `#000000` AMOLED dark mode.
+- **Strict 5-Tier Status Palette:** Cyan (Good) → Emerald (Moderate) → Amber (Unhealthy) → Red (Very Unhealthy) → Crimson (Hazardous).
+- **Measurement-First Monospace:** All numerical readings, coordinates, distances, and timestamps rendered in tabular monospace.
+- **Distinct Community Tier:** Verified government stations (JAS / APIMS) use solid rings and official badges; crowdsourced citizen sensors (OpenAQ / AirGradient / PurpleAir) use purple accenting, dashed borders, and clear humidity-calibration disclosure.
+- **Civic Heritage:** Micro-vector Malaysian state flags (`StateFlag.vue`) anchor regional identity across all 14 states and Federal Territories.
 
 ## Colors
 
-The palette is a dark void with precisely five status signal colors and one navigation accent. Every color earns its presence.
+The palette is engineered with clear separation between navigation affordances, semantic data states, and civic categorization.
 
 ### Primary
-- **Navigation Indigo** (`#6366f1`): Exclusive to active navigation states (selected tab fill, active station ring, focus highlights). Never used for data status.
+- **Navigation Indigo** (`#6366f1` / `#4f46e5`): Exclusive to interactive navigation controls (active navigation pills, focused station rings, primary action buttons). Never used for air quality status.
 
 ### Secondary
-- **Cyan Pulse** (`#00d2ff`): The default "all-clear" status signal and the primary icon tint across the interface. The color of the gauge at healthy API levels. Also used for GPS/locate icons and active persona ring.
-- **Status Gradient Secondaries** (`#0284c7`, `#059669`, `#d97706`, `#b91c1c`, `#4c0519`): Paired with their primaries to form the radial gauge arc gradients — never used stand-alone.
+- **Air Quality Status Spectrum (Official Malaysian APIMS Standards):**
+  - **Status Good / Baik** (`#00d2ff` primary, `#0284c7` secondary): API 0–50. Cyan glow.
+  - **Status Moderate / Sederhana** (`#10b981` primary, `#059669` secondary): API 51–100. Emerald signal.
+  - **Status Unhealthy / Tidak Sihat** (`#f59e0b` primary, `#d97706` secondary): API 101–200. Amber warning.
+  - **Status Very Unhealthy / Sangat Tidak Sihat** (`#ef4444` primary, `#b91c1c` secondary): API 201–300. Vivid red alert.
+  - **Status Hazardous / Berbahaya** (`#881337` primary, `#4c0519` secondary): API 301+. Deep crimson emergency.
 
 ### Tertiary
-- **Signal Palette** (Emerald `#34d399`, Amber `#fbbf24`, Rose `#fb7185`, Violet `#a78bfa`): Used at 20–30% opacity (`/20` tint) for semantic chip backgrounds and status badge surfaces. Their full-opacity versions appear only in badge text and icon fills.
+- **Community Sensor Accents** (`#a855f7` Purple, `#c084fc` Lavender): Reserved strictly for crowdsourced citizen sensors (OpenAQ, AirGradient, PurpleAir) to distinguish unvalidated community hardware from official government BAM-1020 monitors.
+- **Signal Highlights:** Emerald (`#34d399`) for live pulsing telemetry; Amber (`#fbbf24`) for simulation mode and active regional advisories.
 
 ### Neutral
-- **The Void** (`#000000`): The entire surface substrate. Every card, modal, nav bar, and page background.
-- **Surface Raised** (`#0a0a0a`): Subtly elevated surfaces within cards — search inputs, stat group backgrounds — distinguished from the void floor by perception rather than contrast.
-- **Surface Muted** (`#171717`): Hover state for ghost buttons and station list items. One step above `surface-raised`.
-- **Border Subtle** (`rgba(255,255,255,0.10)`): Universal separator. Card edges, input strokes, modal outlines.
-- **Border Faint** (`rgba(255,255,255,0.06)`): Internal section dividers within a card.
-- **Text Primary** (`#ffffff`): Station names, API numerals, headings, active states.
-- **Text Secondary** (`#e2e8f0`): Body content, card paragraph text.
-- **Text Muted** (`#94a3b8`): Labels, secondary identifiers, timestamp footers.
-- **Text Dim** (`#64748b`): Placeholder text, disabled states, low-priority annotations.
+- **Light Theme (Daylight Default):**
+  - Floor Background: `#f8fafc` (`bg-slate-50`)
+  - Primary Surface: `#ffffff` (`bg-white`)
+  - Elevated Inset: `#f1f5f9` (`bg-slate-100`)
+  - Border Subtle: `#e2e8f0` (`border-slate-200`)
+  - Border Strong: `#cbd5e1` (`border-slate-300`)
+  - Text Primary: `#0f172a` (`text-slate-900`)
+  - Text Secondary: `#475569` (`text-slate-600`)
+  - Text Muted: `#94a3b8` (`text-slate-400`)
+- **Dark Theme (AMOLED Midnight):**
+  - Floor Background: `#000000` (`bg-black`)
+  - Primary Surface: `#000000` (`bg-black` with `border-white/10`)
+  - Elevated Inset: `#0a0a0a` (`bg-neutral-950`)
+  - Border Subtle: `rgba(255,255,255,0.10)` (`border-white/10`)
+  - Border Faint: `rgba(255,255,255,0.06)` (`border-white/[0.06]`)
+  - Text Primary: `#ffffff` (`text-white`)
+  - Text Secondary: `#cbd5e1` (`text-slate-300`)
+  - Text Muted: `#94a3b8` (`text-slate-400`)
 
 ### Named Rules
-**The Void Purity Rule.** No surface is ever a gray or slate color. `#000000` is the floor. `#0a0a0a` is the only permitted "elevation" inside a card. Anything warmer or lighter is a semantic tint, not a surface.
+**The Dual-Theme Fidelity Rule.** Light mode surfaces must remain crisp slate/white (`bg-slate-50` / `bg-white`); Dark mode surfaces must remain pure `#000000` AMOLED. No dark-gray or muddy slate washes are permitted in dark mode.
 
-**The Signal Scarcity Rule.** Status colors appear at full opacity only in the gauge arc, badge text, and icon fills. Everywhere else they appear as 20–30% opacity tints. Their rarity is the instrument's calibration — when something glows at full saturation, the user's eye has learned to read it as alarm-level information.
+**The Signal Scarcity Rule.** Full-saturation status colors are reserved for the radial gauge arc, badge text, and live sensor pins. Card backgrounds and large containers use 10%–20% opacity tints so visual priority always belongs to the threat reading.
 
-**The One Accent Rule.** Navigation Indigo (`#6366f1`) is the only non-status accent in the system. It covers selected nav tabs, active station rings, and focus indicators. It never indicates air quality. These two vocabularies must never collide.
+**The One Accent Rule.** Indigo (`#6366f1`) is exclusively for navigation, selection, and interactive triggers. It must never indicate air quality status.
+
+**The Community Distinction Rule.** Community nodes must always be visually distinguished via purple tints (`#a855f7`) and dashed borders to uphold civic transparency regarding unvalidated crowdsourced data.
 
 ## Typography
 
-**Display / Body Font:** System UI stack (`system-ui, -apple-system, 'Segoe UI', sans-serif`) — the platform's own typeface at every weight, variable-weight-capable.
-**Mono Font:** Platform monospace (`ui-monospace, 'Cascadia Code', 'Fira Code', monospace`) — used for all readings, timestamps, distances, and categorical labels.
-
-**Character:** Undecorated precision. The system makes no typographic statement — it defers entirely to the numbers. The system-ui stack is intentional: on AMOLED screens in dark mode, native platform fonts render with subpixel clarity that no web font can match. Monospace carries the semantic weight that says *measurement, not story*.
+**Display / Body Font:** Native system UI stack (`system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif`) for instantaneous load, crisp rendering, and zero layout shift.
+**Measurement / Mono Font:** Platform monospace (`ui-monospace, 'Cascadia Code', 'Fira Code', Menlo, monospace`) for all data points, distances, timestamps, and pollutant metrics.
 
 ### Hierarchy
-- **Display** (black/900, ~`clamp(2.5rem, 8vw, 4rem)`, leading 1, tracking `-0.04em`): The API numeral at the center of the radial gauge. Single use. The entire interface exists to make this number legible.
-- **Headline** (extrabold/800, `1.25rem`, leading 1.2, tracking `-0.02em`): Station name in the card header. Section titles in the HazeHotspot widget. Used sparingly.
-- **Title** (bold/700, `0.875rem`, leading 1.4, tracking `-0.01em`): Card header titles, modal headings, widget titles in uppercase monospace.
-- **Body** (regular/400, `0.75rem`, leading 1.6): Guidance text, description paragraphs, station list secondary info.
-- **Label** (bold/700 monospace, `0.625rem`, leading 1.2, tracking `+0.08em`, ALL CAPS): Status badges, "LIVE / CACHED" indicators, pollutant names, distance readouts. The voice of measurement.
+- **Display** (black/900, `clamp(2.5rem, 8vw, 4rem)`, leading 1, tracking `-0.04em`): Center radial gauge integer. The primary visual anchor of the application.
+- **Headline** (extrabold/800, `1.25rem` / 20px, leading 1.2, tracking `-0.02em`): Monitoring station name, national overview title, modal headings.
+- **Title** (bold/700, `0.875rem` / 14px, leading 1.4, tracking `-0.01em`): Card section headers, widget titles, state names.
+- **Body** (regular/400, `0.75rem` / 12px, leading 1.6): Health guidance paragraphs, station descriptions, advisory copy.
+- **Label / Measurement** (bold/700 monospace, `0.625rem` / 10px to `0.75rem` / 12px, tracking `+0.08em`, uppercase): API values, raw/calibrated PM2.5, timestamps, distance badges, "LIVE / CACHED" tags.
 
 ### Named Rules
-**The Number-First Rule.** The API integer is the visual center of every dashboard view. Typography hierarchy arranges itself around making that number read fastest. Section headings are structurally useful but visually subordinate.
+**The Number-First Rule.** In every card, the numerical measurement outranks narrative prose in visual hierarchy and weight.
 
-**The Mono-as-Measurement Rule.** Monospace is never used as a "techy aesthetic." It appears only where the value is a measurement: readings, timestamps, distance in km, pollutant concentrations, and monitoring station IDs. Copy and labels use system-ui.
+**The Mono-as-Measurement Rule.** Monospace is strictly reserved for quantified measurements (API, µg/m³, km, °C, %, timestamps). Explanatory copy and UI buttons use system sans-serif.
 
 ## Layout
 
-UdaraMY uses a two-tab shell (Dashboard / Map) with a persistent sticky header and a mobile-only bottom navigation bar. The main content body is width-constrained to `max-w-5xl` on the dashboard and `max-w-7xl` on the map view.
+UdaraMY employs a responsive two-tab shell (Dashboard / Map) with a sticky top header and an adaptive navigation system (desktop pill tray vs. mobile bottom bar).
 
-**Dashboard grid:** A single-column layout on mobile; a 12-column CSS grid at `lg` breakpoints split into two equal `lg:col-span-6` columns — left for the live card stack (AtmosphericCard + HealthAdvicePanel), right for the telemetry stack (TrendChart + HazeHotspotWidget + PollutantBars). The seasonality calendar occupies full width below.
-
-**Spacing rhythm:** `gap-5` (1.25rem) between major sections, `gap-3` to `gap-3.5` within card interiors, `p-5 sm:p-6` card internal padding on the primary cards.
-
-**Responsive changes:**
-- Mobile: single-column, bottom nav bar, compact padding (`p-3`), vertically stacked cards.
-- Tablet/Desktop: `md+` hides the bottom nav; the sticky header shows the desktop nav pill; cards sit side-by-side.
-- Map view expands to `max-w-7xl` and a `lg:grid-cols-12` split (col 7/8 map, col 5/4 station list).
-
-**Safe-area awareness:** Bottom nav uses `pb-[max(0.75rem,env(safe-area-inset-bottom))]`; main content uses `pb-[calc(5.5rem+env(safe-area-inset-bottom))]` on mobile.
+- **Grid Architecture:**
+  - **Mobile (<1024px):** Single-column stacked layout with compact container padding (`p-3.5` to `p-4`) and fixed bottom navigation.
+  - **Desktop (≥1024px):** 12-column split grid with equal `col-span-6` distribution on the dashboard (hero atmospheric stack on the left, telemetry & hotspots on the right). Max-width bounded to `max-w-5xl`.
+  - **National Map View:** Expands to `max-w-7xl` with an adaptive 12-column layout (`col-span-7` or `col-span-8` for interactive Leaflet canvas, remainder for searchable station list).
+- **Rhythm & Spacing:** Uniform `gap-4` to `gap-5` between major cards, `gap-2` to `gap-3` between sub-elements. Primary cards use `p-5 sm:p-6` internal padding.
+- **Safe-Area Insets:** Mobile bottom bar adheres to `env(safe-area-inset-bottom)` to ensure zero clipping on iOS home indicators and Android navigation bars.
 
 ## Elevation & Depth
 
-The system combines three depth strategies: flat void surfaces, deep ambient shadow on the hero card, and status glow as the primary state signal.
+Depth is conveyed through subtle tonal contrasts, soft ambient shadows in light mode, and status glow in dark mode.
 
-**Flat-by-default:** All secondary cards, modals, list items, and nav bars sit on `#000000` with no shadow. Depth between surfaces is communicated through `border-white/10` edges and the step from `#000000` to `#0a0a0a` for elevated insets (search inputs, stat bars).
-
-**Hero ambient weight:** The AtmosphericCard uses `shadow-2xl` (`0 25px 50px -12px rgba(0,0,0,0.9)`) to give the gauge panel perceptual mass — a sense that it occupies a different physical plane than the page beneath it. This shadow is too dark to read as conventional elevation; it works as a presence weight.
-
-**Status glow:** Active states and data-reactive alerts produce colored glow effects — not shadows in the design-system sense, but SVG `feDropShadow` on the gauge arc, `ring-1 ring-cyan-500/40 shadow-md shadow-cyan-500/20` on active persona cards, and `shadow-md shadow-indigo-950/50` on selected station items. These are status signals, not depth tokens.
-
-### Shadow Vocabulary
-- **Hero Weight** (`box-shadow: 0 25px 50px -12px rgba(0,0,0,0.9)`): The AtmosphericCard and map container only. Grounds the primary instrument.
-- **Gauge Glow** (SVG `feDropShadow`, `stdDeviation=3`, flood-color = current category color, `flood-opacity=0.5`): The active arc of the radial gauge. Status-reactive; changes color with API level.
-- **Active Ring Glow** (`ring-1 ring-{status}/40 shadow-md shadow-{status}/20`): Selected persona cards, active watchlist pills, focused station items.
+- **Light Mode Elevation:** Cards sit flat at rest with subtle 1px border (`border-slate-200`) and soft ambient shadows (`shadow-sm` on secondary cards, `shadow-xl` on the hero atmospheric card and modal sheets).
+- **Dark Mode Elevation:** Cards sit on the pure AMOLED `#000000` void. Depth is established through 1px `border-white/10` and perceptual elevation of inset inputs (`#0a0a0a`).
+- **Status Glow:** Data urgency generates status-reactive glow:
+  - SVG `feDropShadow` on the radial gauge arc matching the active category color.
+  - Colored focus rings (`ring-1 ring-cyan-500/40 shadow-sm`) on active station selections.
 
 ### Named Rules
-**The Flat-By-Default Rule.** Surfaces are flat at rest. No shadow appears on a card, modal, or list item at rest. Elevation enters only in two forms: the hero card's ambient weight (which gives the gauge physical presence) and status glow (which signals interaction or urgency).
+**The Flat-at-Rest Rule.** Modals, list items, and cards use flat, crisp borders at rest. Shadows and glows emerge only as state reactions (hover, selection, or alert escalation).
 
 ## Shapes
 
-The form language is consistently rounded, never sharp, never decorative.
-
-**Primary radius — `rounded-3xl` (1.5rem):** The outermost shape of every primary card (AtmosphericCard, HealthAdvicePanel, TrendChart, HazeHotspotWidget, HazeCalendarGrid) and the map container. This is the dominant surface radius.
-
-**Secondary radius — `rounded-2xl` (1rem):** Station list items, search inputs, modal inner sections, watchlist pills with content, filter chip groups. One step inward from primary.
-
-**Tertiary radius — `rounded-xl` (0.875rem–0.75rem):** Buttons (primary and ghost), sort toggle chips, header action buttons. Tight enough to read as controls rather than surfaces.
-
-**Full pill — `rounded-full`:** Distance badges, "LIVE" status pills, category signal badges, watchlist station pills. Indicates a label/tag object, not a container.
-
-**Borders:** Always `border-white/10` (1px, rgba(255,255,255,0.10)) for card edges and modal borders. Hover states lift to `border-white/20` or `border-white/25`. Internal dividers use `border-white/[0.06]`.
-
-### Named Rules
-**The No-Sharp-Corner Rule.** No element in the system uses `rounded-none` or `rounded-sm` unless it is an SVG internal path. All interactive and container elements are at minimum `rounded-xl`.
-
-**The Single-Pixel Border Rule.** Borders are always 1px, always rgba(white, 0.10–0.25). Never a 2px border. Never a colored solid border except in status contexts (`border-cyan-400`, `border-indigo-500/70`) where the border IS the signal.
+- **Primary Card Radius — `rounded-3xl` (1.5rem / 24px):** Hero AtmosphericCard, map container, modal dialogs, and major section panels.
+- **Secondary Surface Radius — `rounded-2xl` (1rem / 16px):** Search input fields, inner telemetry boxes, station list items, and watchlist pills.
+- **Interactive Control Radius — `rounded-xl` (0.75rem / 12px):** Action buttons, quick-filter chips, and sort controls.
+- **Badge / Pill Radius — `rounded-full` (9999px):** Status badges, distance pills, live indicators, and circular map pins.
+- **Border Grammar:**
+  - Standard elements: Solid 1px border (`border-slate-200` in light, `border-white/10` in dark).
+  - Community elements: Dashed 2px border (`border-2 border-dashed border-purple-500/70`) on map pins and cards.
 
 ## Components
 
 ### Buttons
+- **Primary Action (Indigo Fill):** `bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-4 py-2 text-xs font-bold shadow-sm transition active:scale-95`.
+- **Secondary Ghost Control:** Light: `bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200 rounded-xl`. Dark: `dark:bg-neutral-950 dark:border-white/10 dark:text-slate-300 dark:hover:bg-black rounded-xl`.
 
-*Decisive and compact — controls that don't demand attention.*
+### Chips & Filter Pills
+- **Container Tray:** Rounded pill container (`rounded-full p-1 border border-slate-200 dark:border-white/10`).
+- **Active Filter Chip:** `bg-indigo-600 text-white rounded-full font-medium shadow-sm`.
+- **Inactive Filter Chip:** `text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white`.
 
-- **Shape:** Tightly rounded (`rounded-xl`, 0.75rem), small padding, never pill-shaped.
-- **Primary (Indigo fill):** `bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl px-4 py-2.5 font-bold text-xs`. Used only for primary CTA — native share action in the share modal.
-- **Ghost (Standard):** `bg-black border border-white/10 text-neutral-300 hover:text-white hover:border-white/25 hover:bg-neutral-950 rounded-xl`. Universal secondary control: header action buttons, sort toggles, reset controls.
-- **Icon-only Ghost:** Same ghost treatment, fixed `p-2` padding, icon at `w-4 h-4`.
-- **Hover / Focus:** `hover:bg-neutral-950` (slightly lifted void), `hover:border-white/25` (brighter edge). Active state adds `active:scale-95`.
-- **Disabled:** Opacity reduced implicitly; the `cursor-not-allowed` is the primary signal.
-
-### Chips / Filter Pills
-
-*Horizontal selector rows — region filters, layer toggles, sort buttons.*
-
-- **Container:** `bg-black border border-white/10 rounded-2xl p-1` — a dark pill tray.
-- **Inactive chip:** `text-neutral-400 hover:text-white`, no background fill, full-rounded or `rounded-xl`.
-- **Active chip:** `bg-indigo-600 text-white shadow-sm rounded-xl` — indigo fill, same height as tray padding.
-- **Watchlist pill (station):** `bg-black border-white/10 text-slate-300 rounded-2xl` inactive; `bg-black border-indigo-500 ring-1 ring-indigo-500/50 text-white` active.
-
-### Cards / Containers
-
-*The void with a border — not a material, a delineation.*
-
-- **Corner Style:** `rounded-3xl` (1.5rem) — primary; `rounded-2xl` (1rem) — secondary/inner.
-- **Background:** `bg-black` (#000000) always. Never `bg-neutral-900` or any gray at the card level.
-- **Shadow:** `shadow-2xl` on the hero AtmosphericCard only. All other cards are shadowless.
-- **Border:** `border border-white/[0.12]` on primary cards, `border border-white/10` on secondary cards.
-- **Internal Padding:** `p-5 sm:p-6` (primary), `p-3.5` (secondary), `p-3` (compact widgets).
-- **Internal Sections:** Separated by `border-t border-white/[0.06]`.
+### Cards & Containers
+- **Primary Hero Card:** Light: `bg-white border-slate-200/80 shadow-xl rounded-3xl p-5 sm:p-6`. Dark: `dark:bg-black dark:border-white/10 dark:shadow-2xl`.
+- **Telemetry Widget Cards:** Compact `rounded-3xl` containers with internal divider lines (`border-t border-slate-100 dark:border-white/[0.06]`).
 
 ### Radial Gauge (Signature Component)
+- 256px responsive SVG gauge featuring an outer reference tick ring, background track arc, dynamic SVG gradient arc animated over 700ms, and ambient particle animations floating above the status readout.
 
-*The product's identity object. Everything else is context for this.*
+### Community Sensor Cards
+- Cards tagged with `👥 Komuniti`, sensor hardware model (AirGradient / PurpleAir), contributor affiliation, dual raw vs. EPA-calibrated PM2.5 metrics, and relative humidity percentage.
 
-The gauge lives inside a 224–256px (sm: 256px) square. Its anatomy:
-1. **Outer tick ring:** SVG circle, `stroke="rgba(255,255,255,0.05)"`, `stroke-dasharray="2 6"` — subtle reference ticks at `r=54`.
-2. **Inactive track:** `stroke="rgba(255,255,255,0.08)"`, `stroke-width=8`, 270° arc — the unfilled background.
-3. **Active arc:** `stroke="url(#gaugeGradient)"`, `stroke-width=8.5`, fills proportionally with API value. Animated `transition-all duration-700 ease-out`. Carries an SVG `feDropShadow` glow in the current category color.
-4. **Center readout:** The API integer in display-weight type (900, tracking `-0.04em`), colored to `categoryColor`. Below it: the category label (small-caps, tracking `0.2em`, muted). The value is the anchor; the label is the footnote.
-5. **Particle float:** Four radial haze particles (`animate-particle`, 7s linear infinite) orbit the gauge perimeter, colored at the current status hue with 60% opacity.
+### State Flags (Civic Component)
+- Clean vector SVG flags rendered at `w-6 h-4` with subtle `rounded-[3px]` and a 1px protective perimeter stroke for high contrast on both light and dark backgrounds.
 
-### Inputs / Fields
-
-- **Style:** `bg-neutral-950 border border-white/10 rounded-2xl` — one step above the void, clearly an interactive surface.
-- **Focus:** `focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500`.
-- **Placeholder:** `placeholder-neutral-500`.
-- **Icon prefix:** Search/GPS icon at `w-4 h-4 text-neutral-500 absolute left-3 pointer-events-none`.
-
-### Navigation
-
-**Top header (sticky):** `bg-black/90 backdrop-blur-xl border-b border-white/[0.08]` — near-opaque black with heavy backdrop blur. The blur applies only here.
-- Desktop nav pill: `bg-black border border-white/10 rounded-2xl p-1` tray with `rounded-xl` chips. Active: `bg-indigo-600`. Inactive: `text-slate-400 hover:text-white hover:bg-neutral-900`.
-
-**Bottom nav (mobile, fixed):** `bg-black/95 backdrop-blur-2xl border-t border-white/[0.08]`. Four vertical icon+label buttons. Active icon: `text-indigo-400`. Inactive: `text-slate-400 hover:text-slate-200`.
-
-### Status Badges / Pills
-
-*The semantic layer — always small, always monospace.*
-
-- **Live indicator dot:** `w-2 h-2 rounded-full bg-emerald-400 animate-pulse` when live; `bg-neutral-600` when cached.
-- **Category badge:** `px-2 py-0.5 rounded-full font-mono text-[10px] font-bold` with `background: {categoryColor}20`, `color: {categoryColor}`, `border: 1px solid {categoryColor}44` — tinted background + full-opacity text + semi-transparent border.
-- **Distance badge:** `px-2 py-0.5 rounded-full bg-neutral-900 text-neutral-300 font-mono border border-white/10`.
-- **Alert badge (school closure, simulation):** `bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse`.
+### Leaflet Map Popups
+- Embedded popup cards with auto-pan padding, high-contrast typography, category API indicators, and direct station selection buttons (`Pilih Stesen` and `Papan Pemuka`).
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep every surface `bg-black` (`#000000`). The void is the design. `bg-neutral-950` is permitted only for interactive inset elements (search inputs, inner stat surfaces) — never for card backgrounds.
-- **Do** use `border-white/10` (1px, rgba white 10%) as the universal separator everywhere. Never a gray solid border at rest.
-- **Do** express data status exclusively through the five API status colors (Cyan, Emerald, Amber, Red, Crimson). Indigo is navigation-only and must never overlap with data status.
-- **Do** use monospace font stack for any numeral that represents a measurement — API values, distances in km, timestamps, pollutant concentrations.
-- **Do** apply `rounded-3xl` to all primary card surfaces and `rounded-xl` to all button controls. The radius vocabulary must stay consistent.
-- **Do** let color opacity do the work: status colors appear at 20–30% opacity for surface tints, full opacity only for text and icon fills.
+- **Do** respect the user's active theme: clean clinical slate/white in Light Mode (`bg-slate-50`, `border-slate-200`), pure `#000000` AMOLED in Dark Mode (`dark:bg-black`, `dark:border-white/10`).
+- **Do** use monospace typography (`font-mono`) for all quantitative metrics (API values, PM2.5 concentrations, coordinates, distances, timestamps).
+- **Do** clearly distinguish community sensor data with purple tags (`#a855f7`), dashed borders, and EPA humidity calibration disclosures.
+- **Do** maintain the 5-tier APIMS status color mapping without deviation: Cyan (Good) → Emerald (Moderate) → Amber (Unhealthy) → Red (Very Unhealthy) → Crimson (Hazardous).
+- **Do** preserve 1px crisp borders on cards and interactive elements across all breakpoints.
 
 ### Don't:
-- **Don't** use `bg-neutral-900`, `bg-slate-900`, or any gray/slate value as a card or modal background. The only permitted departure from `#000000` is `#0a0a0a` (`bg-neutral-950`) for inset elements.
-- **Don't** apply the radial gauge glow pattern to any non-gauge element. The SVG `feDropShadow` status glow is the gauge's identity; reusing it on cards or buttons dilutes the instrument read.
-- **Don't** use gradient text on any typographic element. Status comes from the UI layer (badge, gauge arc, border tint), not from CSS `background-clip: text`.
-- **Don't** add decorative `border-left` or `border-right` accent stripes to cards, list items, or callouts. The system uses full-perimeter `border-white/10` borders only.
-- **Don't** use emoji as the icon system for any interactive control. Emoji are permitted in data-display (watchlist station icons, persona labels) but Lucide SVG icons govern all interactive affordances.
-- **Don't** place a backdrop blur on anything except the sticky header and bottom nav bar. Blur is used exactly twice in the system: once to freeze the header above scroll, once to frost the mobile bottom bar. Everywhere else is transparent.
+- **Don't** use dark gray (`#1e293b` or `#334155`) as card or page backgrounds in Dark Mode; dark mode must remain authentic `#000000` AMOLED.
+- **Don't** use Navigation Indigo (`#6366f1`) to represent air quality or pollution levels; Indigo is reserved strictly for navigation.
+- **Don't** display uncalibrated raw community sensor readings as equivalent to official JAS APIMS values without noting calibration status.
+- **Don't** apply decorative gradient text to body copy or measurements.
+- **Don't** use emoji as interactive action button icons; interactive buttons must use clean Lucide SVG icons.

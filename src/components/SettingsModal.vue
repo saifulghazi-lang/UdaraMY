@@ -1,9 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { X, Download, Sliders, Bell, Globe, ShieldCheck, Users, Plus, Trash2, Sun, Moon, ExternalLink, Key, Check, RefreshCw } from 'lucide-vue-next';
+import { X, Download, Sliders, Bell, Globe, ShieldCheck, Users, Sun, Moon, ExternalLink, Key, Check, RefreshCw } from 'lucide-vue-next';
 import { useAirQualityStore } from '../stores/airQuality.js';
-import { saveCustomCommunitySensor } from '../services/communityService.js';
 
 const props = defineProps({
   isOpen: {
@@ -40,11 +39,6 @@ async function saveOpenAqKey() {
 async function clearOpenAqKey() {
   openAqKeyInput.value = '';
   await store.updateOpenAqApiKey('');
-}
-
-function setLang(lang) {
-  locale.value = lang;
-  localStorage.setItem('udaramy_lang', lang);
 }
 
 function handleSimulationChange(e) {
@@ -117,30 +111,6 @@ onMounted(() => {
                 :class="['px-3 py-1 rounded-full transition', isDarkMode ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
               >
                 🌙 Gelap (Dark)
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Language Selector -->
-        <div class="bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-slate-800 dark:text-neutral-200 flex items-center gap-1.5">
-              <Globe class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-              <span>{{ t('settings.language') }}</span>
-            </span>
-            <div class="flex bg-slate-200/80 dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-0.5 text-xs font-semibold">
-              <button
-                @click="setLang('en')"
-                :class="['px-3 py-1 rounded-full transition', locale === 'en' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
-              >
-                English
-              </button>
-              <button
-                @click="setLang('bm')"
-                :class="['px-3 py-1 rounded-full transition', locale === 'bm' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
-              >
-                Bahasa Melayu
               </button>
             </div>
           </div>

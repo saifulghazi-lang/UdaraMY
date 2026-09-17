@@ -5,26 +5,16 @@
  */
 
 import { generatePollutants, generate24hHistory } from './apiService.js';
+import { getCategoryFromApi } from '../data/stations.js';
 
-const STORAGE_KEY = 'udaramy_custom_community_nodes';
+export { getCategoryFromApi };
 export const OPENAQ_API_KEY_STORAGE = 'udaramy_openaq_api_key';
 export const OPENAQ_CACHE_STORAGE = 'udaramy_cached_openaq_nodes_v7';
 
 // Strict Malaysia Geographic Boundary
 export function isWithinMalaysia(lat, lng) {
-  if (typeof lat !== 'number' || typeof lng !== 'number') return false;
-  return lat >= 0.8 && lat <= 7.5 && lng >= 99.5 && lng <= 119.5;
+  return typeof lat === 'number' && typeof lng === 'number' && lat >= 0.8 && lat <= 7.5 && lng >= 99.5 && lng <= 119.5;
 }
-
-// Auto-purge stale/corrupted legacy caches containing non-Malaysian stations or old formulas
-try {
-  localStorage.removeItem('udaramy_cached_openaq_nodes');
-  localStorage.removeItem('udaramy_cached_openaq_nodes_v2');
-  localStorage.removeItem('udaramy_cached_openaq_nodes_v3');
-  localStorage.removeItem('udaramy_cached_openaq_nodes_v4');
-  localStorage.removeItem('udaramy_cached_openaq_nodes_v5');
-  localStorage.removeItem('udaramy_cached_openaq_nodes_v6');
-} catch (e) {}
 
 // Pre-seeded registry of key Malaysian citizen & school community nodes
 export const PRESET_COMMUNITY_SENSORS = [
@@ -172,17 +162,6 @@ export function convertPm25ToApi(pm25) {
 }
 
 /**
- * Returns category key based on Malaysian API score
- */
-export function getCategoryFromApi(api) {
-  if (api <= 50) return 'good';
-  if (api <= 100) return 'moderate';
-  if (api <= 200) return 'unhealthy';
-  if (api <= 300) return 'veryUnhealthy';
-  return 'hazardous';
-}
-
-/**
  * OpenAQ API Key Management
  */
 const DEFAULT_OPENAQ_API_KEY = import.meta.env.VITE_OPENAQ_API_KEY || '';
@@ -214,25 +193,29 @@ export function clearOpenAqApiKey() {
 /**
  * Approximate Malaysian State & Region from coordinates
  */
+const STATE_BOUNDS = [
+  [4.0, 7.5, 115.0, 119.5, 'Sabah', 'Sabah'],
+  [0.8, 5.0, 109.5, 116.0, 'Sarawak', 'Sarawak'],
+  [6.2, 7.0, 99.5, 100.4, 'Perlis', 'Peninsular'],
+  [5.0, 6.5, 99.5, 100.8, 'Kedah', 'Peninsular'],
+  [5.1, 5.6, 100.1, 100.6, 'Pulau Pinang', 'Peninsular'],
+  [3.6, 5.8, 100.3, 101.6, 'Perak', 'Peninsular'],
+  [4.5, 6.3, 101.3, 102.5, 'Kelantan', 'Peninsular'],
+  [4.0, 6.0, 102.4, 103.6, 'Terengganu', 'Peninsular'],
+  [3.0, 3.3, 101.55, 101.8, 'Kuala Lumpur', 'Peninsular'],
+  [2.6, 3.8, 101.0, 102.0, 'Selangor', 'Peninsular'],
+  [2.4, 3.2, 101.7, 102.6, 'Negeri Sembilan', 'Peninsular'],
+  [2.1, 2.5, 102.0, 102.6, 'Melaka', 'Peninsular'],
+  [1.2, 2.6, 102.5, 104.5, 'Johor', 'Peninsular']
+];
+
 export function getMalaysianStateFromCoords(lat, lng) {
-  if (lng > 105) {
-    if (lat >= 4.0 && lng >= 115.0) return { state: 'Sabah', region: 'Sabah' };
-    if (lat < 5.0 && lng < 116.0) return { state: 'Sarawak', region: 'Sarawak' };
-    return { state: 'Sabah', region: 'Sabah' };
-  }
-  // Peninsular Malaysia
-  if (lat >= 6.2 && lng <= 100.4) return { state: 'Perlis', region: 'Peninsular' };
-  if (lat >= 5.0 && lat <= 6.5 && lng <= 100.8) return { state: 'Kedah', region: 'Peninsular' };
-  if (lat >= 5.1 && lat <= 5.6 && lng <= 100.6) return { state: 'Pulau Pinang', region: 'Peninsular' };
-  if (lat >= 3.6 && lat <= 5.8 && lng <= 101.6) return { state: 'Perak', region: 'Peninsular' };
-  if (lat >= 4.5 && lng <= 102.5 && lng >= 101.3) return { state: 'Kelantan', region: 'Peninsular' };
-  if (lat >= 4.0 && lng >= 102.4) return { state: 'Terengganu', region: 'Peninsular' };
-  if (lat >= 3.0 && lat <= 3.3 && lng >= 101.55 && lng <= 101.8) return { state: 'Kuala Lumpur', region: 'Peninsular' };
-  if (lat >= 2.6 && lat <= 3.8 && lng >= 101.0 && lng <= 102.0) return { state: 'Selangor', region: 'Peninsular' };
-  if (lat >= 2.4 && lat <= 3.2 && lng >= 101.7 && lng <= 102.6) return { state: 'Negeri Sembilan', region: 'Peninsular' };
-  if (lat >= 2.1 && lat <= 2.5 && lng >= 102.0 && lng <= 102.6) return { state: 'Melaka', region: 'Peninsular' };
-  if (lat >= 1.2 && lat <= 2.6 && lng >= 102.5) return { state: 'Johor', region: 'Peninsular' };
-  return { state: 'Pahang', region: 'Peninsular' };
+  const match = STATE_BOUNDS.find(([minLa, maxLa, minLo, maxLo]) =>
+    lat >= minLa && lat <= maxLa && lng >= minLo && lng <= maxLo
+  );
+  return match
+    ? { state: match[4], region: match[5] }
+    : { state: lng > 105 ? 'Sabah' : 'Pahang', region: lng > 105 ? 'Sabah' : 'Peninsular' };
 }
 
 /**
@@ -445,70 +428,21 @@ export async function fetchLiveOpenAqSensors() {
   return null;
 }
 
-/**
- * Load user custom added community sensors from localStorage
- */
-export function getCustomCommunitySensors() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-/**
- * Save a custom community sensor
- */
-export function saveCustomCommunitySensor(sensor) {
-  const list = getCustomCommunitySensors();
-  const existingIdx = list.findIndex(s => s.id === sensor.id);
-  if (existingIdx !== -1) {
-    list[existingIdx] = sensor;
-  } else {
-    list.push(sensor);
-  }
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  } catch (e) {}
-  return list;
-}
-
-/**
- * Remove a custom community sensor
- */
-export function removeCustomCommunitySensor(id) {
-  let list = getCustomCommunitySensors();
-  list = list.filter(s => s.id !== id);
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  } catch (e) {}
-  return list;
-}
-
 export function getPresetCommunitySensors() {
-  const custom = getCustomCommunitySensors();
-  const allNodes = [...PRESET_COMMUNITY_SENSORS, ...custom];
   const now = new Date();
   const timeOffset = Math.sin(now.getHours() / 3) * 3;
 
-  return allNodes
+  return PRESET_COMMUNITY_SENSORS
     .filter(n => isWithinMalaysia(n.lat, n.lng))
     .map(node => {
       const rawPm25 = Math.max(5, Math.round((node.basePm25 + timeOffset + (Math.random() * 2 - 1)) * 10) / 10);
       const humidity = node.humidity || 80;
       const calibratedPm25 = applyEpaHumidityCorrection(rawPm25, humidity);
       const api = convertPm25ToApi(calibratedPm25);
-      const category = getCategoryFromApi(api);
 
       return {
-        id: node.id,
-        name: node.name,
+        ...node,
         subTitle: node.subTitle || 'Citizen Air Quality Sensor',
-        state: node.state,
-        region: node.region,
-        lat: node.lat,
-        lng: node.lng,
         isCommunity: true,
         source: 'preset',
         sensorModel: node.sensorModel || 'PurpleAir / AirVisual Node',
@@ -517,7 +451,7 @@ export function getPresetCommunitySensors() {
         calibratedPm25,
         humidity,
         api,
-        category,
+        category: getCategoryFromApi(api),
         dominantPollutant: 'PM2.5 (Laser Count)',
         pollutants: generatePollutants(api, 'PM2.5', node.state, node.name),
         history24h: generate24hHistory(api),
