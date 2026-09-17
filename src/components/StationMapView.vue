@@ -358,7 +358,8 @@ function spawnOneParticle(w, h) {
     y: Math.random() * h,
     age: 0,
     life: 40 + Math.floor(Math.random() * 50), // 40–90 ticks
-    alpha: 0.15 + Math.random() * 0.35
+    alpha: 0.15 + Math.random() * 0.35,
+    trail: [] // position history for fading tail
   };
 }
 
@@ -386,6 +387,7 @@ function getWindAtPixel(px, py) {
 }
 
 const PARTICLE_SCALE = 0.25; // pixels per km/h unit per tick
+const TRAIL_LENGTH = 8;      // historic positions kept per particle
 
 function drawWindFrame() {
   if (!windCtx || !windCanvas || !map || !store.showWindOverlay) return;
@@ -393,9 +395,8 @@ function drawWindFrame() {
   const w = windCanvas.width;
   const h = windCanvas.height;
 
-  // Trail fade — creates glowing streamline ribbons
-  windCtx.fillStyle = 'rgba(15, 23, 42, 0.08)';
-  windCtx.fillRect(0, 0, w, h);
+  // Clear the canvas each frame — keeps map tiles visible underneath
+  windCtx.clearRect(0, 0, w, h);
 
   for (let i = 0; i < windParticles.length; i++) {
     const p = windParticles[i];
@@ -408,15 +409,24 @@ function drawWindFrame() {
     const nx = p.x + dx;
     const ny = p.y + dy;
 
-    // Draw line segment
-    const speed = Math.sqrt(wind.u * wind.u + wind.v * wind.v);
-    const hue = speed < 10 ? 180 : speed < 20 ? 38 : 0; // teal → amber → red
-    windCtx.strokeStyle = `hsla(${hue}, 90%, 68%, ${p.alpha})`;
-    windCtx.lineWidth = 1.2;
-    windCtx.beginPath();
-    windCtx.moveTo(p.x, p.y);
-    windCtx.lineTo(nx, ny);
-    windCtx.stroke();
+    // Record current position in trail before moving
+    p.trail.push({ x: p.x, y: p.y });
+    if (p.trail.length > TRAIL_LENGTH) p.trail.shift();
+
+    // Draw fading polyline trail — oldest segment is most transparent
+    if (p.trail.length >= 2) {
+      const speed = Math.sqrt(wind.u * wind.u + wind.v * wind.v);
+      const hue = speed < 10 ? 180 : speed < 20 ? 38 : 0; // teal → amber → red
+      for (let t = 1; t < p.trail.length; t++) {
+        const segAlpha = p.alpha * (t / p.trail.length);
+        windCtx.strokeStyle = `hsla(${hue}, 90%, 68%, ${segAlpha})`;
+        windCtx.lineWidth = 1.2;
+        windCtx.beginPath();
+        windCtx.moveTo(p.trail[t - 1].x, p.trail[t - 1].y);
+        windCtx.lineTo(p.trail[t].x, p.trail[t].y);
+        windCtx.stroke();
+      }
+    }
 
     p.x = nx;
     p.y = ny;
