@@ -129,32 +129,54 @@ $$d = 2R \cdot \operatorname{atan2}\left(\sqrt{a}, \sqrt{1 - a}\right) \quad (R 
 
 ## 🏗️ System Architecture
 
+<div align="center">
+  <img src="public/system_architecture.jpg" alt="UdaraMY End-to-End System Architecture" width="100%" style="border-radius: 16px; margin: 16px 0;" />
+</div>
+
+```mermaid
+flowchart LR
+  subgraph INGESTION["1. Data Ingestion Nodes"]
+    direction TB
+    A1["🏛️ JAS APIMS (DOE)<br/>68 Ground Stations<br/>PM2.5, PM10, SO2, NO2, O3, CO"]
+    A2["🛰️ ASEAN ASMC Satellites<br/>Himawari-8/9 & VIIRS<br/>Thermal Hotspots & Smoke"]
+    A3["🌍 Copernicus CAMS<br/>ECMWF Global Aerosol Model<br/>48-Hour Forecast via Open-Meteo"]
+    A4["🔬 Citizen Micro-Sensors<br/>PurpleAir / AirVisual / OpenAQ<br/>Hyper-Local Community Nodes"]
+  end
+
+  subgraph GATEWAY["2. Gateway & Caching"]
+    direction TB
+    B1["🛡️ Vite Proxy & Service Worker<br/>• CORS Bypass & SSL<br/>• 15-Min In-Memory TTL<br/>• Workbox Offline Storage"]
+  end
+
+  subgraph ENGINE["3. Atmospheric Mathematics Engine"]
+    direction TB
+    C1["📐 JAS Piecewise Curve<br/>PM2.5 ↔ API (MCG / IT-3)"]
+    C2["💧 US-EPA Humidity Correction<br/>0.524·PM2.5 - 0.0862·RH + 5.75"]
+    C3["⚡ 12-Hour NowCast Decay<br/>ω = √(c_min / c_max) (Lag -5h)"]
+    C4["🎯 1D Recursive Kalman Filter<br/>Bayesian Sensor + CAMS Fusion"]
+    C5["📍 Haversine Geodesy<br/>Spherical GPS Auto-Pairing"]
+    C6["🍍 Pinia Reactive State<br/>Station Registry & Profiles"]
+  end
+
+  subgraph CLIENT["4. Frontend Client Interfaces"]
+    direction TB
+    D1["🗺️ Zoom-Adaptive Leaflet Map<br/>Micro-Pins & HTML5 Thermal Plumes"]
+    D2["🕒 Top Bar Telemetry Capsule<br/>Live Clock (MYT UTC+8) & APIMS Sync"]
+    D3["🏁 State Leaderboard<br/>16 Authentic SVG State Flags"]
+    D4["🛡️ Health & School Alerts<br/>KPM Closure (API > 200)"]
+    D5["📲 Canvas Social Share Card<br/>Instagram Stories (9:16) & Square (1:1)"]
+  end
+
+  INGESTION --> GATEWAY
+  GATEWAY --> ENGINE
+  ENGINE --> CLIENT
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                           UdaraMY PWA                           │
-│     (Vue 3 Composition API + Pinia Store + Tailwind CSS)        │
-└───────┬─────────────────────────┬─────────────────────────┬─────┘
-        │                         │                         │
-        ▼                         ▼                         ▼
-┌──────────────┐          ┌──────────────┐          ┌──────────────┐
-│  JAS APIMS   │          │  ASMC ASEAN  │          │ Copernicus   │
-│  Live Feed   │          │  Satellites  │          │ CAMS Model   │
-│  (68 Stns)   │          │  (Hotspots)  │          │ (Forecast)   │
-└───────┬──────┘          └───────┬──────┘          └───────┬──────┘
-        │                         │                         │
-        └────────────────► Vite Proxy ◄─────────────────────┘
-                                  │
-                                  ▼
-                   ┌──────────────────────────────┐
-                   │  Atmospheric Mathematics &   │
-                   │  Real-Time UI Engine         │
-                   │  - Haversine Geofencing      │
-                   │  - 12h NowCast Decay         │
-                   │  - EPA Humidity Calibration  │
-                   │  - Kalman Filter Fusion      │
-                   │  - Health Persona Advisory   │
-                   └──────────────────────────────┘
-```
+
+### Architectural Pipeline Breakdown:
+1. **Data Ingestion Nodes**: Pulls 100% official telemetry from Department of Environment continuous monitoring towers (JAS APIMS), geostationary & polar weather satellites (ASEAN ASMC), European numerical aerosol transport models (Copernicus CAMS), and citizen micro-sensors (PurpleAir / OpenAQ).
+2. **Gateway & Caching**: Vite proxy and Service Worker caching tier terminates SSL, bypasses CORS restrictions, and enforces a 15-minute in-memory cache to prevent server overload.
+3. **Atmospheric Mathematics Processing Engine (`mathematicsService.js`)**: Runs 5 core mathematical transformations: piecewise linear standard interpolation, US-EPA tropical relative humidity calibration, WMO NowCast lag reduction decay, 1D recursive Kalman filtering for data fusion, and Haversine spherical geodesy.
+4. **Frontend Client Interfaces**: Renders a zero-lag, reactive Vue 3 experience featuring dynamic zoom-adaptive Leaflet cartography, HTML5 Canvas radial thermal smoke plumes, 16 authentic vector state flags, and real-time school closure triggers under Malaysian Ministry of Education (KPM) guidelines.
 
 ---
 
