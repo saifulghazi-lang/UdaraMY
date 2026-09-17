@@ -5,8 +5,13 @@ import {
   MapPin, 
   ChevronRight, 
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  Minus
 } from 'lucide-vue-next';
+import { getCategoryFromApi } from '../data/stations.js';
 
 const props = defineProps({
   station: {
@@ -42,8 +47,78 @@ const emit = defineEmits([
 
 const { t } = useI18n();
 
-const category = computed(() => props.station.category);
-const api = computed(() => props.station.api);
+const displayApi = computed(() => {
+  if (props.station.nowCast && typeof props.station.nowCast.nowCastApi === 'number') {
+    return props.station.nowCast.nowCastApi;
+  }
+  return props.station.api;
+});
+
+const api = computed(() => displayApi.value);
+const category = computed(() => getCategoryFromApi(displayApi.value));
+
+const velocity = computed(() => props.station.velocity3h || null);
+
+const velocityIcon = computed(() => {
+  if (!velocity.value) return Minus;
+  if (velocity.value.isSurging || velocity.value.velocityTrend === 'rising' || velocity.value.velocityTrend === 'rising_fast') {
+    return TrendingUp;
+  }
+  if (velocity.value.isClearing || velocity.value.velocityTrend === 'falling' || velocity.value.velocityTrend === 'falling_fast') {
+    return TrendingDown;
+  }
+  return Minus;
+});
+
+const velocityText = computed(() => {
+  if (!velocity.value) return t('predictive.steady');
+  const delta = velocity.value.delta3h;
+  const sign = delta > 0 ? `+${delta}` : `${delta}`;
+  return `${sign} pts/3h (${velocity.value.velocityLabel})`;
+});
+
+const velocityClass = computed(() => {
+  if (!velocity.value) return 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400';
+  if (velocity.value.isSurging) {
+    return 'bg-rose-500/15 border-rose-500/30 text-rose-700 dark:text-rose-400';
+  }
+  if (velocity.value.delta3h > 0) {
+    return 'bg-amber-500/15 border-amber-500/30 text-amber-700 dark:text-amber-400';
+  }
+  if (velocity.value.isClearing) {
+    return 'bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-400';
+  }
+  return 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400';
+});
+
+function getPredictionTrendIcon(trendDirection) {
+  if (trendDirection === 'rising') return TrendingUp;
+  if (trendDirection === 'clearing') return TrendingDown;
+  return Minus;
+}
+
+function getPredictionTrendColor(trendDirection) {
+  if (trendDirection === 'rising') return 'text-rose-500 dark:text-rose-400';
+  if (trendDirection === 'clearing') return 'text-emerald-500 dark:text-emerald-400';
+  return 'text-slate-400 dark:text-slate-500';
+}
+
+function getPredictionCategoryLabel(val) {
+  const cat = getCategoryFromApi(val);
+  return t(`categories.${cat}`);
+}
+
+function getPredictionBadgeClass(val) {
+  const cat = getCategoryFromApi(val);
+  switch (cat) {
+    case 'good': return 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/20';
+    case 'moderate': return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20';
+    case 'unhealthy': return 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20';
+    case 'veryUnhealthy': return 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20';
+    case 'hazardous': return 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30';
+    default: return 'bg-slate-100 text-slate-600 border-slate-200';
+  }
+}
 
 // Color palette definitions per category
 const categoryColor = computed(() => {
@@ -318,6 +393,76 @@ const particles = computed(() => {
             <span class="text-slate-500">Pollutant:</span>
             <span class="text-cyan-600 dark:text-cyan-300 font-bold">{{ station.dominantPollutant || 'PM2.5' }}</span>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dual Index & Trajectory Row -->
+    <div class="flex flex-wrap items-center justify-center gap-2 mt-1 mb-5 relative z-10">
+      <!-- Real-Time Responsive Tag -->
+      <div
+        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-cyan-500/10 dark:bg-cyan-500/15 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300"
+        :title="t('predictive.realtimeTooltip')"
+      >
+        <Sparkles class="w-3 h-3 text-cyan-500 shrink-0" />
+        <span>{{ t('predictive.realtimeIndex') }}</span>
+      </div>
+
+      <!-- Statutory APIMS 24h Comparison Capsule -->
+      <div 
+        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
+        :title="t('predictive.statutoryTooltip')"
+      >
+        <span class="text-slate-400 dark:text-slate-500 font-sans">{{ t('predictive.statutoryIndex') }}:</span>
+        <span class="font-bold text-slate-800 dark:text-white">{{ station.api }}</span>
+      </div>
+
+      <!-- 3-Hour Velocity Trajectory Pill -->
+      <div 
+        v-if="velocity"
+        :class="[
+          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold border transition-colors',
+          velocityClass
+        ]"
+        :title="'3-hour air quality trajectory: ' + velocity.velocityLabel"
+      >
+        <component :is="velocityIcon" class="w-3.5 h-3.5 shrink-0" />
+        <span>{{ velocityText }}</span>
+      </div>
+    </div>
+
+    <!-- Predictive Horizon Strip (Next 6 Hours) -->
+    <div v-if="station.predictions6h && station.predictions6h.length" class="mb-4 relative z-10">
+      <div class="flex items-center justify-between mb-2 px-1">
+        <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <Clock class="w-3.5 h-3.5 text-cyan-500" />
+          <span>{{ t('predictive.title') }}</span>
+        </div>
+        <span class="text-[10px] font-mono text-slate-400 dark:text-slate-500">{{ t('predictive.subtitle') }}</span>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <div
+          v-for="pred in station.predictions6h"
+          :key="pred.hourOffset"
+          class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:border-cyan-500/30 transition-all text-center"
+        >
+          <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-medium">{{ pred.timeLabel }}</span>
+          <div class="flex items-center gap-1 my-1">
+            <span class="text-base sm:text-lg font-black font-mono text-slate-900 dark:text-white">{{ pred.projectedApi }}</span>
+            <component
+              :is="getPredictionTrendIcon(pred.trendDirection)"
+              :class="['w-3.5 h-3.5', getPredictionTrendColor(pred.trendDirection)]"
+            />
+          </div>
+          <span
+            :class="[
+              'text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border',
+              getPredictionBadgeClass(pred.projectedApi)
+            ]"
+          >
+            {{ getPredictionCategoryLabel(pred.projectedApi) }}
+          </span>
         </div>
       </div>
     </div>

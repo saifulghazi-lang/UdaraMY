@@ -32,6 +32,20 @@
     "denied": "Location access denied",
     "unavailable": "Location unavailable"
   },
+  "predictive": {
+    "title": "Predictive Horizon (Next 6 Hours)",
+    "subtitle": "Physics + NowCast Hybrid",
+    "realtimeIndex": "Responsive Index",
+    "realtimeTooltip": "US EPA / WMO NowCast: 12-hour weighted harmonic series reflecting rapid haze surges hours before statutory averages",
+    "statutoryIndex": "Official APIMS 24h",
+    "statutoryTooltip": "Statutory 24-hour rolling average reported by JAS APIMS",
+    "velocity": "3h Velocity",
+    "surging": "Surging",
+    "deteriorating": "Deteriorating",
+    "steady": "Steady",
+    "improving": "Improving",
+    "rapidClearing": "Rapid Clearing"
+  },
   "nav": {
     "home": "Home",
     "map": "National Map",
