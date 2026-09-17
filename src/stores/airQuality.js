@@ -31,6 +31,7 @@ export const useAirQualityStore = defineStore('airQuality', {
     const savedProfile = localStorage.getItem(PROFILE_STORAGE_KEY) || 'general';
 
     return {
+      activeProfile: savedProfile,
       stations: [],
       selectedStationId: 'MCAQM001',
       isLoading: true,
@@ -514,6 +515,13 @@ export const useAirQualityStore = defineStore('airQuality', {
     saveWatchlist() {
       try {
         localStorage.setItem(WATCHLIST_STORAGE_KEY, JSON.stringify(this.watchlist));
+      } catch (e) {}
+    },
+
+    setProfile(id) {
+      this.activeProfile = id;
+      try {
+        localStorage.setItem(PROFILE_STORAGE_KEY, id);
       } catch (e) {}
     }
   }

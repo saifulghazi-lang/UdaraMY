@@ -129,7 +129,7 @@ function generateShareGraphic() {
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
   ctx.font = 'bold 28px system-ui, sans-serif';
-  ctx.fillText('Nasihat Kesihatan / Health Advisory:', 130, adviceY + 54);
+  ctx.fillText('Health Advisory:', 130, adviceY + 54);
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
   ctx.font = '500 24px system-ui, sans-serif';
@@ -140,11 +140,11 @@ function generateShareGraphic() {
   const footerY = height - 100;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.font = '500 22px system-ui, sans-serif';
-  ctx.fillText('Data Rasmi: Jabatan Alam Sekitar (JAS) • APIMS Malaysia', 90, footerY);
+  ctx.fillText('Official Data: Department of Environment (DOE) • APIMS Malaysia', 90, footerY);
 
   const timeStr = props.lastUpdated
     ? new Date(props.lastUpdated).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-    : 'Hari ini / Today';
+    : 'Today';
   ctx.fillText(timeStr, width - 360, footerY);
 
   previewUrl.value = canvas.toDataURL('image/png');

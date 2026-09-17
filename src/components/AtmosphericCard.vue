@@ -198,7 +198,7 @@ const particles = computed(() => {
             v-if="station.isCommunity"
             class="text-[10px] px-2.5 py-0.5 rounded-full bg-violet-500/15 text-violet-700 dark:text-violet-300 border border-violet-500/30 font-bold"
           >
-            👥 {{ station.sensorModel || 'Komuniti' }}
+            👥 {{ station.sensorModel || 'Community' }}
           </span>
         </div>
         <div class="flex items-center gap-1.5 mt-1">
@@ -313,9 +313,9 @@ const particles = computed(() => {
           <!-- Dominant Pollutant Micro-tag with explanation badge -->
           <div 
             class="text-[10px] text-slate-600 dark:text-slate-400 font-mono mt-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 inline-flex items-center gap-1 pointer-events-auto"
-            title="Pencemar utama mempengaruhi indeks hari ini / Primary pollutant driving today's API"
+            title="Primary pollutant driving today's API"
           >
-            <span class="text-slate-500">Pencemar:</span>
+            <span class="text-slate-500">Pollutant:</span>
             <span class="text-cyan-600 dark:text-cyan-300 font-bold">{{ station.dominantPollutant || 'PM2.5' }}</span>
           </div>
         </div>

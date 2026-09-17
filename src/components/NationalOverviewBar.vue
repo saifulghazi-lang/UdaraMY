@@ -44,7 +44,7 @@ const cleanestColor = computed(() => {
         class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-600/20 dark:hover:bg-indigo-600/30 text-indigo-700 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-indigo-200 border border-indigo-200 dark:border-indigo-500/40 text-xs font-bold font-mono transition active:scale-95 shadow-sm"
       >
         <Trophy class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-        <span>{{ t('national.viewLeaderboard') || 'Papan Kedudukan 16 Negeri' }}</span>
+        <span>{{ t('national.viewLeaderboard') || '16 States Leaderboard' }}</span>
         <ChevronRight class="w-3 h-3" />
       </button>
     </div>
@@ -138,13 +138,13 @@ const cleanestColor = computed(() => {
           </div>
           <div class="min-w-0">
             <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono leading-none">
-              {{ t('national.schoolRule') || 'Garis Panduan KPM' }}
+              {{ t('national.schoolRule') || 'MOE School Guidelines' }}
             </div>
             <div class="font-bold text-xs mt-0.5 truncate" :class="summary.schoolAlertCount > 0 ? 'text-rose-600 dark:text-rose-300' : 'text-emerald-600 dark:text-emerald-400'">
-              {{ summary.schoolAlertCount > 0 ? `${summary.schoolAlertCount} Stesen > 200!` : (t('national.schoolNormal') || 'Sekolah Normal') }}
+              {{ summary.schoolAlertCount > 0 ? `${summary.schoolAlertCount} Stations > 200!` : (t('national.schoolNormal') || 'Schools Normal') }}
             </div>
             <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono truncate">
-              {{ summary.schoolAlertCount > 0 ? 'Tutup sekolah berhampiran' : 'Tiada stesen tutup sekolah' }}
+              {{ summary.schoolAlertCount > 0 ? 'Close nearby schools' : 'No school closures' }}
             </div>
           </div>
         </div>

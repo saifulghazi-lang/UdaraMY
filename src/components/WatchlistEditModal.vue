@@ -220,7 +220,7 @@ watch(() => props.isOpen, (newVal) => {
               </button>
 
               <div v-if="filteredStations.length === 0" class="p-3 text-center text-slate-500 text-xs">
-                Tiada stesen dijumpai
+                No stations found
               </div>
             </div>
           </div>

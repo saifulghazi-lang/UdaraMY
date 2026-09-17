@@ -8,7 +8,6 @@ import {
   Sliders, 
   MapPin, 
   WifiOff, 
-  Globe, 
   LocateFixed, 
   Share2, 
   RefreshCw, 
@@ -198,23 +197,13 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- Zone 3: Right Consolidated Actions (Language Pill, Direct FAQ Button, Theme Toggle, Locate, Refresh, Overflow Menu) -->
+      <!-- Zone 3: Right Consolidated Actions (Direct FAQ Button, Theme Toggle, Locate, Refresh, Overflow Menu) -->
       <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        <!-- 1-Tap Language Toggle (BM | EN) -->
-        <button
-          @click="locale = (locale === 'en' ? 'bm' : 'en')"
-          class="px-2.5 py-1.5 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-black transition flex items-center gap-1 shadow-sm"
-          :title="locale === 'en' ? 'Tukar ke Bahasa Melayu' : 'Switch to English'"
-        >
-          <Globe class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-          <span class="font-mono text-[10px]">{{ locale === 'en' ? 'EN' : 'BM' }}</span>
-        </button>
-
         <!-- Direct FAQ Button -->
         <button
           @click="isFaqModalOpen = true"
           class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 hover:bg-slate-200 dark:hover:bg-black transition shadow-sm text-xs font-semibold"
-          :title="t('faq.buttonTitle') || 'Soalan Lazim & Panduan API'"
+          :title="t('faq.buttonTitle') || 'FAQ & Air Quality Guide'"
         >
           <HelpCircle class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
           <span class="hidden sm:inline">{{ t('faq.button') || 'FAQ' }}</span>
@@ -224,7 +213,7 @@ onBeforeUnmount(() => {
         <button
           @click="toggleTheme"
           class="p-2 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-black transition focus:outline-none shadow-sm"
-          :title="isDarkMode ? 'Tukar ke Mod Cerah (Light Mode)' : 'Tukar ke Mod Gelap AMOLED (Dark Mode)'"
+          :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
         >
           <Sun v-if="isDarkMode" class="w-4 h-4 text-amber-400" />
           <Moon v-else class="w-4 h-4 text-indigo-600" />
@@ -278,7 +267,7 @@ onBeforeUnmount(() => {
               class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 transition text-left"
             >
               <Trophy class="w-4 h-4 text-amber-500 shrink-0" />
-              <span>{{ t('national.viewLeaderboard') || 'Papan Kedudukan Negeri' }}</span>
+              <span>{{ t('national.viewLeaderboard') || 'State Air Quality Leaderboard' }}</span>
             </button>
 
             <!-- FAQ in Overflow Menu -->
@@ -287,7 +276,7 @@ onBeforeUnmount(() => {
               class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 transition text-left"
             >
               <HelpCircle class="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
-              <span>{{ t('faq.title') || 'Soalan Lazim (FAQ)' }}</span>
+              <span>{{ t('faq.title') || 'Frequently Asked Questions (FAQ)' }}</span>
             </button>
 
             <!-- Share Story Card -->

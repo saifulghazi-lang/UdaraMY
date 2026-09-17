@@ -58,10 +58,10 @@ const points = computed(() => {
     if (!timeLabel && pt.time) {
       const d = new Date(pt.time);
       const isToday = d.toDateString() === new Date().toDateString();
-      timeLabel = `${isToday ? 'Hari Ini' : pt.dayName || 'Esok'} ${d.toLocaleTimeString([], { hour: 'numeric', hour12: true })}`;
+      timeLabel = `${isToday ? 'Today' : pt.dayName || 'Tomorrow'} ${d.toLocaleTimeString([], { hour: 'numeric', hour12: true })}`;
     }
 
-    return { ...pt, x, y, idx, timeLabel: timeLabel || 'Sekarang' };
+    return { ...pt, x, y, idx, timeLabel: timeLabel || 'Now' };
   });
 });
 
@@ -203,7 +203,7 @@ onUnmounted(() => {
               chartTab === 'history' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white'
             ]"
           >
-            24j Lalu (JAS)
+            {{ t('forecast.historyTab') || 'Past 24h (DOE)' }}
           </button>
           <button
             @click="chartTab = 'forecast'"
@@ -212,7 +212,7 @@ onUnmounted(() => {
               chartTab === 'forecast' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white'
             ]"
           >
-            <span>48j Ramalan</span>
+            <span>{{ t('forecast.forecastTab') || '48h Forecast' }}</span>
             <span v-if="forecast?.trend === 'deteriorating'" class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
           </button>
         </div>

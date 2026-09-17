@@ -29,7 +29,7 @@ const props = defineProps({
   }
 });
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const isGuideModalOpen = ref(false);
 
 const totalHotspots = computed(() => {
@@ -39,9 +39,7 @@ const totalHotspots = computed(() => {
 // Determine dynamic practical advice based on hotspot count and wind direction
 const practicalTip = computed(() => {
   if (props.hotspots.kalimantan > 150) {
-    return locale.value === 'bm'
-      ? `🔥 Aktiviti kebakaran tinggi dikesan di Kalimantan (${props.hotspots.kalimantan} titik panas satelit). Sarawak Selatan & Borneo menghadapi risiko asap tebal. Sediakan pelitup N95.`
-      : `🔥 High fire activity in Kalimantan (${props.hotspots.kalimantan} satellite hotspots). Southern Sarawak & Borneo face elevated smoke drift. Keep N95 masks ready.`;
+    return `🔥 High fire activity in Kalimantan (${props.hotspots.kalimantan} satellite hotspots). Southern Sarawak & Borneo face elevated smoke drift. Keep N95 masks ready.`;
   } else if (totalHotspots.value > 100) {
     return t('hotspots.practicalTipElevated');
   } else if (totalHotspots.value >= 50) {

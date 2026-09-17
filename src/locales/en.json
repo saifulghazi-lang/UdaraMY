@@ -220,7 +220,7 @@
   },
   "settings": {
     "title": "App Settings & PWA",
-    "language": "Language / Bahasa",
+    "language": "Language",
     "pwa": "Install App",
     "pwaDesc": "Install UdaraMY on your home screen for quick offline access during haze season.",
     "installButton": "Add to Home Screen",
@@ -352,7 +352,7 @@
   "forecast": {
     "title": "48-Hour Haze Outlook",
     "subtitle": "Hourly Copernicus CAMS chemical model projection",
-    "historyTab": "Past 24h (JAS)",
+    "historyTab": "Past 24h (DOE)",
     "forecastTab": "48h Forecast (CAMS)",
     "trendImproving": "Improving",
     "trendDeteriorating": "Deteriorating",

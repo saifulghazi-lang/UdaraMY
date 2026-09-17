@@ -109,30 +109,30 @@ function copyWhatsAppReport() {
   });
 
   const top3 = props.stateRankings.slice(0, 3).map((s, idx) => {
-    return `${idx + 1}. *${s.state}* · Puncak: ${s.peakStation.api} (${s.peakStation.name}) [${s.peakCategory.toUpperCase()}]`;
+    return `${idx + 1}. *${s.state}* · Peak: ${s.peakStation.api} (${s.peakStation.name}) [${s.peakCategory.toUpperCase()}]`;
   }).join('\n');
 
   const cleanest = props.nationalSummary.cleanestStation;
   const schoolStatus = props.nationalSummary.schoolAlertCount > 0 
-    ? `⚠️ *AMARAN:* ${props.nationalSummary.schoolAlertCount} stesen melebihi API 200 (Awas penutupan sekolah KPM)` 
-    : `✅ Semua sekolah dibuka normal (Tiada stesen > 200)`;
+    ? `⚠️ *ALERT:* ${props.nationalSummary.schoolAlertCount} stations exceed API 200 (Watch for MOE school closures)` 
+    : `✅ All schools operating normally (No stations > 200)`;
 
-  const text = `🇲🇾 *LAPORAN KUALITI UDARA HARIAN MALAYSIA*
+  const text = `🇲🇾 *MALAYSIA DAILY AIR QUALITY REPORT*
 📅 ${dateStr} (${timeStr})
-Sumber: Jabatan Alam Sekitar (JAS APIMS) via UdaraMY
+Source: Department of Environment (DOE APIMS) via UdaraMY
 
-🚨 *Negeri Paling Terjejas Hari Ini:*
+🚨 *Most Affected States Today:*
 ${top3}
 
-🍃 *Udara Paling Bersih:*
+🍃 *Cleanest Air:*
 • *${cleanest?.state}* (${cleanest?.name} · API ${cleanest?.api})
 
-🏫 *Status Sekolah:*
+🏫 *School Status:*
 • ${schoolStatus}
 
-📊 *Purata Kebangsaan:* ${props.nationalSummary.nationalAverage} API
+📊 *National Average:* ${props.nationalSummary.nationalAverage} API
 
-👉 Semak bacaan stesen & jerebu kawasan anda:
+👉 Check live station readings & haze in your area:
 https://udaramy.vercel.app`;
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -159,11 +159,11 @@ https://udaramy.vercel.app`;
               <Trophy class="w-4 h-4" />
             </div>
             <h3 class="font-extrabold text-slate-900 dark:text-white text-base tracking-tight">
-              {{ t('leaderboard.title') || 'Papan Kedudukan Kualiti Udara Negeri' }}
+              {{ t('leaderboard.title') || 'State Air Quality Leaderboard' }}
             </h3>
           </div>
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            {{ t('leaderboard.subtitle') || 'Kedudukan 16 negeri & wilayah berdasarkan bacaan stesen hari ini' }}
+            {{ t('leaderboard.subtitle') || 'Rankings across 16 states & federal territories based on current station readings' }}
           </p>
         </div>
 
@@ -249,12 +249,12 @@ https://udaramy.vercel.app`;
                     {{ st.state }}
                   </h4>
                   <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 font-mono">
-                    {{ st.stationCount }} stesen
+                    {{ st.stationCount }} stations
                   </span>
                 </div>
 
                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate flex items-center gap-1.5 font-mono">
-                  <span>{{ t('leaderboard.peak') || 'Puncak' }}: <strong class="text-slate-700 dark:text-slate-200">{{ st.peakStation.name }}</strong></span>
+                  <span>{{ t('leaderboard.peak') || 'Peak' }}: <strong class="text-slate-700 dark:text-slate-200">{{ st.peakStation.name }}</strong></span>
                   <span class="text-slate-400 dark:text-slate-600">•</span>
                   <span :style="{ color: getCategoryColor(st.peakCategory) }">{{ st.peakStation.api }} API</span>
                 </div>
@@ -313,8 +313,8 @@ https://udaramy.vercel.app`;
             class="p-3 bg-slate-50 dark:bg-black border-t border-slate-200 dark:border-white/5 space-y-1.5"
           >
             <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono uppercase tracking-wider mb-1 flex items-center justify-between">
-              <span>{{ t('leaderboard.stationsIn', { state: st.state }) || `Stesen Pemantauan di ${st.state}` }}</span>
-              <span>{{ t('leaderboard.selectToMonitor') || 'Pilih untuk pantau' }}</span>
+              <span>{{ t('leaderboard.stationsIn', { state: st.state }) || `Monitoring Stations in ${st.state}` }}</span>
+              <span>{{ t('leaderboard.selectToMonitor') || 'Select to monitor' }}</span>
             </div>
 
             <div

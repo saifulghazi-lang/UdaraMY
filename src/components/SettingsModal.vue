@@ -52,8 +52,8 @@ async function testNotification() {
     try {
       const stationName = store.currentStation?.name || 'Cheras, Kuala Lumpur';
       const apiVal = store.currentStation?.api || 120;
-      new Notification('⚠️ UdaraMY: Amaran Jerebu / Haze Alert', {
-        body: `${t('settings.alertThreshold')}: API ${apiVal} dikesan di ${stationName}. ${t('health.riskGroup')}`,
+      new Notification('⚠️ UdaraMY: Haze Alert', {
+        body: `${t('settings.alertThreshold')}: API ${apiVal} detected at ${stationName}. ${t('health.riskGroup')}`,
         icon: '/pwa-192x192.png',
         badge: '/pwa-192x192.png'
       });
@@ -282,10 +282,10 @@ onMounted(() => {
                   {{ t('settings.communityLiveStatusCached', { count: store.communitySensors.length }) }}
                 </template>
                 <template v-else-if="store.communitySensors.length > 0">
-                  {{ store.communitySensors.length }} Stesen Komuniti
+                  {{ store.communitySensors.length }} Community Stations
                 </template>
                 <template v-else>
-                  Tiada nod dikesan (Perlukan Kunci OpenAQ)
+                  No nodes detected (OpenAQ Key Required)
                 </template>
               </span>
             </div>

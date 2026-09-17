@@ -641,10 +641,10 @@ onBeforeUnmount(() => {
         <h2 class="text-base font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <span>{{ t('map.title') }}</span>
           <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30">
-            {{ combinedStations.length }} stesen
+            {{ combinedStations.length }} stations
           </span>
           <span v-if="communitySensors.length > 0" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-500/15 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/30">
-            👥 +{{ communitySensors.length }} komuniti
+            👥 +{{ communitySensors.length }} community
           </span>
         </h2>
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ t('map.sub') }}</p>
@@ -657,23 +657,23 @@ onBeforeUnmount(() => {
           <button
             @click="networkFilter = 'all'"
             :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'all')]"
-            title="Papar semua stesen rasmi JAS dan sensor komuniti"
+            title="Show all official DOE stations and community sensors"
           >
             <span>{{ t('map.filterAll') }}</span>
           </button>
           <button
             @click="networkFilter = 'official'"
             :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'official')]"
-            title="Hanya stesen rasmi JAS APIMS"
+            title="Official DOE APIMS stations only"
           >
-            <span>🏛️ JAS ({{ stations.length }})</span>
+            <span>🏛️ DOE ({{ stations.length }})</span>
           </button>
           <button
             @click="networkFilter = 'community'"
             :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'community')]"
-            title="Sensor komuniti warga (PurpleAir / AirVisual)"
+            title="Citizen community sensors (PurpleAir / AirVisual)"
           >
-            <span>👥 Komuniti ({{ communitySensors.length }})</span>
+            <span>👥 Community ({{ communitySensors.length }})</span>
           </button>
           <button
             @click="isFilterDrawerOpen = !isFilterDrawerOpen"
@@ -795,7 +795,7 @@ onBeforeUnmount(() => {
 
           <div class="flex items-center justify-between text-xs px-1 gap-2 flex-wrap">
             <span class="text-slate-500 dark:text-neutral-400 font-medium">
-              {{ displayedStations.length }} stesen
+              {{ displayedStations.length }} stations
             </span>
 
             <!-- Sort Toggle Dropdown / Buttons -->
@@ -805,7 +805,7 @@ onBeforeUnmount(() => {
                 @click="sortBy = 'distance_asc'"
                 :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getSortPillClass(sortBy === 'distance_asc')]"
               >
-                📍 Terdekat
+                📍 Nearest
               </button>
               <button
                 @click="sortBy = 'api_desc'"
@@ -892,7 +892,7 @@ onBeforeUnmount(() => {
           </div>
 
           <div v-if="displayedStations.length === 0" class="py-12 text-center text-neutral-400 text-xs flex flex-col items-center gap-3">
-            <p>{{ t('map.noStationsFound') || `Tiada stesen dijumpai untuk carian "${searchQuery}"` }}</p>
+            <p>{{ t('map.noStationsFound', { query: searchQuery }) || `No stations found for "${searchQuery}"` }}</p>
             <button
               @click="searchQuery = ''; currentFilter = 'All'; networkFilter = 'all';"
               class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow"

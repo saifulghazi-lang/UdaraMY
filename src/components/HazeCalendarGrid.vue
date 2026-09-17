@@ -23,7 +23,7 @@ const props = defineProps({
   }
 });
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const hoveredDay = ref(null);
 
 // Determine regional meteorological profile based on selected station state/region
@@ -156,7 +156,7 @@ const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 function formatDayDate(d) {
   if (!d) return '';
-  return d.date.toLocaleDateString(locale.value === 'bm' ? 'ms-MY' : 'en-MY', {
+  return d.date.toLocaleDateString('en-MY', {
     weekday: 'short',
     month: 'short',
     day: 'numeric'

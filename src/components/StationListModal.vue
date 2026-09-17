@@ -82,7 +82,7 @@ onUnmounted(() => {
         <button
           @click="emit('close')"
           class="p-1 rounded-full text-neutral-400 hover:text-white hover:bg-white/10 transition"
-          aria-label="Tutup / Close"
+          aria-label="Close"
         >
           <X class="w-5 h-5" />
         </button>
@@ -156,7 +156,7 @@ onUnmounted(() => {
         </button>
 
         <div v-if="filteredStations.length === 0" class="py-12 text-center text-neutral-400 text-xs flex flex-col items-center gap-3">
-          <p>Tiada stesen dijumpai untuk carian "{{ query }}"</p>
+          <p>{{ t('map.noStationsFound', { query }) || `No stations found for "${query}"` }}</p>
           <button
             @click="query = ''"
             class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow text-xs"

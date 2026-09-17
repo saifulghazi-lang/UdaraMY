@@ -223,7 +223,7 @@ onUnmounted(() => {
           @click="emit('close')"
           class="px-4 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-sm"
         >
-          Tutup / Close
+          Close
         </button>
       </div>
     </div>

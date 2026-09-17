@@ -270,7 +270,7 @@ function parseOpenAqLocation(loc, liveMeasurement = null) {
   else if (nameLower.includes('tambulaung')) subTitle = 'Tambulaung Highlands, Sabah';
 
   if (!isRecent) {
-    subTitle += ' • (Stesen Tidak Aktif)';
+    subTitle += ' • (Inactive Station)';
   }
 
   return {
