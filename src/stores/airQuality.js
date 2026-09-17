@@ -15,6 +15,12 @@ import {
   calculateHourlyVelocity,
   generate6HourProjection
 } from '../services/mathematicsService.js';
+import {
+  fetchRegionalWindGrid,
+  calculatePlumeThreat,
+  interpolateWindVector,
+  getClimatologicalWindGrid
+} from '../services/windVectorService.js';
 
 const WATCHLIST_STORAGE_KEY = 'udaramy_watchlist';
 const PROFILE_STORAGE_KEY = 'udaramy_profile';
@@ -67,7 +73,11 @@ export const useAirQualityStore = defineStore('airQuality', {
         windDirection: 'Southwest (210°)',
         windSpeedKm: '18 km/h',
         smokeTrajectory: 'Northeast towards Straits of Malacca'
-      }
+      },
+      windFieldGrid: getClimatologicalWindGrid(),
+      activePlumes: [],
+      showWindOverlay: false,
+      isWindLoading: false
     };
   },
 
@@ -312,6 +322,10 @@ export const useAirQualityStore = defineStore('airQuality', {
       else if (delta <= -5) status = 'improving';
 
       return { delta, status };
+    },
+
+    isPlumeThreatActive(state) {
+      return Boolean(state.activePlumes?.some(p => p.threatLevel === 'severe' || p.threatLevel === 'elevated'));
     }
   },
 
@@ -337,6 +351,10 @@ export const useAirQualityStore = defineStore('airQuality', {
           this.fetchHotspots(),
           this.fetchForecast()
         ]);
+
+        if (this.activePlumes.length === 0) {
+          await this.loadRegionalWindGrid();
+        }
 
         if (navigator.geolocation) {
           this.detectUserLocation(true);
@@ -427,9 +445,54 @@ export const useAirQualityStore = defineStore('airQuality', {
         if (data) {
           this.hotspots = data;
         }
+        await this.loadRegionalWindGrid();
       } catch (err) {
         console.warn('Live hotspots update error:', err);
       }
+    },
+
+    async loadRegionalWindGrid() {
+      this.isWindLoading = true;
+      try {
+        const grid = await fetchRegionalWindGrid();
+        this.windFieldGrid = grid;
+
+        const sumatraVector = interpolateWindVector(0.5, 101.5, grid);
+        const sumatraPlume = calculatePlumeThreat(
+          { lat: 0.5, lng: 101.5, name: 'Sumatra' },
+          this.hotspots?.sumatra || 0,
+          sumatraVector
+        );
+
+        const kalimantanVector = interpolateWindVector(-1.0, 111.5, grid);
+        const kalimantanPlume = calculatePlumeThreat(
+          { lat: -1.0, lng: 111.5, name: 'Kalimantan' },
+          this.hotspots?.kalimantan || 0,
+          kalimantanVector
+        );
+
+        this.activePlumes = [sumatraPlume, kalimantanPlume];
+
+        if (this.hotspots?.sumatra > 50 || this.hotspots?.kalimantan > 100) {
+          this.showWindOverlay = true;
+        }
+      } catch (err) {
+        console.warn('Failed to load regional wind grid:', err);
+      } finally {
+        this.isWindLoading = false;
+      }
+    },
+
+    toggleWindOverlay(forceState = null) {
+      if (typeof forceState === 'boolean') {
+        this.showWindOverlay = forceState;
+      } else {
+        this.showWindOverlay = !this.showWindOverlay;
+      }
+    },
+
+    async initialize() {
+      return this.init();
     },
 
     async detectUserLocation(autoSelect = true) {
