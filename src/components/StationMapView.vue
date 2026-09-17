@@ -1039,6 +1039,27 @@ onBeforeUnmount(() => {
           </button>
         </div>
       </div>
+
+      <!-- Wind & Smoke Plume Toggle -->
+      <div class="flex items-center gap-1.5">
+        <span class="text-[10px] uppercase font-mono text-slate-500 dark:text-neutral-400 font-bold">Wind:</span>
+        <button
+          @click="store.toggleWindOverlay()"
+          :class="[
+            'px-2.5 py-1 rounded-full text-[10px] font-medium transition flex items-center gap-1 border',
+            store.showWindOverlay
+              ? 'bg-amber-500 text-white border-amber-500 shadow-sm shadow-amber-500/40'
+              : 'bg-white dark:bg-black border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white'
+          ]"
+          :title="store.showWindOverlay ? 'Hide wind & smoke plume overlay' : 'Show wind & smoke plume overlay'"
+        >
+          💨 Wind &amp; Smoke Plumes
+          <span
+            v-if="store.isPlumeThreatActive && !store.showWindOverlay"
+            class="inline-flex w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"
+          />
+        </button>
+      </div>
     </div>
 
     <!-- Split Layout: Interactive Map + Side Station List -->
