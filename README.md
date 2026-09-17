@@ -129,10 +129,6 @@ $$d = 2R \cdot \operatorname{atan2}\left(\sqrt{a}, \sqrt{1 - a}\right) \quad (R 
 
 ## 🏗️ System Architecture
 
-<div align="center">
-  <img src="public/system_architecture.jpg" alt="UdaraMY End-to-End System Architecture" width="100%" style="border-radius: 16px; margin: 16px 0;" />
-</div>
-
 ```mermaid
 flowchart LR
   subgraph INGESTION["1. Data Ingestion Nodes"]
