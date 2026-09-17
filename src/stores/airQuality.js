@@ -77,7 +77,8 @@ export const useAirQualityStore = defineStore('airQuality', {
       windFieldGrid: getClimatologicalWindGrid(),
       activePlumes: [],
       showWindOverlay: false,
-      isWindLoading: false
+      isWindLoading: false,
+      hasUserToggledWindOverlay: false
     };
   },
 
@@ -352,9 +353,7 @@ export const useAirQualityStore = defineStore('airQuality', {
           this.fetchForecast()
         ]);
 
-        if (this.activePlumes.length === 0) {
-          await this.loadRegionalWindGrid();
-        }
+        await this.loadRegionalWindGrid();
 
         if (navigator.geolocation) {
           this.detectUserLocation(true);
@@ -384,6 +383,7 @@ export const useAirQualityStore = defineStore('airQuality', {
           this.lastUpdated = data.updatedAt || new Date().toISOString();
           this.isLive = data.isLive;
         }
+        await this.loadRegionalWindGrid();
       } catch (err) {
         console.error('Refresh air quality error:', err);
       } finally {
@@ -445,13 +445,13 @@ export const useAirQualityStore = defineStore('airQuality', {
         if (data) {
           this.hotspots = data;
         }
-        await this.loadRegionalWindGrid();
       } catch (err) {
         console.warn('Live hotspots update error:', err);
       }
     },
 
     async loadRegionalWindGrid() {
+      if (this.isWindLoading) return;
       this.isWindLoading = true;
       try {
         const grid = await fetchRegionalWindGrid();
@@ -473,7 +473,7 @@ export const useAirQualityStore = defineStore('airQuality', {
 
         this.activePlumes = [sumatraPlume, kalimantanPlume];
 
-        if (this.hotspots?.sumatra > 50 || this.hotspots?.kalimantan > 100) {
+        if (!this.hasUserToggledWindOverlay && (this.hotspots?.sumatra > 50 || this.hotspots?.kalimantan > 100)) {
           this.showWindOverlay = true;
         }
       } catch (err) {
@@ -484,6 +484,7 @@ export const useAirQualityStore = defineStore('airQuality', {
     },
 
     toggleWindOverlay(forceState = null) {
+      this.hasUserToggledWindOverlay = true;
       if (typeof forceState === 'boolean') {
         this.showWindOverlay = forceState;
       } else {
