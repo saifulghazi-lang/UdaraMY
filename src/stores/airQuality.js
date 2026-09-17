@@ -10,6 +10,11 @@ import {
   setOpenAqApiKey
 } from '../services/communityService.js';
 import { fetchAirQualityForecast } from '../services/airQualityForecastService.js';
+import {
+  calculateNowCast,
+  calculateHourlyVelocity,
+  generate6HourProjection
+} from '../services/mathematicsService.js';
 
 const WATCHLIST_STORAGE_KEY = 'udaramy_watchlist';
 const PROFILE_STORAGE_KEY = 'udaramy_profile';
@@ -73,9 +78,10 @@ export const useAirQualityStore = defineStore('airQuality', {
       if (!st) st = state.stations[0];
       if (!st) return null;
 
+      let result = st;
       if (state.simulationApi !== null) {
         const api = state.simulationApi;
-        return {
+        result = {
           ...st,
           api,
           category: getCategoryFromApi(api),
@@ -83,7 +89,24 @@ export const useAirQualityStore = defineStore('airQuality', {
           history24h: generate24hHistory(api)
         };
       }
-      return st;
+
+      const recentSeries = result.history24h && result.history24h.length > 0
+        ? [...result.history24h].reverse().map(h => (typeof h.api === 'number' ? h.api : result.api))
+        : [result.api];
+
+      const nowCast = calculateNowCast(recentSeries);
+      const velocity3h = calculateHourlyVelocity(recentSeries);
+      const predictions6h = generate6HourProjection(
+        nowCast.nowCastApi ?? result.api,
+        state.forecast?.hourly || []
+      );
+
+      return {
+        ...result,
+        nowCast,
+        velocity3h,
+        predictions6h
+      };
     },
 
     allDisplayStations(state) {
