@@ -399,7 +399,19 @@
     "trend24h": "24h Trend (AM→PM)",
     "active": "Active"
   },
+  "windOverlay": {
+    "toggle": "Wind & Smoke Plumes",
+    "active": "Wind & Smoke ✓",
+    "showOverlay": "Show transboundary wind streamlines and smoke plume cones",
+    "hideOverlay": "Hide wind & smoke plume overlay",
+    "viewDriftOnMap": "📍 View Drift on Map ↗",
+    "threatCone": "Smoke Threat Cone",
+    "severe": "Severe — direct path to Malaysia",
+    "elevated": "Elevated — drifting towards coast",
+    "safe": "Offshore — drifting away"
+  },
   "faq": {
+
     "title": "Frequently Asked Questions",
     "subtitle": "Understanding Malaysian Air Quality, Sensor Differences & Health Standards",
     "q1": "Which data is accurate? DOE (APIMS) is different from OpenAQ / PurpleAir — which can I trust?",

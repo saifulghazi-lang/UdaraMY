@@ -62,6 +62,14 @@ let heatCtx = null;
 let resizeObserver = null;
 let markerMap = {};
 
+// Wind & Smoke Plume overlay
+let windCanvas = null;
+let windCtx = null;
+let windAnimFrame = null;
+let windParticles = [];
+const WIND_PARTICLE_COUNT_DESKTOP = 110;
+const WIND_PARTICLE_COUNT_MOBILE = 55;
+
 function escapeHtml(str) {
   if (!str) return '';
   return String(str)
@@ -290,12 +298,299 @@ function drawHeatmap() {
   });
 }
 
+// ─── Wind & Smoke Plume Canvas Overlay ────────────────────────────────────────
+
+function isMobileViewport() {
+  return typeof window !== 'undefined' && (window.innerWidth < 1024 || L.Browser.mobile);
+}
+
+function initWindCanvas() {
+  if (!map) return;
+  if (windCanvas) return; // already initialised
+
+  const pane = map.getPane('overlayPane');
+  if (!pane) return;
+
+  windCanvas = document.createElement('canvas');
+  windCanvas.className = 'leaflet-wind-canvas';
+  windCanvas.style.cssText = 'position:absolute;pointer-events:none;z-index:400;';
+  pane.appendChild(windCanvas);
+  windCtx = windCanvas.getContext('2d');
+
+  resizeWindCanvas();
+  spawnParticles();
+  scheduleWindFrame();
+
+  // keep canvas in sync with map movements
+  map.on('move moveend zoom zoomend viewreset resize', resizeWindCanvas);
+}
+
+function resizeWindCanvas() {
+  if (!windCanvas || !map) return;
+  const size = map.getSize();
+  if (size.x <= 0 || size.y <= 0) return;
+
+  const mapPos = map.containerPointToLayerPoint([0, 0]);
+  L.DomUtil.setPosition(windCanvas, mapPos);
+
+  if (windCanvas.width !== size.x || windCanvas.height !== size.y) {
+    windCanvas.width = size.x;
+    windCanvas.height = size.y;
+    windCanvas.style.width = `${size.x}px`;
+    windCanvas.style.height = `${size.y}px`;
+    // re-spawn particles so they fit the new viewport
+    spawnParticles();
+  }
+}
+
+function spawnParticles() {
+  if (!windCanvas || !map) return;
+  const count = isMobileViewport() ? WIND_PARTICLE_COUNT_MOBILE : WIND_PARTICLE_COUNT_DESKTOP;
+  const w = windCanvas.width;
+  const h = windCanvas.height;
+
+  windParticles = Array.from({ length: count }, () => spawnOneParticle(w, h));
+}
+
+function spawnOneParticle(w, h) {
+  return {
+    x: Math.random() * w,
+    y: Math.random() * h,
+    age: 0,
+    life: 40 + Math.floor(Math.random() * 50), // 40–90 ticks
+    alpha: 0.15 + Math.random() * 0.35
+  };
+}
+
+function getWindAtPixel(px, py) {
+  if (!map) return { u: 5, v: -7 };
+  try {
+    const latlng = map.containerPointToLatLng([px, py]);
+    const grid = store.windFieldGrid;
+    if (!grid || grid.length === 0) return { u: 5, v: -7 };
+
+    let totalW = 0, wu = 0, wv = 0;
+    for (const node of grid) {
+      const dLat = latlng.lat - node.lat;
+      const dLng = latlng.lng - node.lng;
+      const distSq = dLat * dLat + dLng * dLng;
+      const w = 1 / (distSq + 0.05);
+      totalW += w;
+      wu += node.u * w;
+      wv += node.v * w;
+    }
+    return { u: wu / totalW, v: wv / totalW };
+  } catch {
+    return { u: 5, v: -7 };
+  }
+}
+
+const PARTICLE_SCALE = 0.25; // pixels per km/h unit per tick
+
+function drawWindFrame() {
+  if (!windCtx || !windCanvas || !map || !store.showWindOverlay) return;
+
+  const w = windCanvas.width;
+  const h = windCanvas.height;
+
+  // Trail fade — creates glowing streamline ribbons
+  windCtx.fillStyle = 'rgba(15, 23, 42, 0.08)';
+  windCtx.fillRect(0, 0, w, h);
+
+  for (let i = 0; i < windParticles.length; i++) {
+    const p = windParticles[i];
+    const wind = getWindAtPixel(p.x, p.y);
+
+    // Advance particle in wind direction (u = east, v = north → screen −y)
+    const dx = wind.u * PARTICLE_SCALE;
+    const dy = -wind.v * PARTICLE_SCALE;
+
+    const nx = p.x + dx;
+    const ny = p.y + dy;
+
+    // Draw line segment
+    const speed = Math.sqrt(wind.u * wind.u + wind.v * wind.v);
+    const hue = speed < 10 ? 180 : speed < 20 ? 38 : 0; // teal → amber → red
+    windCtx.strokeStyle = `hsla(${hue}, 90%, 68%, ${p.alpha})`;
+    windCtx.lineWidth = 1.2;
+    windCtx.beginPath();
+    windCtx.moveTo(p.x, p.y);
+    windCtx.lineTo(nx, ny);
+    windCtx.stroke();
+
+    p.x = nx;
+    p.y = ny;
+    p.age++;
+
+    // Respawn if out of bounds or aged out
+    if (p.age >= p.life || nx < -4 || ny < -4 || nx > w + 4 || ny > h + 4) {
+      windParticles[i] = spawnOneParticle(w, h);
+    }
+  }
+
+  // Draw smoke plume threat cones
+  drawPlumeCones();
+}
+
+function drawPlumeCones() {
+  const plumes = store.activePlumes;
+  if (!plumes || plumes.length === 0 || !windCtx || !map) return;
+
+  for (const plume of plumes) {
+    if (!plume || !plume.isPointingAtMalaysia) continue;
+
+    // Project origin to screen pixel
+    let originPt;
+    try {
+      originPt = map.latLngToContainerPoint([plume.originLat, plume.originLng]);
+    } catch { continue; }
+
+    // Project a point 300 km downwind to get cone head pixel
+    const RAD = Math.PI / 180;
+    const KM_PER_DEG = 111.32;
+    const headingDeg = plume.headingDeg;
+    const lengthKm = plume.lengthKm || 280;
+
+    const dLat = (Math.cos(headingDeg * RAD) * lengthKm) / KM_PER_DEG;
+    const dLng = (Math.sin(headingDeg * RAD) * lengthKm) / (KM_PER_DEG * Math.cos(plume.originLat * RAD));
+
+    let headPt;
+    try {
+      headPt = map.latLngToContainerPoint([plume.originLat + dLat, plume.originLng + dLng]);
+    } catch { continue; }
+
+    const dx = headPt.x - originPt.x;
+    const dy = headPt.y - originPt.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 5) continue;
+
+    const angle = Math.atan2(dy, dx);
+    const halfArc = (plume.arcDeg || 35) * RAD * 0.5;
+
+    // Colour by threat level
+    const isSevere = plume.threatLevel === 'severe';
+    const isElevated = plume.threatLevel === 'elevated';
+    const coneColor = isSevere ? '355, 90%, 60%' : isElevated ? '38, 95%, 58%' : '180, 80%, 55%';
+    const coneAlpha = isSevere ? 0.18 : isElevated ? 0.13 : 0.08;
+
+    // Draw cone as a filled arc sector
+    windCtx.save();
+    windCtx.beginPath();
+    windCtx.moveTo(originPt.x, originPt.y);
+    windCtx.arc(originPt.x, originPt.y, dist, angle - halfArc, angle + halfArc);
+    windCtx.closePath();
+
+    const grad = windCtx.createRadialGradient(originPt.x, originPt.y, 0, originPt.x, originPt.y, dist);
+    grad.addColorStop(0, `hsla(${coneColor}, ${coneAlpha * 2})`);
+    grad.addColorStop(0.5, `hsla(${coneColor}, ${coneAlpha})`);
+    grad.addColorStop(1, `hsla(${coneColor}, 0)`);
+    windCtx.fillStyle = grad;
+    windCtx.fill();
+
+    // Pulsing boundary edges
+    windCtx.strokeStyle = `hsla(${coneColor}, 0.55)`;
+    windCtx.lineWidth = isSevere ? 1.5 : 1;
+    windCtx.setLineDash([5, 4]);
+    windCtx.stroke();
+    windCtx.setLineDash([]);
+    windCtx.restore();
+
+    // ETA label at ~70% along the cone axis
+    const labelX = originPt.x + dx * 0.70;
+    const labelY = originPt.y + dy * 0.70;
+    const labelText = `🔥 ${plume.label}`;
+
+    windCtx.save();
+    windCtx.font = 'bold 10px ui-monospace, monospace';
+    windCtx.textAlign = 'center';
+    windCtx.textBaseline = 'middle';
+
+    // Background pill
+    const textW = windCtx.measureText(labelText).width;
+    const pad = 5;
+    windCtx.fillStyle = 'rgba(0,0,0,0.65)';
+    windCtx.beginPath();
+    windCtx.roundRect(labelX - textW / 2 - pad, labelY - 8, textW + pad * 2, 16, 4);
+    windCtx.fill();
+
+    windCtx.fillStyle = isSevere ? '#ff6b6b' : isElevated ? '#fbbf24' : '#2dd4bf';
+    windCtx.fillText(labelText, labelX, labelY);
+    windCtx.restore();
+  }
+}
+
+let lastFrameTime = 0;
+const TARGET_FPS = 35;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
+
+function scheduleWindFrame() {
+  if (!store.showWindOverlay) {
+    // If overlay is off, ensure canvas is cleared and stop
+    if (windCtx && windCanvas) {
+      windCtx.clearRect(0, 0, windCanvas.width, windCanvas.height);
+    }
+    windAnimFrame = null;
+    return;
+  }
+
+  windAnimFrame = requestAnimationFrame((timestamp) => {
+    if (timestamp - lastFrameTime >= FRAME_INTERVAL) {
+      lastFrameTime = timestamp;
+      drawWindFrame();
+    }
+    scheduleWindFrame();
+  });
+}
+
+function startWindOverlay() {
+  if (!map) return;
+  if (!windCanvas) initWindCanvas();
+  if (windCanvas) windCanvas.style.display = 'block';
+  resizeWindCanvas();
+  spawnParticles();
+  if (!windAnimFrame) scheduleWindFrame();
+}
+
+function stopWindOverlay() {
+  if (windAnimFrame) {
+    cancelAnimationFrame(windAnimFrame);
+    windAnimFrame = null;
+  }
+  if (windCtx && windCanvas) {
+    windCtx.clearRect(0, 0, windCanvas.width, windCanvas.height);
+    windCanvas.style.display = 'none';
+  }
+}
+
+function teardownWindCanvas() {
+  stopWindOverlay();
+  if (windCanvas && windCanvas.parentNode) {
+    windCanvas.parentNode.removeChild(windCanvas);
+    windCanvas = null;
+    windCtx = null;
+  }
+}
+
+// Watch store.showWindOverlay and toggle the canvas accordingly
+watch(() => store.showWindOverlay, (active) => {
+  if (active) startWindOverlay();
+  else stopWindOverlay();
+});
+
+// Watch windFieldGrid changes so particles pick up fresh wind data
+watch(() => store.windFieldGrid, () => {
+  if (store.showWindOverlay && windParticles.length === 0) spawnParticles();
+}, { deep: true });
+
+
+
 function renderUserLocation() {
   if (!map) return;
   if (!userLocationLayer) {
     userLocationLayer = L.layerGroup().addTo(map);
   }
   userLocationLayer.clearLayers();
+
 
   if (!props.userLocation) return;
 
@@ -554,6 +849,11 @@ onMounted(() => {
   renderMarkers();
   renderUserLocation();
 
+  // Initialise wind overlay if the store already flagged it active (e.g. high hotspot auto-activation)
+  if (store.showWindOverlay) {
+    nextTick(() => startWindOverlay());
+  }
+
   // If already a selected station, focus on it
   if (props.selectedStationId) {
     const selected = props.stations.find(s => s.id === props.selectedStationId);
@@ -627,7 +927,9 @@ onBeforeUnmount(() => {
     resizeObserver.disconnect();
     resizeObserver = null;
   }
+  teardownWindCanvas();
   if (map) {
+    map.off('move moveend zoom zoomend viewreset resize', resizeWindCanvas);
     map.remove();
   }
 });
@@ -759,6 +1061,27 @@ onBeforeUnmount(() => {
           <span>{{ isLocating ? t('location.locating') : t('location.locateMe') }}</span>
         </button>
 
+        <!-- 💨 Wind & Smoke Plume Toggle Button -->
+        <button
+          @click="store.toggleWindOverlay()"
+          :class="[
+            'absolute top-14 left-3 z-[1000] px-3.5 py-2 rounded-full backdrop-blur-md border shadow-xl transition flex items-center gap-2 text-xs font-bold focus:outline-none',
+            store.showWindOverlay
+              ? store.isPlumeThreatActive
+                ? 'bg-amber-500/90 dark:bg-amber-600/90 border-amber-400 text-white shadow-amber-500/40'
+                : 'bg-cyan-500/20 dark:bg-cyan-500/25 border-cyan-500/60 text-cyan-700 dark:text-cyan-300'
+              : 'bg-white/95 dark:bg-black/90 border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white'
+          ]"
+          :title="store.showWindOverlay ? t('windOverlay.hideOverlay') : t('windOverlay.showOverlay')"
+        >
+          <span class="text-base leading-none" :class="store.showWindOverlay ? 'animate-pulse' : ''">💨</span>
+          <span>{{ store.showWindOverlay ? t('windOverlay.active') : t('windOverlay.toggle') }}</span>
+          <span
+            v-if="store.isPlumeThreatActive && !store.showWindOverlay"
+            class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"
+          ></span>
+        </button>
+
         <!-- Mobile Tap-to-Interact Prompt Overlay Button -->
         <button
           v-if="!isMapInteracting"
@@ -767,6 +1090,7 @@ onBeforeUnmount(() => {
         >
           <span>👆 {{ t('guidance.tapToInteractMap') }}</span>
         </button>
+
 
         <!-- Floating Legend on Map (Design Token Aligned) -->
         <div class="absolute bottom-3 inset-x-3 z-30 bg-white/95 dark:bg-black/90 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-full px-4 py-2 shadow-xl flex items-center justify-between sm:justify-around text-[10px] font-bold text-slate-700 dark:text-neutral-200 select-none overflow-x-auto gap-2">

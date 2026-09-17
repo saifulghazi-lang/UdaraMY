@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useAirQualityStore } from '../stores/airQuality.js';
 import { 
   Flame, 
   Compass, 
@@ -31,6 +32,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 const isGuideModalOpen = ref(false);
+const store = useAirQualityStore();
 
 const totalHotspots = computed(() => {
   return (props.hotspots.sumatra || 0) + (props.hotspots.kalimantan || 0) + (props.hotspots.malaysia || 0);
@@ -144,7 +146,24 @@ const practicalTip = computed(() => {
         <span class="truncate">{{ hotspots.smokeTrajectory }}</span>
       </div>
 
+      <!-- 📍 View Drift on Map cross-link -->
+      <button
+        @click="store.toggleWindOverlay(true)"
+        :class="[
+          'w-full mt-1 px-3 py-2 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition border',
+          store.showWindOverlay
+            ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-700 dark:text-cyan-300'
+            : store.isPlumeThreatActive
+              ? 'bg-amber-500/10 border-amber-500/40 text-amber-700 dark:text-amber-300 animate-pulse'
+              : 'bg-slate-100 dark:bg-neutral-950 border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white'
+        ]"
+      >
+        <span>{{ t('windOverlay.viewDriftOnMap') }}</span>
+        <span v-if="store.isPlumeThreatActive && !store.showWindOverlay" class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+      </button>
+
       <!-- Trend Warning / Status -->
+
       <div
         :class="[
           'p-2 rounded-xl flex items-center gap-2 font-medium text-xs',
