@@ -405,7 +405,8 @@ const particles = computed(() => {
         :title="t('predictive.realtimeTooltip')"
       >
         <Sparkles class="w-3 h-3 text-cyan-500 shrink-0" />
-        <span>{{ t('predictive.realtimeIndex') }}</span>
+        <span class="text-cyan-700 dark:text-cyan-400 font-sans">{{ t('predictive.realtimeIndex') }}:</span>
+        <span class="font-bold text-cyan-900 dark:text-cyan-100">{{ displayApi }}</span>
       </div>
 
       <!-- Statutory APIMS 24h Comparison Capsule -->
@@ -449,7 +450,7 @@ const particles = computed(() => {
         >
           <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-medium">{{ pred.timeLabel }}</span>
           <div class="flex items-center gap-1 my-1">
-            <span class="text-base sm:text-lg font-black font-mono text-slate-900 dark:text-white">{{ pred.projectedApi }}</span>
+            <span class="text-base sm:text-lg font-black font-mono text-slate-900 dark:text-white">{{ (typeof pred.projectedApi === 'number' && !isNaN(pred.projectedApi)) ? pred.projectedApi : displayApi }}</span>
             <component
               :is="getPredictionTrendIcon(pred.trendDirection)"
               :class="['w-3.5 h-3.5', getPredictionTrendColor(pred.trendDirection)]"
@@ -458,10 +459,10 @@ const particles = computed(() => {
           <span
             :class="[
               'text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border',
-              getPredictionBadgeClass(pred.projectedApi)
+              getPredictionBadgeClass((typeof pred.projectedApi === 'number' && !isNaN(pred.projectedApi)) ? pred.projectedApi : displayApi)
             ]"
           >
-            {{ getPredictionCategoryLabel(pred.projectedApi) }}
+            {{ getPredictionCategoryLabel((typeof pred.projectedApi === 'number' && !isNaN(pred.projectedApi)) ? pred.projectedApi : displayApi) }}
           </span>
         </div>
       </div>

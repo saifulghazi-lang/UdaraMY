@@ -104,7 +104,39 @@ describe('mathematicsService', () => {
       assert.equal(projections[1].hourOffset, 4);
       assert.equal(projections[2].hourOffset, 6);
       assert.ok(typeof projections[0].projectedApi === 'number');
+      assert.ok(!isNaN(projections[0].projectedApi));
       assert.ok(['rising', 'steady', 'clearing'].includes(projections[0].trendDirection));
+    });
+
+    it('should gracefully handle forecastSeries containing objects with api properties without producing NaN', () => {
+      const currentNowCast = 157;
+      const forecastSeries = [
+        { api: 155 },
+        { api: 160 },
+        { api: 162 },
+        { api: 158 },
+        { api: 150 },
+        { api: 145 }
+      ];
+      const projections = generate6HourProjection(currentNowCast, forecastSeries);
+
+      assert.equal(projections.length, 3);
+      for (const p of projections) {
+        assert.ok(typeof p.projectedApi === 'number', 'projectedApi must be a number');
+        assert.ok(!isNaN(p.projectedApi), 'projectedApi must not be NaN');
+        assert.ok(p.projectedApi > 0, 'projectedApi must be greater than zero');
+      }
+    });
+
+    it('should safely fallback to base NowCast when forecastSeries is empty or invalid', () => {
+      const currentNowCast = 88;
+      const projections = generate6HourProjection(currentNowCast, null);
+
+      assert.equal(projections.length, 3);
+      for (const p of projections) {
+        assert.ok(!isNaN(p.projectedApi));
+        assert.equal(p.projectedApi, 88);
+      }
     });
   });
 });

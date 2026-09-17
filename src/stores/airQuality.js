@@ -96,9 +96,13 @@ export const useAirQualityStore = defineStore('airQuality', {
 
       const nowCast = calculateNowCast(recentSeries);
       const velocity3h = calculateHourlyVelocity(recentSeries);
+      const forecastSeries = Array.isArray(state.forecast?.hourly)
+        ? state.forecast.hourly.map(h => (typeof h?.api === 'number' ? h.api : (typeof h === 'number' ? h : null))).filter(v => v !== null)
+        : [];
+
       const predictions6h = generate6HourProjection(
         nowCast.nowCastApi ?? result.api,
-        state.forecast?.hourly || []
+        forecastSeries
       );
 
       return {

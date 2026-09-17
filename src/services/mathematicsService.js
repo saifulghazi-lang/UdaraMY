@@ -226,12 +226,24 @@ export function generate6HourProjection(currentNowCast, forecastSeries = []) {
 
     // Exponential decay weight for current persistence vs forecast
     const persistenceWeight = Math.exp(-offset / 3.5);
-    const forecastTarget = (Array.isArray(forecastSeries) && forecastSeries[offset - 1])
-      ? forecastSeries[offset - 1]
+
+    let rawForecast = null;
+    if (Array.isArray(forecastSeries) && forecastSeries.length >= offset) {
+      const item = forecastSeries[offset - 1];
+      if (typeof item === 'number' && !isNaN(item)) {
+        rawForecast = item;
+      } else if (item && typeof item.api === 'number' && !isNaN(item.api)) {
+        rawForecast = item.api;
+      }
+    }
+
+    const forecastTarget = (typeof rawForecast === 'number' && !isNaN(rawForecast))
+      ? rawForecast
       : base;
 
     const projectedApi = Math.max(0, Math.round(base * persistenceWeight + forecastTarget * (1 - persistenceWeight)));
-    const diff = projectedApi - base;
+    const safeProjected = isNaN(projectedApi) ? base : projectedApi;
+    const diff = safeProjected - base;
 
     let trendDirection = 'steady';
     if (diff >= 5) trendDirection = 'rising';
@@ -240,7 +252,7 @@ export function generate6HourProjection(currentNowCast, forecastSeries = []) {
     return {
       hourOffset: offset,
       timeLabel: `+${offset}h (${timeLabel})`,
-      projectedApi,
+      projectedApi: safeProjected,
       trendDirection
     };
   });

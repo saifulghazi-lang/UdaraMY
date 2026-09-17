@@ -618,6 +618,7 @@ export const STATIONS = [
 ];
 
 export function getCategoryFromApi(api) {
+  if (typeof api !== 'number' || isNaN(api)) return 'moderate';
   if (api <= 50) return 'good';
   if (api <= 100) return 'moderate';
   if (api <= 200) return 'unhealthy';
