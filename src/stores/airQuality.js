@@ -107,7 +107,10 @@ export const useAirQualityStore = defineStore('airQuality', {
 
     filteredStations(state) {
       return state.stations.filter(st => {
-        const matchesRegion = state.selectedRegion === 'All' || st.region === state.selectedRegion;
+        const matchesRegion = state.selectedRegion === 'All'
+          || (state.selectedRegion === 'EastMalaysia'
+              ? (st.region === 'Sabah' || st.region === 'Sarawak' || st.region === 'Sabah & Sarawak' || st.region === 'Borneo')
+              : st.region === state.selectedRegion);
         const query = state.searchQuery.toLowerCase().trim();
         const matchesQuery = !query || 
           st.name.toLowerCase().includes(query) || 

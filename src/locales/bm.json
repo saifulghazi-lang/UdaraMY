@@ -202,9 +202,20 @@
     "filterPeninsular": "Semenanjung",
     "filterSabah": "Sabah",
     "filterSarawak": "Sarawak",
+    "filterBorneo": "Sabah & Sarawak",
+    "layers": "Lapisan",
+    "region": "Wilayah",
+    "layersAndRegions": "Lapisan & Wilayah",
+    "closeFilters": "Tutup Penapis",
+    "community": "Komuniti",
     "selectPrompt": "Klik mana-mana penanda stesen untuk maklumat segera",
     "select": "Pilih Stesen",
     "dashboard": "Papan Pemuka ↗",
+    "viewFullDashboard": "Buka Papan Pemuka →",
+    "pinWatchlist": "Simpan ke Watchlist",
+    "pinnedToast": "Stesen disimpan ke senarai pantauan keluarga!",
+    "noStationsFound": "Tiada stesen dijumpai untuk carian \"{query}\"",
+    "resetFilters": "Tetapkan Semula Penapis",
     "distanceAway": " • {km} km dari anda"
   },
   "settings": {
@@ -217,6 +228,9 @@
     "notifications": "Amaran Jerebu",
     "alertThreshold": "Amaran apabila IPU > 100 (Tidak Sihat)",
     "alertSchool": "Amaran penutupan sekolah (IPU > 200)",
+    "testNotification": "Uji Notifikasi",
+    "testNotificationSent": "Notifikasi ujian telah dihantar ke sistem anda!",
+    "notificationPermissionDenied": "Kebenaran notifikasi disekat dalam tetapan pelayar anda.",
     "simulation": "Mod Simulasi (Ujian)",
     "simulationDesc": "Uji perubahan visual mengikut tahap jerebu berbeza",
     "communitySensors": "Sensor Komuniti Warga",
@@ -315,7 +329,15 @@
     "title": "Kalendar Haba Jerebu Tahunan",
     "subtitle": "Kitaran Monsun Barat Daya (365 hari)",
     "hazeSeason": "Musim Jerebu (Ogos - Okt)",
-    "cleanSeason": "Musim Bersih Tengkujuh (Nov - Feb)"
+    "cleanSeason": "Musim Bersih Tengkujuh (Nov - Feb)",
+    "stateProfile": "Profil Bermusim Sejarah {state}",
+    "westCoastBadge": "Tiupan Asap Gambut Sumatera (Monsun Barat Daya)",
+    "sarawakBadge": "Asap Rentas Sempadan Kalimantan Barat",
+    "sabahBadge": "Zon Maritim Bersih",
+    "northBadge": "Pembakaran Jerami Mekong & Asap Awal Tahun",
+    "eastCoastBadge": "Basuhan Hujan Monsun Timur Laut",
+    "hoverPrompt": "Layangkan atau sentuh mana-mana tarikh untuk melihat sejarah IPU bermusim",
+    "today": "HARI INI"
   },
   "community": {
     "badge": "Sensor Komuniti Warga",
@@ -362,5 +384,24 @@
     "selectToMonitor": "Pilih untuk pantau",
     "trend24h": "Trend 24j (AM→PM)",
     "active": "Aktif"
+  },
+  "faq": {
+    "title": "Soalan Lazim (FAQ)",
+    "subtitle": "Panduan Kualiti Udara Malaysia, Perbezaan Penderia & Garis Panduan Kesihatan",
+    "q1": "Data mana yang betul? Mengapa bacaan APIMS (JAS / DOE) berbeza dengan OpenAQ / PurpleAir / IQAir?",
+    "a1_p1": "Stesen rasmi Jabatan Alam Sekitar (JAS / DOE) APIMS adalah piawaian rujukan sah di Malaysia. Stesen ini menggunakan instrumen penganalisis redaman-beta gred rujukan (BAM-1020 / TEOM gravimetric) yang dikalibrasi secara berkala mengikut Piawaian Kualiti Udara Ambien Malaysia (MCG 2020). Keputusan rasmi kerajaan—seperti penutupan sekolah apabila IPU > 200—hanya bersandarkan kepada stesen rasmi JAS APIMS.",
+    "a1_p2": "Penderia komuniti (seperti PurpleAir, AirVisual, dan penderia warga OpenAQ) menggunakan penderia optik laser kos rendah. Di negara tropika yang berkelembapan tinggi seperti Malaysia di mana Kelembapan Bandingan (RH) kerap melebihi 75–90%, titisan wap air mikro melekat pada zarah udara (hygroscopic particle growth). Penderia optik mentah mengira zarah air ini sebagai habuk PM2.5, menyebabkan bacaan mentah melambung 30% hingga 70% lebih tinggi daripada paras sebenar!",
+    "a1_p3": "Bagi mengatasi ralat ini, UdaraMY menggunakan Formula Kalibrasi Kelembapan Tropika US-EPA (PM2.5 = 0.524 × Mentah - 0.0862 × RH + 5.75) ke atas semua nod warga. Kesimpulan: Percayai JAS APIMS untuk keputusan kesihatan dan persekolahan rasmi; gunakan penderia komuniti untuk panduan mikro-lokal kejiranan anda.",
+    "q2": "Mengapa aplikasi cuaca telefon saya (Apple / Google) menunjukkan nombor AQI yang berbeza?",
+    "a2_p1": "Kebanyakan aplikasi telefon pintar global memaparkan US AQI (Piawaian EPA Amerika Syarikat), manakala UdaraMY memaparkan Indeks Pencemaran Udara (IPU / API) rasmi Malaysia mengikut piawaian Jabatan Alam Sekitar.",
+    "a2_p2": "Dalam piawaian US AQI, kepekatan PM2.5 sekadar 12.1 µg/m³ sudah memasuki tahap 'Sederhana' (AQI 51). Manakala piawaian Malaysia (MCG/IT-3) menetapkan sehingga 35.0 µg/m³ masih dalam julat 'Baik' (IPU 0–50). Oleh itu, nombor US AQI sentiasa kelihatan lebih tinggi dan membimbangkan berbanding IPU Malaysia bagi kepekatan udara yang sama.",
+    "q3": "Berapa kerapkah data kualiti udara dikemas kini?",
+    "a3_p1": "• JAS APIMS: Dikemas kini secara automatik setiap jam pada minit ke-:00 merangkumi semua 68 stesen kebangsaan.\n• Titik Panas Satelit ASMC: Diperoleh daripada satelit inframerah terma ASEAN Specialised Meteorological Centre (NOAA-20 / Suomi-NPP), dikemas kini 2 kali sehari.\n• Ramalan 48 Jam: Dikuasakan model kimia atmosfera ECMWF Copernicus (CAMS), dikira semula setiap 6 jam.",
+    "q4": "Apakah langkah keselamatan yang perlu diambil mengikut tahap IPU?",
+    "a4_p1": "• 0–50 (Baik): Semua aktiviti luar selamat dijalankan.\n• 51–100 (Sederhana): Aktiviti harian biasa dibenarkan; individu hipersensitif perlu peka terhadap pernafasan.\n• 101–200 (Tidak Sihat): Hadkan aktiviti senaman luar yang berat. Golongan berisiko (asma, warga emas, kanak-kanak) disyorkan memakai pelitup N95/KF94 di luar.\n• 201–300 (Sangat Tidak Sihat): Kementerian Pendidikan menggantung semua aktiviti luar sekolah. Kurangkan berada di luar.\n• 301+ (Berbahaya): Penutupan sekolah secara mandatori mengikut pekeliling KPM. Kekal di dalam rumah, tutup tingkap dan pasang penapis udara.",
+    "q5": "Bagaimanakah fungsi Amaran Jerebu beroperasi dalam PWA ini?",
+    "a5_p1": "UdaraMY beroperasi sebagai Progressive Web App (PWA). Apabila anda mengaktifkan Amaran Jerebu di Tetapan dan membenarkan akses notifikasi pelayar, sistem telefon atau komputer anda akan menerima notifikasi tolak (push notification) sekiranya stesen pilihan anda melepasi paras Tidak Sihat (IPU > 100) atau Amaran Sekolah (IPU > 200).",
+    "q6": "Bolehkah UdaraMY digunakan semasa tiada internet (luar talian)?",
+    "a6_p1": "Boleh! UdaraMY dilengkapi Service Worker PWA moden. Sekiranya talian internet terputus semasa kecemasan jerebu, aplikasi akan memaparkan bacaan stesen dan peta luar talian yang terakhir disimpan, lengkap dengan cap masa pengesahan."
   }
 }

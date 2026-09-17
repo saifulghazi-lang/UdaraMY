@@ -17,7 +17,9 @@ import {
   MoreHorizontal, 
   Trophy,
   Sun,
-  Moon
+  Moon,
+  Clock,
+  HelpCircle
 } from 'lucide-vue-next';
 
 import AtmosphericCard from './components/AtmosphericCard.vue';
@@ -35,6 +37,7 @@ import NationalOverviewBar from './components/NationalOverviewBar.vue';
 import StateLeaderboardModal from './components/StateLeaderboardModal.vue';
 import NewsBroadcastCarousel from './components/NewsBroadcastCarousel.vue';
 import CivicActionBadge from './components/CivicActionBadge.vue';
+import FaqModal from './components/FaqModal.vue';
 
 const store = useAirQualityStore();
 const { t, locale } = useI18n();
@@ -44,6 +47,7 @@ const isStationModalOpen = ref(false);
 const isSettingsModalOpen = ref(false);
 const isShareModalOpen = ref(false);
 const isLeaderboardModalOpen = ref(false);
+const isFaqModalOpen = ref(false);
 const isDeepAnalysisOpen = ref(false);
 const isOverflowMenuOpen = ref(false);
 
@@ -148,7 +152,7 @@ onBeforeUnmount(() => {
         </button>
       </div>
 
-      <!-- Zone 2: Center Desktop Navigation & Live Sync / Clock -->
+      <!-- Zone 2: Center Desktop Navigation & Unified Atmospheric Telemetry Capsule -->
       <div class="hidden md:flex items-center gap-3">
         <nav class="flex items-center gap-1 bg-slate-100 dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-1 text-xs">
           <button
@@ -173,28 +177,49 @@ onBeforeUnmount(() => {
           </button>
         </nav>
 
-        <!-- Real-time Live Ticking Clock (MYT) -->
-        <div class="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 font-mono text-[10px] text-slate-700 dark:text-slate-300 font-bold shadow-sm">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>{{ liveClock }}</span>
+        <!-- Option 1: Unified Atmospheric Telemetry Capsule -->
+        <div class="hidden lg:flex items-center bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 rounded-full px-3 py-1 shadow-sm font-mono text-[11px] gap-2">
+          <span class="flex items-center gap-1.5 text-slate-700 dark:text-slate-200 font-bold">
+            <Clock class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+            <span>{{ liveClock }}</span>
+          </span>
+          <span class="text-slate-300 dark:text-white/20">•</span>
+          <span
+            :class="[
+              'flex items-center gap-1.5 font-bold transition',
+              store.isLive
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : 'text-amber-600 dark:text-amber-400'
+            ]"
+          >
+            <span :class="['w-1.5 h-1.5 rounded-full', store.isLive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500']"></span>
+            <span>{{ store.isLive ? 'LIVE APIMS' : 'CACHED' }}: {{ formattedLastUpdated }}</span>
+          </span>
         </div>
-
-        <!-- Live Sync Status Badge -->
-        <span
-          :class="[
-            'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold transition shadow-sm',
-            store.isLive
-              ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300'
-              : 'bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/25 text-amber-700 dark:text-amber-400'
-          ]"
-        >
-          <span :class="['w-1.5 h-1.5 rounded-full', store.isLive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500']"></span>
-          <span>{{ store.isLive ? 'LIVE APIMS' : 'CACHED' }}: {{ formattedLastUpdated }}</span>
-        </span>
       </div>
 
-      <!-- Zone 3: Right Consolidated Actions (Theme Toggle, Locate, Refresh, Overflow Menu) -->
+      <!-- Zone 3: Right Consolidated Actions (Language Pill, Direct FAQ Button, Theme Toggle, Locate, Refresh, Overflow Menu) -->
       <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <!-- 1-Tap Language Toggle (BM | EN) -->
+        <button
+          @click="locale = (locale === 'en' ? 'bm' : 'en')"
+          class="px-2.5 py-1.5 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-black transition flex items-center gap-1 shadow-sm"
+          :title="locale === 'en' ? 'Tukar ke Bahasa Melayu' : 'Switch to English'"
+        >
+          <Globe class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+          <span class="font-mono text-[10px]">{{ locale === 'en' ? 'EN' : 'BM' }}</span>
+        </button>
+
+        <!-- Direct FAQ Button -->
+        <button
+          @click="isFaqModalOpen = true"
+          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 hover:bg-slate-200 dark:hover:bg-black transition shadow-sm text-xs font-semibold"
+          :title="t('faq.buttonTitle') || 'Soalan Lazim & Panduan API'"
+        >
+          <HelpCircle class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+          <span class="hidden sm:inline">{{ t('faq.button') || 'FAQ' }}</span>
+        </button>
+
         <!-- 1-Tap Theme Toggle: Light Mode (Default) vs Dark Mode AMOLED -->
         <button
           @click="toggleTheme"
@@ -215,17 +240,14 @@ onBeforeUnmount(() => {
           <LocateFixed :class="['w-4 h-4 text-cyan-500 dark:text-cyan-400', store.isLocating ? 'animate-spin text-amber-500' : '']" />
         </button>
 
-        <!-- Dedicated Data Refresh Button -->
+        <!-- Dedicated Data Refresh Button (without duplicate timestamp) -->
         <button
           @click="store.refreshData(true)"
           :disabled="store.isRefreshing"
-          class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 hover:bg-slate-200 dark:hover:bg-black transition focus:outline-none active:scale-95 shadow-sm flex items-center gap-1.5"
+          class="p-2 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 hover:bg-slate-200 dark:hover:bg-black transition focus:outline-none active:scale-95 shadow-sm flex items-center justify-center"
           :title="store.isRefreshing ? t('app.refreshing') : t('app.refresh')"
         >
-          <RefreshCw :class="['w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400', store.isRefreshing ? 'animate-spin' : '']" />
-          <span class="hidden xl:inline text-xs font-mono text-slate-500 dark:text-slate-400">
-            {{ formattedLastUpdated }}
-          </span>
+          <RefreshCw :class="['w-4 h-4 text-cyan-500 dark:text-cyan-400', store.isRefreshing ? 'animate-spin' : '']" />
         </button>
 
         <!-- Overflow Menu Trigger (...) -->
@@ -259,6 +281,15 @@ onBeforeUnmount(() => {
               <span>{{ t('national.viewLeaderboard') || 'Papan Kedudukan Negeri' }}</span>
             </button>
 
+            <!-- FAQ in Overflow Menu -->
+            <button
+              @click="isFaqModalOpen = true; isOverflowMenuOpen = false"
+              class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 transition text-left"
+            >
+              <HelpCircle class="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
+              <span>{{ t('faq.title') || 'Soalan Lazim (FAQ)' }}</span>
+            </button>
+
             <!-- Share Story Card -->
             <button
               v-if="store.currentStation"
@@ -267,18 +298,6 @@ onBeforeUnmount(() => {
             >
               <Share2 class="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
               <span>{{ t('share.button') }}</span>
-            </button>
-
-            <!-- Theme Toggle in Menu -->
-            <button
-              @click="toggleTheme(); isOverflowMenuOpen = false"
-              class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 transition text-left"
-            >
-              <div class="flex items-center gap-2.5">
-                <component :is="isDarkMode ? Sun : Moon" class="w-4 h-4 text-amber-500 shrink-0" />
-                <span>{{ isDarkMode ? 'Mod Cerah' : 'Mod Gelap AMOLED' }}</span>
-              </div>
-              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-white/10 uppercase">{{ isDarkMode ? 'DARK' : 'LIGHT' }}</span>
             </button>
 
             <div class="border-t border-slate-200 dark:border-white/10 my-0.5"></div>
@@ -428,6 +447,9 @@ onBeforeUnmount(() => {
             />
             <HazeCalendarGrid
               :current-api="store.currentStation.api"
+              :station-state="store.currentStation.state"
+              :station-name="store.currentStation.name"
+              :station-region="store.currentStation.region"
             />
           </div>
         </div>
@@ -533,6 +555,11 @@ onBeforeUnmount(() => {
       :selected-station-id="store.selectedStationId"
       @close="isLeaderboardModalOpen = false"
       @select-station="handleStationSelect"
+    />
+
+    <FaqModal
+      :is-open="isFaqModalOpen"
+      @close="isFaqModalOpen = false"
     />
   </div>
 </template>

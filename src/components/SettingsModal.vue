@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { X, Download, Sliders, Bell, Globe, ShieldCheck, Users, Sun, Moon, ExternalLink, Key, Check, RefreshCw } from 'lucide-vue-next';
+import { X, Download, Sliders, Bell, Globe, ShieldCheck, Users, Sun, Moon, ExternalLink, RefreshCw } from 'lucide-vue-next';
 import { useAirQualityStore } from '../stores/airQuality.js';
 
 const props = defineProps({
@@ -25,20 +25,48 @@ const store = useAirQualityStore();
 
 const deferredPrompt = ref(null);
 const isInstalled = ref(false);
-const openAqKeyInput = ref(store.openAqApiKey || '');
-const isKeySaved = ref(false);
+const testNotificationFeedback = ref('');
+const notificationPermission = ref(typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
 
-async function saveOpenAqKey() {
-  await store.updateOpenAqApiKey(openAqKeyInput.value);
-  isKeySaved.value = true;
-  setTimeout(() => {
-    isKeySaved.value = false;
-  }, 2500);
+async function handleNotificationToggle(type) {
+  if (typeof Notification !== 'undefined' && Notification.permission !== 'granted') {
+    const res = await Notification.requestPermission();
+    notificationPermission.value = res;
+  }
 }
 
-async function clearOpenAqKey() {
-  openAqKeyInput.value = '';
-  await store.updateOpenAqApiKey('');
+async function testNotification() {
+  testNotificationFeedback.value = '';
+  if (typeof window === 'undefined' || !('Notification' in window)) {
+    alert(t('settings.notificationUnsupported'));
+    return;
+  }
+
+  let perm = Notification.permission;
+  if (perm !== 'granted') {
+    perm = await Notification.requestPermission();
+    notificationPermission.value = perm;
+  }
+
+  if (perm === 'granted') {
+    try {
+      const stationName = store.currentStation?.name || 'Cheras, Kuala Lumpur';
+      const apiVal = store.currentStation?.api || 120;
+      new Notification('⚠️ UdaraMY: Amaran Jerebu / Haze Alert', {
+        body: `${t('settings.alertThreshold')}: API ${apiVal} dikesan di ${stationName}. ${t('health.riskGroup')}`,
+        icon: '/pwa-192x192.png',
+        badge: '/pwa-192x192.png'
+      });
+      testNotificationFeedback.value = t('settings.testNotificationSuccess');
+      setTimeout(() => {
+        testNotificationFeedback.value = '';
+      }, 4000);
+    } catch (err) {
+      console.warn('Test notification dispatch error:', err);
+    }
+  } else {
+    alert(t('settings.notificationPermissionDenied'));
+  }
 }
 
 function handleSimulationChange(e) {
@@ -280,70 +308,59 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- OpenAQ API Key Input Field -->
-          <div class="pt-2 border-t border-slate-200/80 dark:border-white/10 space-y-2">
-            <div class="flex items-center justify-between">
-              <label class="text-xs font-bold text-slate-800 dark:text-neutral-200 flex items-center gap-1.5">
-                <Key class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-                <span>{{ t('settings.openaqApiKeyLabel') }}</span>
-              </label>
-              <a
-                href="https://explore.openaq.org/register"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
-              >
-                <span>explore.openaq.org</span>
-                <ExternalLink class="w-2.5 h-2.5" />
-              </a>
-            </div>
-
-            <div class="flex gap-2">
-              <input
-                v-model="openAqKeyInput"
-                type="text"
-                :placeholder="t('settings.openaqApiKeyPlaceholder')"
-                class="flex-1 bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-xl px-3 py-1.5 text-xs font-mono text-slate-800 dark:text-neutral-200 placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-400 transition"
-              />
-              <button
-                @click="saveOpenAqKey"
-                :disabled="store.isCommunityLoading"
-                class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shrink-0 shadow-sm"
-              >
-                <Check v-if="isKeySaved" class="w-3.5 h-3.5" />
-                <span>{{ isKeySaved ? t('settings.savedApiKey') : t('settings.saveApiKey') }}</span>
-              </button>
-              <button
-                v-if="openAqKeyInput"
-                @click="clearOpenAqKey"
-                class="px-2.5 py-1.5 bg-slate-200/70 dark:bg-neutral-900 hover:bg-slate-300 dark:hover:bg-neutral-800 text-slate-600 dark:text-neutral-400 rounded-xl text-xs font-medium transition"
-              >
-                {{ t('settings.clearApiKey') }}
-              </button>
-            </div>
-
-            <p class="text-[10px] text-slate-500 dark:text-neutral-400 leading-normal">
-              {{ t('settings.openaqApiKeyHelp') }}
-            </p>
-          </div>
         </div>
 
         <!-- Notification Preferences -->
         <div class="bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
-          <div class="font-bold text-slate-900 dark:text-neutral-200 flex items-center gap-1.5">
-            <Bell class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-            <span>{{ t('settings.notifications') }}</span>
+          <div class="flex items-center justify-between">
+            <div class="font-bold text-slate-900 dark:text-neutral-200 flex items-center gap-1.5">
+              <Bell class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+              <span>{{ t('settings.notifications') }}</span>
+            </div>
+            <span
+              v-if="notificationPermission === 'granted'"
+              class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold"
+            >
+              ✓ {{ t('common.active') || 'Aktif' }}
+            </span>
           </div>
+
+          <p class="text-[11px] text-slate-500 dark:text-neutral-400 leading-relaxed">
+            {{ t('settings.notificationDesc') }}
+          </p>
 
           <label class="flex items-center justify-between cursor-pointer">
             <span class="text-slate-700 dark:text-neutral-300">{{ t('settings.alertThreshold') }}</span>
-            <input type="checkbox" checked class="rounded text-indigo-600 bg-white dark:bg-neutral-950 border-slate-300 dark:border-neutral-700 w-4 h-4">
+            <input
+              type="checkbox"
+              checked
+              @change="handleNotificationToggle('threshold')"
+              class="rounded text-indigo-600 bg-white dark:bg-neutral-950 border-slate-300 dark:border-neutral-700 w-4 h-4"
+            >
           </label>
 
           <label class="flex items-center justify-between cursor-pointer pt-2 border-t border-slate-200 dark:border-white/10">
             <span class="text-slate-700 dark:text-neutral-300">{{ t('settings.alertSchool') }}</span>
-            <input type="checkbox" checked class="rounded text-indigo-600 bg-white dark:bg-neutral-950 border-slate-300 dark:border-neutral-700 w-4 h-4">
+            <input
+              type="checkbox"
+              checked
+              @change="handleNotificationToggle('school')"
+              class="rounded text-indigo-600 bg-white dark:bg-neutral-950 border-slate-300 dark:border-neutral-700 w-4 h-4"
+            >
           </label>
+
+          <div class="pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
+            <button
+              @click="testNotification"
+              class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-sm"
+            >
+              <Bell class="w-3.5 h-3.5" />
+              <span>{{ t('settings.testNotification') }}</span>
+            </button>
+            <span v-if="testNotificationFeedback" class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold truncate">
+              {{ testNotificationFeedback }}
+            </span>
+          </div>
         </div>
 
         <!-- Attribution & Disclaimer -->

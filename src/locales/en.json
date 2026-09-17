@@ -202,9 +202,20 @@
     "filterPeninsular": "Peninsular",
     "filterSabah": "Sabah",
     "filterSarawak": "Sarawak",
+    "filterBorneo": "Sabah & Sarawak",
+    "layers": "Layers",
+    "region": "Region",
+    "layersAndRegions": "Layers & Regions",
+    "closeFilters": "Close Filters",
+    "community": "Community",
     "selectPrompt": "Click any station marker for instant details",
     "select": "Select",
     "dashboard": "Dashboard ↗",
+    "viewFullDashboard": "Open Dashboard →",
+    "pinWatchlist": "Pin Watchlist",
+    "pinnedToast": "Pinned to family watchlist!",
+    "noStationsFound": "No stations found matching \"{query}\"",
+    "resetFilters": "Reset Filters",
     "distanceAway": " • {km} km away"
   },
   "settings": {
@@ -217,6 +228,9 @@
     "notifications": "Haze Alerts",
     "alertThreshold": "Alert when API > 100 (Unhealthy)",
     "alertSchool": "School closure warning (API > 200)",
+    "testNotification": "Send Test Alert",
+    "testNotificationSent": "Test alert sent to your system!",
+    "notificationPermissionDenied": "Notification permission was blocked in browser settings.",
     "simulation": "Simulation Mode (Demo)",
     "simulationDesc": "Test UI transitions across different haze intensities",
     "communitySensors": "Citizen Community Sensors",
@@ -315,7 +329,15 @@
     "title": "Haze Calendar Heatmap",
     "subtitle": "Annual Southwest Monsoon cycle (365 days)",
     "hazeSeason": "Haze Window (Aug - Oct)",
-    "cleanSeason": "Monsoon Washout (Nov - Feb)"
+    "cleanSeason": "Monsoon Washout (Nov - Feb)",
+    "stateProfile": "{state} Historical Seasonal Profile",
+    "westCoastBadge": "Sumatra Peat Fire Drift (SW Monsoon)",
+    "sarawakBadge": "West Kalimantan Transboundary Plumes",
+    "sabahBadge": "Clean Maritime Zone",
+    "northBadge": "Mekong Agricultural Burning & Early Dry Spikes",
+    "eastCoastBadge": "Northeast Monsoon Heavy Washout",
+    "hoverPrompt": "Hover or tap any date to inspect historical seasonal API trends",
+    "today": "TODAY"
   },
   "community": {
     "badge": "Citizen Science Node",
@@ -362,5 +384,24 @@
     "selectToMonitor": "Select to monitor",
     "trend24h": "24h Trend (AM→PM)",
     "active": "Active"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Understanding Malaysian Air Quality, Sensor Differences & Health Standards",
+    "q1": "Which data is accurate? DOE (APIMS) is different from OpenAQ / PurpleAir — which can I trust?",
+    "a1_p1": "Official Department of Environment (DOE / JAS) APIMS stations are the legal reference standard in Malaysia. They use certified, calibrated beta-attenuation reference monitors (BAM-1020 / TEOM gravimetric analyzers) that strictly adhere to the Malaysian Ambient Air Quality Standard (MCG 2020). Official government decisions—such as school closures when API > 200—are exclusively mandated by DOE APIMS.",
+    "a1_p2": "Community sensors (such as PurpleAir, AirVisual, and OpenAQ citizen nodes) rely on low-cost optical laser particle counters. In humid tropical climates like Malaysia where Relative Humidity (RH) regularly exceeds 75–90%, microscopic water vapor droplets cling to particles (hygroscopic swelling). Uncalibrated laser counters mistakenly count water droplets as smoke, inflating raw PM2.5 readings by 30% to 70%!",
+    "a1_p3": "To fix this, UdaraMY automatically applies the US-EPA Tropical Humidity Correction Equation (PM2.5 = 0.524 × Raw - 0.0862 × RH + 5.75) to citizen nodes. Summary: Trust DOE APIMS as the authoritative legal reference for daily health decisions; use calibrated community sensors for neighborhood micro-climate awareness.",
+    "q2": "Why does my phone's weather app show a different AQI number?",
+    "a2_p1": "Most global smartphones (e.g. Apple Weather, Google Weather) display US AQI (EPA standard), whereas UdaraMY displays the official Malaysian Air Pollutant Index (API / IPU).",
+    "a2_p2": "Under the US AQI standard, a PM2.5 concentration of just 12.1 µg/m³ already triggers the 'Moderate' tier (AQI 51). In contrast, the Malaysian Department of Environment standard (MCG/IT-3) designates up to 35.0 µg/m³ as 'Good' (API 0–50). Consequently, US AQI numbers will almost always look significantly higher and more alarming than Malaysian API for the exact same air sample.",
+    "q3": "How frequently is the air quality data updated?",
+    "a3_p1": "• DOE APIMS: Refreshed hourly at the top of the hour (:00) across all 68 national stations.\n• ASMC Satellite Hotspots: Sourced from ASEAN Specialised Meteorological Centre thermal infrared satellites (NOAA-20 / Suomi-NPP), updated twice daily.\n• 48-Hour Forecast: Powered by ECMWF Copernicus Atmosphere Monitoring Service (CAMS) chemical models, recalculated every 6 hours.",
+    "q4": "What safety actions should I take at different API tiers?",
+    "a4_p1": "• 0–50 (Good): All outdoor activities safe.\n• 51–100 (Moderate): Normal activities permitted; hypersensitive individuals should monitor breathing.\n• 101–200 (Unhealthy): Restrict strenuous outdoor exercise. Vulnerable groups (asthma, seniors, children) should wear N95/KF94 respirators outdoors.\n• 201–300 (Very Unhealthy): Ministry of Education suspends all outdoor school activities. Avoid outdoor exposure.\n• 301+ (Hazardous): Mandatory school closures under MOE guidelines. Stay strictly indoors with windows shut and air purifiers active.",
+    "q5": "How do Haze Alerts function on this PWA?",
+    "a5_p1": "UdaraMY functions as a Progressive Web App (PWA). When you enable Haze Alerts in Settings and grant notification permissions, your browser or mobile OS will trigger native system push notifications whenever your selected station crosses the Unhealthy (API > 100) or School Advisory (API > 200) thresholds.",
+    "q6": "Does UdaraMY work when I am offline?",
+    "a6_p1": "Yes! UdaraMY includes an advanced Service Worker cache. If your internet connection drops during haze emergencies, the app loads the most recently cached station readings and offline map tiles, displaying the exact timestamp of the last verified sync."
   }
 }

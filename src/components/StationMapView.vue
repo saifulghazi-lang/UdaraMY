@@ -5,6 +5,7 @@ import L from 'leaflet';
 import { Search, Flame, ArrowUpDown, ExternalLink, Layers, Eye, LocateFixed } from 'lucide-vue-next';
 import { getCategoryColor } from '../data/stations.js';
 import { calculateDistanceKm } from '../services/locationService.js';
+import { useAirQualityStore } from '../stores/airQuality.js';
 
 const props = defineProps({
   stations: {
@@ -35,6 +36,7 @@ const props = defineProps({
 
 const emit = defineEmits(['selectStation', 'viewDashboard', 'locateMe', 'toggleCommunity']);
 const { t } = useI18n();
+const store = useAirQualityStore();
 
 const mapContainer = ref(null);
 const currentFilter = ref('All');
@@ -58,19 +60,11 @@ let userLocationLayer = null;
 let heatCanvas = null;
 let heatCtx = null;
 let resizeObserver = null;
-const markerMap = {};
+let markerMap = {};
 
-function hexToRgba(hex, alpha) {
-  const c = hex.replace('#', '');
-  const r = parseInt(c.substring(0, 2), 16);
-  const g = parseInt(c.substring(2, 4), 16);
-  const b = parseInt(c.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
-function escapeHtml(text) {
-  if (text === null || text === undefined) return '';
-  return String(text)
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -78,15 +72,21 @@ function escapeHtml(text) {
     .replace(/'/g, '&#039;');
 }
 
-// Combined stations based on network filter and community toggle
+function hexToRgba(hex, alpha = 1) {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16) || 0;
+  const g = parseInt(h.substring(2, 4), 16) || 0;
+  const b = parseInt(h.substring(4, 6), 16) || 0;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// Combined dataset for search and markers
 const combinedStations = computed(() => {
-  const isMalaysia = (s) => typeof s.lat === 'number' && typeof s.lng === 'number' && s.lat >= 0.8 && s.lat <= 7.5 && s.lng >= 99.5 && s.lng <= 119.5;
-  const official = props.stations.filter(isMalaysia).map(s => ({ ...s, isCommunity: false }));
-  const allCommunity = (props.communitySensors || []).filter(isMalaysia).map(s => ({ ...s, isCommunity: true }));
-  
+  const official = props.stations || [];
+  const allCommunity = props.communitySensors || [];
+
   if (networkFilter.value === 'official') return official;
   if (networkFilter.value === 'community') return allCommunity;
-  // In 'all' view, only include community if the toggle is enabled
   return props.showCommunity ? [...official, ...allCommunity] : official;
 });
 
@@ -98,7 +98,10 @@ const displayedStations = computed(() => {
       : null;
     return { ...st, distanceKm };
   }).filter(st => {
-    const matchesRegion = currentFilter.value === 'All' || st.region === currentFilter.value;
+    const matchesRegion = currentFilter.value === 'All'
+      || (currentFilter.value === 'EastMalaysia'
+          ? (st.region === 'Sabah' || st.region === 'Sarawak' || st.region === 'Sabah & Sarawak' || st.region === 'Borneo')
+          : st.region === currentFilter.value);
     const q = searchQuery.value.toLowerCase().trim();
     const matchesQuery = !q || 
       st.name.toLowerCase().includes(q) || 
@@ -386,6 +389,8 @@ function renderMarkers() {
         </div>
       ` : '';
 
+      const isPinned = store.watchlist && store.watchlist.some(w => w.id === st.id);
+
       const popupHtml = `
         <div class="ud-popup">
           ${communityHeaderHtml}
@@ -394,15 +399,15 @@ function renderMarkers() {
           ${safeSubTitle ? `<div class="ud-popup-subtitle">${safeSubTitle}</div>` : ''}
           ${communityMetricsHtml}
           <div class="ud-popup-footer">
-            <span class="ud-popup-category">${st.isCommunity ? t('community.equivApi') : st.category}</span>
+            <span class="ud-popup-category">${st.isCommunity ? t('community.equivApi') : (t(`categories.${st.category}`) || st.category)}</span>
             <span class="ud-popup-api" style="color: ${getCategoryColor(st.category)};">API ${Number(st.api) || 0}</span>
           </div>
           <div class="ud-popup-actions">
-            <button id="btn-select-${safeElementId}" class="ud-popup-btn-select">
-              ${t('map.select')}
+            <button id="btn-dash-${safeElementId}" class="ud-popup-btn-primary">
+              ${t('map.viewFullDashboard') || 'Open Dashboard →'}
             </button>
-            <button id="btn-dash-${safeElementId}" class="ud-popup-btn-dash">
-              ${t('map.dashboard')}
+            <button id="btn-pin-${safeElementId}" class="ud-popup-btn-secondary">
+              ⭐ ${isPinned ? (t('watchlist.pinned') || 'Pinned') : (t('map.pinWatchlist') || 'Pin Watchlist')}
             </button>
           </div>
         </div>
@@ -410,19 +415,29 @@ function renderMarkers() {
 
       marker.bindPopup(popupHtml, { closeOnClick: false, autoPan: true });
 
-      marker.on('popupopen', () => {
-        const btnSelect = document.getElementById(`btn-select-${safeElementId}`);
-        if (btnSelect) {
-          btnSelect.onclick = () => {
-            onStationClick(st.id, false);
-          };
+      marker.on('popupopen', (e) => {
+        const popupNode = e.popup?.getElement?.() || marker.getPopup()?.getElement();
+        if (popupNode) {
+          L.DomEvent.disableClickPropagation(popupNode);
+          L.DomEvent.disableScrollPropagation(popupNode);
         }
+
         const btnDash = document.getElementById(`btn-dash-${safeElementId}`);
         if (btnDash) {
-          btnDash.onclick = () => {
+          L.DomEvent.on(btnDash, 'click', (ev) => {
+            L.DomEvent.stopPropagation(ev);
             emit('selectStation', st.id);
             emit('viewDashboard');
-          };
+          });
+        }
+
+        const btnPin = document.getElementById(`btn-pin-${safeElementId}`);
+        if (btnPin) {
+          L.DomEvent.on(btnPin, 'click', (ev) => {
+            L.DomEvent.stopPropagation(ev);
+            store.toggleWatchlist(st.id);
+            renderMarkers();
+          });
         }
       });
 
@@ -484,7 +499,7 @@ function zoomToRegion(region) {
 
   if (region === 'Peninsular') {
     map.flyTo([4.2105, 101.9758], 7);
-  } else if (region === 'Sabah' || region === 'Sarawak') {
+  } else if (region === 'EastMalaysia' || region === 'Sabah' || region === 'Sarawak') {
     map.flyTo([3.5, 114.5], 6.5);
   } else {
     map.flyTo([4.2105, 108.5], 6);
@@ -644,7 +659,7 @@ onBeforeUnmount(() => {
             :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'all')]"
             title="Papar semua stesen rasmi JAS dan sensor komuniti"
           >
-            <span>Semua</span>
+            <span>{{ t('map.filterAll') }}</span>
           </button>
           <button
             @click="networkFilter = 'official'"
@@ -665,7 +680,7 @@ onBeforeUnmount(() => {
             :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1.5 border', getDrawerButtonClass(isFilterDrawerOpen)]"
           >
             <Layers class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-            <span>{{ isFilterDrawerOpen ? 'Tutup Penapis' : 'Lapisan & Wilayah' }}</span>
+            <span>{{ isFilterDrawerOpen ? t('map.closeFilter') : t('map.layersAndRegions') }}</span>
           </button>
         </div>
       </div>
@@ -675,7 +690,7 @@ onBeforeUnmount(() => {
     <div v-if="isFilterDrawerOpen" class="p-3 bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 rounded-2xl flex flex-wrap items-center gap-4 text-xs transition-all">
       <!-- Heatmap / Layer Mode Selector -->
       <div class="flex items-center gap-1.5">
-        <span class="text-[10px] uppercase font-mono text-slate-500 dark:text-neutral-400 font-bold">Lapisan:</span>
+        <span class="text-[10px] uppercase font-mono text-slate-500 dark:text-neutral-400 font-bold">{{ t('map.layers') }}:</span>
         <div class="flex items-center gap-1 bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-0.5">
           <button
             @click="setViewMode('both')"
@@ -698,9 +713,9 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- Region Filter Tabs -->
+      <!-- Region Filter Tabs (Grouped into All, Peninsular, Sabah & Sarawak) -->
       <div class="flex items-center gap-1.5">
-        <span class="text-[10px] uppercase font-mono text-slate-500 dark:text-neutral-400 font-bold">Wilayah:</span>
+        <span class="text-[10px] uppercase font-mono text-slate-500 dark:text-neutral-400 font-bold">{{ t('map.region') }}:</span>
         <div class="flex items-center gap-1 bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-0.5">
           <button
             @click="zoomToRegion('All')"
@@ -715,16 +730,10 @@ onBeforeUnmount(() => {
             {{ t('map.filterPeninsular') }}
           </button>
           <button
-            @click="zoomToRegion('Sabah')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'Sabah')]"
+            @click="zoomToRegion('EastMalaysia')"
+            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'EastMalaysia')]"
           >
-            {{ t('map.filterSabah') }}
-          </button>
-          <button
-            @click="zoomToRegion('Sarawak')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'Sarawak')]"
-          >
-            {{ t('map.filterSarawak') }}
+            {{ t('map.filterBorneo') }}
           </button>
         </div>
       </div>
@@ -761,11 +770,11 @@ onBeforeUnmount(() => {
 
         <!-- Floating Legend on Map (Design Token Aligned) -->
         <div class="absolute bottom-3 inset-x-3 z-30 bg-white/95 dark:bg-black/90 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-full px-4 py-2 shadow-xl flex items-center justify-between sm:justify-around text-[10px] font-bold text-slate-700 dark:text-neutral-200 select-none overflow-x-auto gap-2">
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-[#00d2ff] shadow-sm shadow-cyan-500/50"></span> 0-50 Baik</span>
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span> 51-100 Sederhana</span>
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span> 101-200 Tidak Sihat</span>
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50"></span> 201-300 Sangat T.Sihat</span>
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-[#881337] shadow-sm shadow-rose-900/50"></span> 301+ Berbahaya</span>
+          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-[#00d2ff] shadow-sm shadow-cyan-500/50"></span> 0-50 {{ t('categories.good') }}</span>
+          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span> 51-100 {{ t('categories.moderate') }}</span>
+          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span> 101-200 {{ t('categories.unhealthy') }}</span>
+          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50"></span> 201-300 {{ t('categories.veryUnhealthy') }}</span>
+          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-[#881337] shadow-sm shadow-rose-900/50"></span> 301+ {{ t('categories.hazardous') }}</span>
         </div>
       </div>
 
@@ -883,7 +892,7 @@ onBeforeUnmount(() => {
           </div>
 
           <div v-if="displayedStations.length === 0" class="py-12 text-center text-neutral-400 text-xs flex flex-col items-center gap-3">
-            <p>Tiada stesen dijumpai untuk carian "{{ searchQuery }}"</p>
+            <p>{{ t('map.noStationsFound') || `Tiada stesen dijumpai untuk carian "${searchQuery}"` }}</p>
             <button
               @click="searchQuery = ''; currentFilter = 'All'; networkFilter = 'all';"
               class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow"
