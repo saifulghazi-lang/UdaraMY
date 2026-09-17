@@ -1,6 +1,13 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import https from 'node:https'
+import crypto from 'node:crypto'
+
+const legacyTlsAgent = new https.Agent({
+  rejectUnauthorized: false,
+  secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT
+})
 
 export default defineConfig({
   plugins: [
@@ -42,10 +49,22 @@ export default defineConfig({
   ],
   server: {
     proxy: {
+      '/api/apims': {
+        target: 'https://eqms.doe.gov.my',
+        changeOrigin: true,
+        secure: false,
+        agent: legacyTlsAgent,
+        rewrite: () => '/api3/publicportalapims/apitablehourly',
+        headers: {
+          'Referer': 'https://eqms.doe.gov.my/APIMS/main',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0'
+        }
+      },
       '/api3': {
         target: 'https://eqms.doe.gov.my',
         changeOrigin: true,
         secure: false,
+        agent: legacyTlsAgent,
         headers: {
           'Referer': 'https://eqms.doe.gov.my/APIMS/main',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0'
@@ -58,6 +77,15 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/asmc/, ''),
         headers: {
           'Referer': 'https://asmc.asean.org/home/',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0'
+        }
+      },
+      '/openaq': {
+        target: 'https://api.openaq.org',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/openaq/, '/v3'),
+        headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0'
         }
       }
@@ -69,6 +97,7 @@ export default defineConfig({
         target: 'https://eqms.doe.gov.my',
         changeOrigin: true,
         secure: false,
+        agent: legacyTlsAgent,
         headers: {
           'Referer': 'https://eqms.doe.gov.my/APIMS/main',
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0'
@@ -81,6 +110,15 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/asmc/, ''),
         headers: {
           'Referer': 'https://asmc.asean.org/home/',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0'
+        }
+      },
+      '/openaq': {
+        target: 'https://api.openaq.org',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/openaq/, '/v3'),
+        headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0'
         }
       }

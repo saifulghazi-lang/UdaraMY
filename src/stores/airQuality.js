@@ -3,7 +3,14 @@ import { getAirQualityData, generate24hHistory, generatePollutants } from '../se
 import { getCategoryFromApi } from '../data/stations.js';
 import { getUserCoordinates, findNearestStation, calculateDistanceKm } from '../services/locationService.js';
 import { getLiveHotspots } from '../services/hotspotService.js';
-import { getAllCommunitySensors, saveCustomCommunitySensor, removeCustomCommunitySensor } from '../services/communityService.js';
+import {
+  getAllCommunitySensors,
+  fetchLiveOpenAqSensors,
+  getOpenAqApiKey,
+  setOpenAqApiKey,
+  saveCustomCommunitySensor,
+  removeCustomCommunitySensor
+} from '../services/communityService.js';
 import { fetchAirQualityForecast } from '../services/airQualityForecastService.js';
 
 const WATCHLIST_STORAGE_KEY = 'udaramy_watchlist';
@@ -42,9 +49,11 @@ export const useAirQualityStore = defineStore('airQuality', {
       isLocating: false,
       locationError: null,
       watchlist: savedWatchlist,
-      activeProfile: savedProfile,
-      communitySensors: [],
-      showCommunitySensors: true,
+      communitySensors: getAllCommunitySensors(),
+      showCommunitySensors: false, // Default to FALSE to ensure only official live APIMS stations are displayed
+      communitySource: 'none', // 'openaq' | 'cached' | 'custom' | 'none'
+      isCommunityLoading: false,
+      openAqApiKey: getOpenAqApiKey(),
       forecast: null,
       isForecastLoading: false,
       hotspots: {
@@ -60,10 +69,8 @@ export const useAirQualityStore = defineStore('airQuality', {
 
   getters: {
     currentStation(state) {
-      let st = state.stations.find(s => s.id === state.selectedStationId);
-      if (!st && state.showCommunitySensors) {
-        st = state.communitySensors.find(s => s.id === state.selectedStationId);
-      }
+      let st = state.stations.find(s => s.id === state.selectedStationId)
+        || state.communitySensors.find(s => s.id === state.selectedStationId);
       if (!st) st = state.stations[0];
       if (!st) return null;
 
@@ -283,6 +290,14 @@ export const useAirQualityStore = defineStore('airQuality', {
     async init() {
       this.isLoading = true;
       try {
+        // Sanitize existing in-memory communitySensors from any stale cache
+        this.communitySensors = (this.communitySensors || []).filter(
+          s => typeof s.lat === 'number' && typeof s.lng === 'number' && s.lat >= 0.8 && s.lat <= 7.5 && s.lng >= 99.5 && s.lng <= 119.5
+        );
+        if (this.communitySensors.length === 0) {
+          this.communitySensors = getAllCommunitySensors();
+        }
+
         this.refreshCommunitySensors();
         await Promise.allSettled([
           getAirQualityData().then(data => {
@@ -329,8 +344,32 @@ export const useAirQualityStore = defineStore('airQuality', {
       }
     },
 
-    refreshCommunitySensors() {
-      this.communitySensors = getAllCommunitySensors(this.userLocation);
+    async refreshCommunitySensors() {
+      this.isCommunityLoading = true;
+      try {
+        const result = await fetchLiveOpenAqSensors();
+        if (result && Array.isArray(result.nodes) && result.nodes.length > 0) {
+          this.communitySensors = result.nodes.filter(
+            s => typeof s.lat === 'number' && typeof s.lng === 'number' && s.lat >= 0.8 && s.lat <= 7.5 && s.lng >= 99.5 && s.lng <= 119.5
+          );
+          this.communitySource = result.source;
+        } else {
+          this.communitySensors = getAllCommunitySensors();
+          this.communitySource = 'preset';
+        }
+      } catch (e) {
+        console.warn('Community sensors fetch error, fallback to presets:', e);
+        this.communitySensors = getAllCommunitySensors();
+        this.communitySource = 'preset';
+      } finally {
+        this.isCommunityLoading = false;
+      }
+    },
+
+    updateOpenAqApiKey(key) {
+      setOpenAqApiKey(key);
+      this.openAqApiKey = key ? key.trim() : '';
+      return this.refreshCommunitySensors();
     },
 
     toggleCommunitySensors(val) {
@@ -394,8 +433,11 @@ export const useAirQualityStore = defineStore('airQuality', {
     selectStation(id) {
       this.selectedStationId = id;
       this.simulationApi = null;
-      const st = this.allDisplayStations.find(s => s.id === id);
+      const st = [...this.stations, ...this.communitySensors].find(s => s.id === id);
       if (st) {
+        if (st.isCommunity) {
+          this.showCommunitySensors = true;
+        }
         this.fetchHotspots({ lat: st.lat, lng: st.lng });
         this.fetchForecast({ lat: st.lat, lng: st.lng });
       }

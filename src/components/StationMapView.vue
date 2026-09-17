@@ -70,12 +70,14 @@ function hexToRgba(hex, alpha) {
 
 // Combined stations based on network filter and community toggle
 const combinedStations = computed(() => {
-  const official = props.stations.map(s => ({ ...s, isCommunity: false }));
-  const community = (props.showCommunity ? props.communitySensors : []).map(s => ({ ...s, isCommunity: true }));
+  const isMalaysia = (s) => typeof s.lat === 'number' && typeof s.lng === 'number' && s.lat >= 0.8 && s.lat <= 7.5 && s.lng >= 99.5 && s.lng <= 119.5;
+  const official = props.stations.filter(isMalaysia).map(s => ({ ...s, isCommunity: false }));
+  const allCommunity = (props.communitySensors || []).filter(isMalaysia).map(s => ({ ...s, isCommunity: true }));
   
   if (networkFilter.value === 'official') return official;
-  if (networkFilter.value === 'community') return community;
-  return [...official, ...community];
+  if (networkFilter.value === 'community') return allCommunity;
+  // In 'all' view, only include community if the toggle is enabled
+  return props.showCommunity ? [...official, ...allCommunity] : official;
 });
 
 // Filter & Sort stations for the side list
@@ -353,7 +355,18 @@ function renderUserLocation() {
 
 function renderMarkers() {
   if (!map || !markersLayer) return;
+
+  // Remember which popup was open before we clear
+  let openPopupStationId = null;
+  for (const [id, m] of Object.entries(markerMap)) {
+    if (m.isPopupOpen && m.isPopupOpen()) {
+      openPopupStationId = id;
+      break;
+    }
+  }
+
   markersLayer.clearLayers();
+  Object.keys(markerMap).forEach(k => delete markerMap[k]);
 
   const showPins = mapViewMode.value !== 'heatmap';
 
@@ -431,7 +444,7 @@ function renderMarkers() {
         </div>
       `;
 
-      marker.bindPopup(popupHtml);
+      marker.bindPopup(popupHtml, { closeOnClick: false, autoPan: true });
 
       marker.on('popupopen', () => {
         const btnSelect = document.getElementById(`btn-select-${st.id}`);
@@ -450,12 +463,23 @@ function renderMarkers() {
       });
 
       marker.on('click', () => {
-        onStationClick(st.id, false);
+        emit('selectStation', st.id);
+        nextTick(() => {
+          const el = document.getElementById(`station-item-${st.id}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
       });
 
       markersLayer.addLayer(marker);
       markerMap[st.id] = marker;
     });
+  }
+
+  // Re-open the popup that was open before the re-render
+  if (openPopupStationId && markerMap[openPopupStationId]) {
+    nextTick(() => markerMap[openPopupStationId]?.openPopup());
   }
 
   drawHeatmap();
@@ -466,9 +490,13 @@ function onStationClick(id, shouldOpenPopup = true) {
   emit('selectStation', id);
   const st = combinedStations.value.find(s => s.id === id);
   if (st && map) {
-    map.flyTo([st.lat, st.lng], 9, { duration: 0.8 });
+    map.flyTo([st.lat, st.lng], 9, { duration: 0.6 });
     if (shouldOpenPopup && markerMap[id]) {
-      markerMap[id].openPopup();
+      setTimeout(() => {
+        if (markerMap[id]) {
+          markerMap[id].openPopup();
+        }
+      }, 200);
     }
   }
 
@@ -567,8 +595,27 @@ watch(() => [props.stations, props.communitySensors, props.showCommunity, networ
   drawHeatmap();
 }, { deep: true });
 
-watch(() => props.selectedStationId, () => {
-  renderMarkers();
+watch(() => props.selectedStationId, (newId, oldId) => {
+  if (oldId && markerMap[oldId]) {
+    const oldSt = combinedStations.value.find(s => s.id === oldId);
+    if (oldSt) {
+      markerMap[oldId].setIcon(createMarkerIcon(oldSt));
+      markerMap[oldId].setZIndexOffset(oldSt.api || 0);
+    }
+  }
+  if (newId && markerMap[newId]) {
+    const newSt = combinedStations.value.find(s => s.id === newId);
+    if (newSt) {
+      // Check if this marker's popup is currently open before setIcon destroys it
+      const wasPopupOpen = markerMap[newId].isPopupOpen();
+      markerMap[newId].setIcon(createMarkerIcon(newSt));
+      markerMap[newId].setZIndexOffset(10000);
+      // setIcon() destroys the marker DOM and closes any open popup — re-open it
+      if (wasPopupOpen) {
+        nextTick(() => markerMap[newId]?.openPopup());
+      }
+    }
+  }
 });
 
 watch(() => props.userLocation, () => {

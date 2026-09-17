@@ -114,15 +114,25 @@ export async function getLiveHotspots(coords = null) {
 
   if (!hotspotCounts) {
     try {
-      const [sumatraRes, kalimantanRes, pMalRes] = await Promise.allSettled([
-        fetch('/asmc/files/msscommunity/hotspots/DailyJP1NOAA20.sumatra.txt'),
-        fetch('/asmc/files/msscommunity/hotspots/DailyJP1NOAA20.kalimantan.txt'),
-        fetch('/asmc/files/msscommunity/hotspots/DailyJP1NOAA20.p_malaysia.txt')
-      ]);
+      const fetchAsmc = async (filename) => {
+        const urls = [
+          `/api/asmc?file=${filename}`,
+          `/asmc/files/msscommunity/hotspots/${filename}`
+        ];
+        for (const u of urls) {
+          try {
+            const r = await fetch(u, { signal: AbortSignal.timeout(8000) });
+            if (r.ok) return await r.text();
+          } catch (e) {}
+        }
+        return '';
+      };
 
-      const sumatraText = sumatraRes.status === 'fulfilled' && sumatraRes.value.ok ? await sumatraRes.value.text() : '';
-      const kalimantanText = kalimantanRes.status === 'fulfilled' && kalimantanRes.value.ok ? await kalimantanRes.value.text() : '';
-      const pMalText = pMalRes.status === 'fulfilled' && pMalRes.value.ok ? await pMalRes.value.text() : '';
+      const [sumatraText, kalimantanText, pMalText] = await Promise.all([
+        fetchAsmc('DailyJP1NOAA20.sumatra.txt'),
+        fetchAsmc('DailyJP1NOAA20.kalimantan.txt'),
+        fetchAsmc('DailyJP1NOAA20.p_malaysia.txt')
+      ]);
 
       const sumatra = parseAsmcReport(sumatraText) || BASELINE_HOTSPOTS.sumatra;
       const kalimantan = parseAsmcReport(kalimantanText) || BASELINE_HOTSPOTS.kalimantan;

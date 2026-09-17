@@ -165,22 +165,32 @@ export async function getAirQualityData(forceRefresh = false) {
       localStorage.removeItem(CACHE_KEY);
     } catch (e) {}
   }
+
   let liveJson = null;
+  const endpoints = [
+    '/api/apims', // Vercel Serverless Function proxy
+    '/api3/publicportalapims/apitablehourly' // Vite dev server proxy / Netlify proxy
+  ];
 
-  try {
-    const res = await fetch('/api3/publicportalapims/apitablehourly', {
-      headers: {
-        'Accept': 'application/json, text/plain, */*'
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        headers: {
+          'Accept': 'application/json, text/plain, */*'
+        },
+        signal: AbortSignal.timeout(12000)
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json?.api_table_hourly) && json.api_table_hourly.length > 0) {
+          liveJson = json;
+          break; // successfully retrieved live data
+        }
       }
-    });
-
-    if (res.ok) {
-      liveJson = await res.json();
-    } else {
-      console.warn('Live APIMS fetch returned status:', res.status);
+    } catch (err) {
+      // try next endpoint candidate
     }
-  } catch (err) {
-    console.warn('Live APIMS fetch failed, checking local cache:', err.message);
   }
 
   // If live data successfully received, process all 68 stations

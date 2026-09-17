@@ -7,6 +7,10 @@
     {
       "source": "/asmc/:match*",
       "destination": "https://asmc.asean.org/:match*"
+    },
+    {
+      "source": "/openaq/:match*",
+      "destination": "https://api.openaq.org/v3/:match*"
     }
   ],
   "headers": [

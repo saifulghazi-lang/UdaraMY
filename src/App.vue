@@ -184,9 +184,16 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Live Sync Status Badge -->
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-[10px] font-mono font-semibold text-emerald-700 dark:text-emerald-300">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          <span>SYNC: {{ formattedLastUpdated }}</span>
+        <span
+          :class="[
+            'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold transition shadow-sm',
+            store.isLive
+              ? 'bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300'
+              : 'bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/25 text-amber-700 dark:text-amber-400'
+          ]"
+        >
+          <span :class="['w-1.5 h-1.5 rounded-full', store.isLive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500']"></span>
+          <span>{{ store.isLive ? 'LIVE APIMS' : 'CACHED' }}: {{ formattedLastUpdated }}</span>
         </span>
       </div>
 

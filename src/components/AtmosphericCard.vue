@@ -194,6 +194,12 @@ const particles = computed(() => {
           >
             📍 {{ t('location.nearest') }}
           </span>
+          <span
+            v-if="station.isCommunity"
+            class="text-[10px] px-2.5 py-0.5 rounded-full bg-violet-500/15 text-violet-700 dark:text-violet-300 border border-violet-500/30 font-bold"
+          >
+            👥 {{ station.sensorModel || 'Komuniti' }}
+          </span>
         </div>
         <div class="flex items-center gap-1.5 mt-1">
           <h2 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-300 transition-colors">
@@ -201,6 +207,9 @@ const particles = computed(() => {
           </h2>
           <ChevronRight class="w-5 h-5 text-slate-400 dark:text-slate-500 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all" />
         </div>
+        <p v-if="station.subTitle" class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+          {{ station.subTitle }}
+        </p>
       </button>
 
       <!-- Active Simulation Reset Pill if simulation is running -->
@@ -225,7 +234,7 @@ const particles = computed(() => {
       </span>
 
       <span class="text-[10px] text-slate-500 font-mono hidden sm:inline">
-        {{ t('app.dataSource') }}
+        {{ station.isCommunity ? (station.host ? `OpenAQ • ${station.host}` : 'Citizen Sensor Network') : t('app.dataSource') }}
       </span>
     </div>
 

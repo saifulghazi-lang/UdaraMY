@@ -17,6 +17,13 @@
   headers = { Referer = "https://asmc.asean.org/home/", User-Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0" }
 
 [[redirects]]
+  from = "/openaq/*"
+  to = "https://api.openaq.org/v3/:splat"
+  status = 200
+  force = true
+  headers = { User-Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0" }
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
