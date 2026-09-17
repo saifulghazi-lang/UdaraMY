@@ -55,8 +55,7 @@ export function interpolateWindVector(lat, lng, grid = []) {
   const u = weightedU / totalWeight;
   const v = weightedV / totalWeight;
   const speedKm = +(Math.sqrt(u * u + v * v).toFixed(1));
-  let headingRad = Math.atan2(u, v);
-  let deg = Math.round((headingRad * 180 / Math.PI + 360) % 360);
+  let deg = Math.round((Math.atan2(-u, -v) * 180 / Math.PI + 360) % 360);
 
   return { u, v, speedKm, deg };
 }
@@ -116,8 +115,8 @@ export async function fetchRegionalWindGrid() {
     const items = Array.isArray(data) ? data : [data];
     return REGIONAL_NODES.map((node, i) => {
       const current = items[i]?.current || {};
-      const speedKm = Math.round(current.wind_speed_10m || 12);
-      const deg = Math.round(current.wind_direction_10m || 210);
+      const speedKm = Math.round(current.wind_speed_10m ?? 12);
+      const deg = Math.round(current.wind_direction_10m ?? 210);
       const rad = deg * Math.PI / 180;
       const u = +(-speedKm * Math.sin(rad)).toFixed(1);
       const v = +(-speedKm * Math.cos(rad)).toFixed(1);
