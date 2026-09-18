@@ -7,12 +7,7 @@ import {
   Wind, 
   ShieldCheck, 
   Activity, 
-  Eye, 
-  Sparkles,
-  Home,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle
+  Sparkles
 } from 'lucide-vue-next';
 import { useAirQualityStore } from '../stores/airQuality.js';
 
@@ -162,8 +157,8 @@ const personaGuidance = computed(() => {
       </div>
     </div>
 
-    <!-- 4 Action Pillars Grid -->
-    <div class="grid grid-cols-2 gap-2.5 text-xs pt-1">
+    <!-- 3 Action Pillars (Sports, Mask, Windows) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs pt-1">
       <!-- 1. Outdoor Sports -->
       <div class="p-3 rounded-2xl bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition">
         <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">
@@ -194,17 +189,6 @@ const personaGuidance = computed(() => {
         </div>
         <div class="font-bold text-slate-900 dark:text-white mt-1 text-xs">
           {{ t(`guidance.windows.${category}`) }}
-        </div>
-      </div>
-
-      <!-- 4. School Status -->
-      <div class="p-3 rounded-2xl bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 transition">
-        <div class="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase">
-          <School class="w-3 h-3 text-purple-600 dark:text-purple-400" />
-          <span>{{ t('guidance.schoolStatus') }}</span>
-        </div>
-        <div class="font-bold text-slate-900 dark:text-white mt-1 text-xs">
-          {{ t(`guidance.schools.${category}`) }}
         </div>
       </div>
     </div>
