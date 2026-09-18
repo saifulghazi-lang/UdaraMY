@@ -170,72 +170,75 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Simulation Tool (Interactive Testing) -->
-        <div class="bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="font-bold text-slate-900 dark:text-neutral-200">{{ t('settings.simulation') }}</div>
+        <!-- Simulation Tool (Interactive Developer Testing) -->
+        <details class="bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 rounded-2xl p-3 text-xs transition group">
+          <summary class="font-bold text-slate-700 dark:text-neutral-300 cursor-pointer flex items-center justify-between select-none">
+            <span>🛠️ {{ t('settings.simulation') }} (Developer Sandbox)</span>
+            <span class="text-[10px] text-slate-400 dark:text-neutral-500 font-normal">Tap to expand</span>
+          </summary>
+          <div class="pt-3 space-y-3">
+            <div class="flex items-center justify-between">
               <div class="text-[10px] text-slate-500 dark:text-neutral-400">{{ t('settings.simulationDesc') }}</div>
+              <button
+                v-if="simulationApi !== null"
+                @click="emit('clearSimulation')"
+                class="text-[10px] px-2.5 py-1 rounded-full bg-slate-100 dark:bg-neutral-900 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white"
+              >
+                Reset to Live
+              </button>
             </div>
-            <button
-              v-if="simulationApi !== null"
-              @click="emit('clearSimulation')"
-              class="text-[10px] px-2.5 py-1 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white"
-            >
-              Reset to Live
-            </button>
-          </div>
 
-          <!-- Presets -->
-          <div class="grid grid-cols-5 gap-1.5">
-            <button
-              @click="emit('setSimulation', 35)"
-              class="px-1.5 py-1 rounded-full bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-mono font-bold hover:bg-cyan-500/25 text-[10px] border border-cyan-500/30"
-            >
-              35 Good
-            </button>
-            <button
-              @click="emit('setSimulation', 75)"
-              class="px-1.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-mono font-bold hover:bg-emerald-500/25 text-[10px] border border-emerald-500/30"
-            >
-              75 Mod
-            </button>
-            <button
-              @click="emit('setSimulation', 145)"
-              class="px-1.5 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-mono font-bold hover:bg-amber-500/25 text-[10px] border border-amber-500/30"
-            >
-              145 Unh
-            </button>
-            <button
-              @click="emit('setSimulation', 220)"
-              class="px-1.5 py-1 rounded-full bg-red-500/15 text-red-700 dark:text-red-300 font-mono font-bold hover:bg-red-500/25 text-[10px] border border-red-500/30"
-            >
-              220 V.Unh
-            </button>
-            <button
-              @click="emit('setSimulation', 320)"
-              class="px-1.5 py-1 rounded-full bg-purple-500/15 text-purple-700 dark:text-purple-300 font-mono font-bold hover:bg-purple-500/25 text-[10px] border border-purple-500/30"
-            >
-              320 Haz
-            </button>
-          </div>
-
-          <!-- Slider -->
-          <div class="space-y-1">
-            <div class="flex justify-between text-xs font-mono text-slate-600 dark:text-neutral-400">
-              <span>Slider:</span>
-              <span class="text-amber-600 dark:text-amber-400 font-bold">{{ simulationApi ?? 'Live' }}</span>
+            <!-- Presets -->
+            <div class="grid grid-cols-5 gap-1.5">
+              <button
+                @click="emit('setSimulation', 35)"
+                class="px-1.5 py-1 rounded-full bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 font-mono font-bold hover:bg-cyan-500/25 text-[10px] border border-cyan-500/30"
+              >
+                35 Good
+              </button>
+              <button
+                @click="emit('setSimulation', 75)"
+                class="px-1.5 py-1 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-mono font-bold hover:bg-emerald-500/25 text-[10px] border border-emerald-500/30"
+              >
+                75 Mod
+              </button>
+              <button
+                @click="emit('setSimulation', 145)"
+                class="px-1.5 py-1 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-mono font-bold hover:bg-amber-500/25 text-[10px] border border-amber-500/30"
+              >
+                145 Unh
+              </button>
+              <button
+                @click="emit('setSimulation', 220)"
+                class="px-1.5 py-1 rounded-full bg-red-500/15 text-red-700 dark:text-red-300 font-mono font-bold hover:bg-red-500/25 text-[10px] border border-red-500/30"
+              >
+                220 V.Unh
+              </button>
+              <button
+                @click="emit('setSimulation', 320)"
+                class="px-1.5 py-1 rounded-full bg-purple-500/15 text-purple-700 dark:text-purple-300 font-mono font-bold hover:bg-purple-500/25 text-[10px] border border-purple-500/30"
+              >
+                320 Haz
+              </button>
             </div>
-            <input
-              type="range"
-              min="10"
-              max="350"
-              :value="simulationApi ?? 100"
-              @input="handleSimulationChange"
-              class="w-full accent-indigo-600 cursor-pointer"
-            />
+
+            <!-- Slider -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-mono text-slate-600 dark:text-neutral-400">
+                <span>Slider:</span>
+                <span class="text-amber-600 dark:text-amber-400 font-bold">{{ simulationApi ?? 'Live' }}</span>
+              </div>
+              <input
+                type="range"
+                min="10"
+                max="350"
+                :value="simulationApi ?? 100"
+                @input="handleSimulationChange"
+                class="w-full accent-indigo-600 cursor-pointer"
+              />
+            </div>
           </div>
-        </div>
+        </details>
 
         <!-- Crowdsourced Community Sensors Setting -->
         <div class="bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3.5">
