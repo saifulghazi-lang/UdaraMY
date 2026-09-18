@@ -272,8 +272,6 @@ onBeforeUnmount(() => {
           @select-station="(id) => store.selectStation(id)"
           @toggle-current-watchlist="() => store.toggleWatchlist(store.selectedStationId)"
           @remove-station="(id) => store.removeFromWatchlist(id)"
-          @update-item="(oldId, data) => store.updateWatchlistItem(oldId, data)"
-          @add-item="(data) => store.addToWatchlist(data)"
         />
 
         <!-- National Highs & Lows Glance Bar -->
