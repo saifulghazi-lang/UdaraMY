@@ -123,5 +123,17 @@ export default defineConfig({
         }
       }
     }
+  },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-vue': ['vue', 'pinia', 'vue-i18n'],
+          'vendor-map': ['leaflet'],
+          'vendor-icons': ['lucide-vue-next']
+        }
+      }
+    }
   }
 })

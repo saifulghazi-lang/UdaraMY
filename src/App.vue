@@ -13,8 +13,6 @@ import {
   RefreshCw, 
   Activity, 
   ChevronDown, 
-  MoreHorizontal, 
-  Trophy,
   Sun,
   Moon,
   Clock,
@@ -33,9 +31,6 @@ import ShareCardModal from './components/ShareCardModal.vue';
 import HazeHotspotWidget from './components/HazeHotspotWidget.vue';
 import HazeCalendarGrid from './components/HazeCalendarGrid.vue';
 import NationalOverviewBar from './components/NationalOverviewBar.vue';
-import StateLeaderboardModal from './components/StateLeaderboardModal.vue';
-import NewsBroadcastCarousel from './components/NewsBroadcastCarousel.vue';
-import CivicActionBadge from './components/CivicActionBadge.vue';
 import FaqModal from './components/FaqModal.vue';
 
 const store = useAirQualityStore();
@@ -45,10 +40,8 @@ const currentTab = ref('dashboard');
 const isStationModalOpen = ref(false);
 const isSettingsModalOpen = ref(false);
 const isShareModalOpen = ref(false);
-const isLeaderboardModalOpen = ref(false);
 const isFaqModalOpen = ref(false);
 const isDeepAnalysisOpen = ref(false);
-const isOverflowMenuOpen = ref(false);
 
 // Theme state: Default is 'light' unless user explicitly saved 'dark'
 const isDarkMode = ref(localStorage.getItem('udaramy_theme') === 'dark');
@@ -115,6 +108,10 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="min-h-screen bg-slate-50 text-slate-900 dark:bg-black dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+
+
+
+
     <!-- Top Header: 3-Zone Consolidated Architecture -->
     <header class="sticky top-0 z-30 bg-white/80 dark:bg-black/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/[0.08] px-4 sm:px-8 py-2.5 flex items-center justify-between gap-2">
       <!-- Zone 1: Left Brand & Station Quick Trigger -->
@@ -197,22 +194,25 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- Zone 3: Right Consolidated Actions (Direct FAQ Button, Theme Toggle, Locate, Refresh, Overflow Menu) -->
+      <!-- Zone 3: Right Direct Actions (Live Status, Theme, Locate, Settings) -->
       <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        <!-- Direct FAQ Button -->
-        <button
-          @click="isFaqModalOpen = true"
-          class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 hover:bg-slate-200 dark:hover:bg-black transition shadow-sm text-xs font-semibold"
-          :title="t('faq.buttonTitle') || 'FAQ & Air Quality Guide'"
+        <!-- Live APIMS Status Indicator Pill -->
+        <div
+          :class="[
+            'hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold border',
+            store.isLive
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+              : 'bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400'
+          ]"
         >
-          <HelpCircle class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-          <span class="hidden sm:inline">{{ t('faq.button') || 'FAQ' }}</span>
-        </button>
+          <span :class="['w-1.5 h-1.5 rounded-full', store.isLive ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500']"></span>
+          <span>{{ store.isLive ? 'LIVE APIMS' : 'CACHED' }}</span>
+        </div>
 
-        <!-- 1-Tap Theme Toggle: Light Mode (Default) vs Dark Mode AMOLED -->
+        <!-- 1-Tap Theme Toggle -->
         <button
           @click="toggleTheme"
-          class="p-2 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-black transition focus:outline-none shadow-sm"
+          class="p-2 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-neutral-900 transition focus:outline-none shadow-sm"
           :title="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
         >
           <Sun v-if="isDarkMode" class="w-4 h-4 text-amber-400" />
@@ -223,84 +223,20 @@ onBeforeUnmount(() => {
         <button
           @click="store.detectUserLocation(true)"
           :disabled="store.isLocating"
-          class="p-2 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 hover:bg-slate-200 dark:hover:bg-black transition focus:outline-none shadow-sm"
+          class="p-2 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-neutral-900 transition focus:outline-none shadow-sm"
           :title="store.isLocating ? t('location.locating') : t('location.locateMe')"
         >
-          <LocateFixed :class="['w-4 h-4 text-cyan-500 dark:text-cyan-400', store.isLocating ? 'animate-spin text-amber-500' : '']" />
+          <LocateFixed :class="['w-4 h-4 text-indigo-500 dark:text-indigo-400', store.isLocating ? 'animate-spin text-amber-500' : '']" />
         </button>
 
-        <!-- Dedicated Data Refresh Button (without duplicate timestamp) -->
+        <!-- Settings Button -->
         <button
-          @click="store.refreshData(true)"
-          :disabled="store.isRefreshing"
-          class="p-2 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 hover:bg-slate-200 dark:hover:bg-black transition focus:outline-none active:scale-95 shadow-sm flex items-center justify-center"
-          :title="store.isRefreshing ? t('app.refreshing') : t('app.refresh')"
+          @click="isSettingsModalOpen = true"
+          class="p-2 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-neutral-900 transition focus:outline-none shadow-sm"
+          :title="t('settings.title')"
         >
-          <RefreshCw :class="['w-4 h-4 text-cyan-500 dark:text-cyan-400', store.isRefreshing ? 'animate-spin' : '']" />
+          <Sliders class="w-4 h-4 text-slate-600 dark:text-slate-300" />
         </button>
-
-        <!-- Overflow Menu Trigger (...) -->
-        <div class="relative">
-          <button
-            @click="isOverflowMenuOpen = !isOverflowMenuOpen"
-            class="p-2 rounded-full bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/25 hover:bg-slate-200 dark:hover:bg-black transition focus:outline-none shadow-sm"
-            :title="t('guidance.moreOptions')"
-          >
-            <MoreHorizontal class="w-4 h-4" />
-          </button>
-
-          <!-- Backdrop -->
-          <div
-            v-if="isOverflowMenuOpen"
-            @click="isOverflowMenuOpen = false"
-            class="fixed inset-0 z-40"
-          ></div>
-
-          <!-- Floating Overflow Dropdown -->
-          <div
-            v-if="isOverflowMenuOpen"
-            class="absolute right-0 mt-2 w-56 bg-white/95 dark:bg-black/95 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-1.5 z-50 flex flex-col gap-1 backdrop-blur-xl"
-          >
-            <!-- State Leaderboard -->
-            <button
-              @click="isLeaderboardModalOpen = true; isOverflowMenuOpen = false"
-              class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 transition text-left"
-            >
-              <Trophy class="w-4 h-4 text-amber-500 shrink-0" />
-              <span>{{ t('national.viewLeaderboard') || 'State Air Quality Leaderboard' }}</span>
-            </button>
-
-            <!-- FAQ in Overflow Menu -->
-            <button
-              @click="isFaqModalOpen = true; isOverflowMenuOpen = false"
-              class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 transition text-left"
-            >
-              <HelpCircle class="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
-              <span>{{ t('faq.title') || 'Frequently Asked Questions (FAQ)' }}</span>
-            </button>
-
-            <!-- Share Story Card -->
-            <button
-              v-if="store.currentStation"
-              @click="isShareModalOpen = true; isOverflowMenuOpen = false"
-              class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 transition text-left"
-            >
-              <Share2 class="w-4 h-4 text-indigo-500 dark:text-indigo-400 shrink-0" />
-              <span>{{ t('share.button') }}</span>
-            </button>
-
-            <div class="border-t border-slate-200 dark:border-white/10 my-0.5"></div>
-
-            <!-- Settings -->
-            <button
-              @click="isSettingsModalOpen = true; isOverflowMenuOpen = false"
-              class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-950 transition text-left"
-            >
-              <Sliders class="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0" />
-              <span>{{ t('settings.title') }}</span>
-            </button>
-          </div>
-        </div>
       </div>
     </header>
 
@@ -348,15 +284,11 @@ onBeforeUnmount(() => {
         <NationalOverviewBar
           :summary="store.nationalSummary"
           @select-station="(id) => store.selectStation(id)"
-          @open-leaderboard="isLeaderboardModalOpen = true"
         />
-
-        <!-- Official Civic News & Directives Broadcast Carousel -->
-        <NewsBroadcastCarousel />
 
         <!-- Core Dashboard Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          <!-- Left Column: Atmospheric Card, Civic Action Badge & Health Advice -->
+          <!-- Left Column: Atmospheric Card & Health Advice -->
           <div class="lg:col-span-6 space-y-5">
             <AtmosphericCard
               :station="store.currentStation"
@@ -367,12 +299,6 @@ onBeforeUnmount(() => {
               :is-simulating="store.simulationApi !== null"
               @open-station-selector="isStationModalOpen = true"
               @clear-simulation="() => store.clearSimulation()"
-            />
-
-            <!-- Real-Time Civic Action & School Status Badge (MOE 1/2019) -->
-            <CivicActionBadge
-              :api="store.currentStation.api"
-              :station-name="store.currentStation.name"
             />
 
             <HealthAdvicePanel
@@ -535,15 +461,6 @@ onBeforeUnmount(() => {
       :station="store.currentStation"
       :last-updated="store.lastUpdated"
       @close="isShareModalOpen = false"
-    />
-
-    <StateLeaderboardModal
-      :is-open="isLeaderboardModalOpen"
-      :state-rankings="store.stateRankings"
-      :national-summary="store.nationalSummary"
-      :selected-station-id="store.selectedStationId"
-      @close="isLeaderboardModalOpen = false"
-      @select-station="handleStationSelect"
     />
 
     <FaqModal
