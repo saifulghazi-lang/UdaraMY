@@ -2,7 +2,7 @@
 import { onMounted, ref, watch, computed, onBeforeUnmount, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import L from 'leaflet';
-import { Search, Flame, ArrowUpDown, ExternalLink, Layers, Eye, LocateFixed } from 'lucide-vue-next';
+import { Search, ExternalLink, LocateFixed } from 'lucide-vue-next';
 import { getCategoryColor } from '../data/stations.js';
 import { calculateDistanceKm } from '../services/locationService.js';
 import { useAirQualityStore } from '../stores/airQuality.js';
@@ -43,9 +43,7 @@ const currentFilter = ref('All');
 const networkFilter = ref('all'); // 'all' | 'official' | 'community'
 const searchQuery = ref('');
 const sortBy = ref('api_desc'); // 'api_desc' | 'distance_asc' | 'name_asc'
-const mapViewMode = ref('both'); // 'both' | 'heatmap' | 'pins'
 const isMapInteracting = ref(false);
-const isFilterDrawerOpen = ref(false);
 
 function enableMapInteraction() {
   if (map && !map.dragging.enabled()) {
@@ -244,11 +242,6 @@ function initHeatmapCanvas() {
 
 function drawHeatmap() {
   if (!heatCanvas || !heatCtx || !map) return;
-
-  if (mapViewMode.value === 'pins') {
-    heatCanvas.style.display = 'none';
-    return;
-  }
   heatCanvas.style.display = 'block';
 
   const size = map.getSize();
@@ -653,10 +646,7 @@ function renderMarkers() {
   markersLayer.clearLayers();
   Object.keys(markerMap).forEach(k => delete markerMap[k]);
 
-  const showPins = mapViewMode.value !== 'heatmap';
-
-  if (showPins) {
-    combinedStations.value.forEach(st => {
+  combinedStations.value.forEach(st => {
       const isSelected = st.id === props.selectedStationId;
       const icon = createMarkerIcon(st);
       const marker = L.marker([st.lat, st.lng], { 
@@ -759,7 +749,6 @@ function renderMarkers() {
       markersLayer.addLayer(marker);
       markerMap[st.id] = marker;
     });
-  }
 
   // Re-open the popup that was open before the re-render
   if (openPopupStationId && markerMap[openPopupStationId]) {
@@ -792,12 +781,6 @@ function onStationClick(id, shouldOpenPopup = true) {
   });
 }
 
-function setViewMode(mode) {
-  mapViewMode.value = mode;
-  renderMarkers();
-  drawHeatmap();
-}
-
 function zoomToRegion(region) {
   currentFilter.value = region;
   if (!map) return;
@@ -821,12 +804,6 @@ function getSortPillClass(isActive) {
   return isActive
     ? 'bg-indigo-600 text-white shadow-sm'
     : 'bg-slate-100 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white';
-}
-
-function getDrawerButtonClass(isOpen) {
-  return isOpen
-    ? 'bg-indigo-50 border-indigo-500/40 text-indigo-700 dark:bg-indigo-950/80 dark:border-indigo-500/60 dark:text-indigo-200'
-    : 'bg-white dark:bg-black border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white';
 }
 
 onMounted(() => {
@@ -962,113 +939,54 @@ onBeforeUnmount(() => {
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ t('map.sub') }}</p>
       </div>
 
-      <!-- Controls: Consolidated Primary Segmented Control & Filter Drawer Toggle -->
+      <!-- Controls: Consolidated Network & Region Selectors -->
       <div class="flex flex-wrap items-center gap-2">
-        <!-- Primary Segmented Network Selector (<= 4 options) -->
+        <!-- Network Selector (All / DOE / Community) -->
         <div class="flex items-center gap-1 bg-slate-100 dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-1 text-xs">
           <button
             @click="networkFilter = 'all'"
-            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'all')]"
+            :class="['px-3 py-1 rounded-full font-medium transition', getFilterPillClass(networkFilter === 'all')]"
             title="Show all official DOE stations and community sensors"
           >
-            <span>{{ t('map.filterAll') }}</span>
+            {{ t('map.filterAll') }}
           </button>
           <button
             @click="networkFilter = 'official'"
-            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'official')]"
+            :class="['px-3 py-1 rounded-full font-medium transition', getFilterPillClass(networkFilter === 'official')]"
             title="Official DOE APIMS stations only"
           >
-            <span>🏛️ DOE ({{ stations.length }})</span>
+            🏛️ DOE ({{ stations.length }})
           </button>
           <button
             @click="networkFilter = 'community'"
-            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1', getFilterPillClass(networkFilter === 'community')]"
+            :class="['px-3 py-1 rounded-full font-medium transition', getFilterPillClass(networkFilter === 'community')]"
             title="Citizen community sensors (PurpleAir / AirVisual)"
           >
-            <span>👥 Community ({{ communitySensors.length }})</span>
-          </button>
-          <button
-            @click="isFilterDrawerOpen = !isFilterDrawerOpen"
-            :class="['px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1.5 border', getDrawerButtonClass(isFilterDrawerOpen)]"
-          >
-            <Layers class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-            <span>{{ isFilterDrawerOpen ? t('map.closeFilter') : t('map.layersAndRegions') }}</span>
+            👥 Community ({{ communitySensors.length }})
           </button>
         </div>
-      </div>
-    </div>
 
-    <!-- Secondary Collapsible Filter Drawer (View Mode & Region) -->
-    <div v-if="isFilterDrawerOpen" class="p-3 bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 rounded-2xl flex flex-wrap items-center gap-4 text-xs transition-all">
-      <!-- Heatmap / Layer Mode Selector -->
-      <div class="flex items-center gap-1.5">
-        <span class="text-[10px] uppercase font-mono text-slate-500 dark:text-neutral-400 font-bold">{{ t('map.layers') }}:</span>
-        <div class="flex items-center gap-1 bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-0.5">
-          <button
-            @click="setViewMode('both')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(mapViewMode === 'both')]"
-          >
-            🌫️ Haze + Pins
-          </button>
-          <button
-            @click="setViewMode('heatmap')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(mapViewMode === 'heatmap')]"
-          >
-            ☁️ Heatmap
-          </button>
-          <button
-            @click="setViewMode('pins')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(mapViewMode === 'pins')]"
-          >
-            📍 Pins
-          </button>
-        </div>
-      </div>
-
-      <!-- Region Filter Tabs (Grouped into All, Peninsular, Sabah & Sarawak) -->
-      <div class="flex items-center gap-1.5">
-        <span class="text-[10px] uppercase font-mono text-slate-500 dark:text-neutral-400 font-bold">{{ t('map.region') }}:</span>
-        <div class="flex items-center gap-1 bg-white dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-0.5">
+        <!-- Region Quick Filter -->
+        <div class="flex items-center gap-1 bg-slate-100 dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-1 text-xs">
           <button
             @click="zoomToRegion('All')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'All')]"
+            :class="['px-2.5 py-1 rounded-full text-[11px] font-medium transition', getFilterPillClass(currentFilter === 'All')]"
           >
             {{ t('map.filterAll') }}
           </button>
           <button
             @click="zoomToRegion('Peninsular')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'Peninsular')]"
+            :class="['px-2.5 py-1 rounded-full text-[11px] font-medium transition', getFilterPillClass(currentFilter === 'Peninsular')]"
           >
             {{ t('map.filterPeninsular') }}
           </button>
           <button
             @click="zoomToRegion('EastMalaysia')"
-            :class="['px-2.5 py-1 rounded-full text-[10px] font-medium transition', getFilterPillClass(currentFilter === 'EastMalaysia')]"
+            :class="['px-2.5 py-1 rounded-full text-[11px] font-medium transition', getFilterPillClass(currentFilter === 'EastMalaysia')]"
           >
             {{ t('map.filterBorneo') }}
           </button>
         </div>
-      </div>
-
-      <!-- Wind & Smoke Plume Toggle -->
-      <div class="flex items-center gap-1.5">
-        <span class="text-[10px] uppercase font-mono text-slate-500 dark:text-neutral-400 font-bold">Wind:</span>
-        <button
-          @click="store.toggleWindOverlay()"
-          :class="[
-            'px-2.5 py-1 rounded-full text-[10px] font-medium transition flex items-center gap-1 border',
-            store.showWindOverlay
-              ? 'bg-amber-500 text-white border-amber-500 shadow-sm shadow-amber-500/40'
-              : 'bg-white dark:bg-black border-slate-200 dark:border-white/10 text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white'
-          ]"
-          :title="store.showWindOverlay ? 'Hide wind & smoke plume overlay' : 'Show wind & smoke plume overlay'"
-        >
-          💨 Wind &amp; Smoke Plumes
-          <span
-            v-if="store.isPlumeThreatActive && !store.showWindOverlay"
-            class="inline-flex w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"
-          />
-        </button>
       </div>
     </div>
 
@@ -1123,13 +1041,16 @@ onBeforeUnmount(() => {
         </button>
 
 
-        <!-- Floating Legend on Map (Design Token Aligned) -->
-        <div class="absolute bottom-3 inset-x-3 z-30 bg-white/95 dark:bg-black/90 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-full px-4 py-2 shadow-xl flex items-center justify-between sm:justify-around text-[10px] font-bold text-slate-700 dark:text-neutral-200 select-none overflow-x-auto gap-2">
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-[#00d2ff] shadow-sm shadow-cyan-500/50"></span> 0-50 {{ t('categories.good') }}</span>
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></span> 51-100 {{ t('categories.moderate') }}</span>
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></span> 101-200 {{ t('categories.unhealthy') }}</span>
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/50"></span> 201-300 {{ t('categories.veryUnhealthy') }}</span>
-          <span class="flex items-center gap-1.5 shrink-0"><span class="w-2.5 h-2.5 rounded-full bg-[#881337] shadow-sm shadow-rose-900/50"></span> 301+ {{ t('categories.hazardous') }}</span>
+        <!-- Floating Discreet Color Scale Legend on Map -->
+        <div class="absolute bottom-3 right-3 z-30 bg-white/90 dark:bg-black/90 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-full px-3 py-1.5 shadow-lg flex items-center gap-2 text-[10px] font-mono font-bold select-none">
+          <span class="text-slate-500 dark:text-neutral-400 text-[9px] uppercase tracking-wider">AQI:</span>
+          <div class="flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-[#00d2ff]" title="0-50 Good"></span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500" title="51-100 Moderate"></span>
+            <span class="w-2 h-2 rounded-full bg-amber-500" title="101-200 Unhealthy"></span>
+            <span class="w-2 h-2 rounded-full bg-red-500" title="201-300 Very Unhealthy"></span>
+            <span class="w-2 h-2 rounded-full bg-[#881337]" title="301+ Hazardous"></span>
+          </div>
         </div>
       </div>
 
