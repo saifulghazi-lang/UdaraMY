@@ -44,7 +44,15 @@
     "deteriorating": "Deteriorating",
     "steady": "Steady",
     "improving": "Improving",
-    "rapidClearing": "Rapid Clearing"
+    "rapidClearing": "Rapid Clearing",
+    "healthIndicator": "Real-Time Health Indicator (NowCast)",
+    "officialStatusTitle": "Official JAS APIMS — Statutory / KPM School Benchmark",
+    "forecastAndPollutants": "6-Hour Forecast & Pollutant Breakdown",
+    "hideForecastAndPollutants": "Hide Forecast & Pollutants",
+    "schoolNormal": "Schools operate normally (API ≤ 100)",
+    "schoolCaution": "Outdoor sports & recess suspended (API > 100)",
+    "schoolClosure": "Mandatory school closures under KPM guidelines (API > 200)",
+    "offlineForecastPaused": "Telemetry cached (> 60m). Projections paused."
   },
   "nav": {
     "home": "Home",

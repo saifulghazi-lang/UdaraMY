@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { 
   MapPin, 
@@ -9,7 +9,9 @@ import {
   Clock,
   TrendingUp,
   TrendingDown,
-  Minus
+  Minus,
+  ChevronDown,
+  Building2
 } from 'lucide-vue-next';
 import { getCategoryFromApi } from '../data/stations.js';
 
@@ -46,6 +48,8 @@ const emit = defineEmits([
 ]);
 
 const { t } = useI18n();
+
+const isForecastOpen = ref(false);
 
 const displayApi = computed(() => {
   if (props.station.nowCast && typeof props.station.nowCast.nowCastApi === 'number') {
@@ -301,6 +305,12 @@ const statusIcon = computed(() => {
 
         <!-- Center Readout with high-contrast tabular figures -->
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none">
+          <!-- Semantic Health Indicator Header -->
+          <div class="text-[10px] uppercase font-mono font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-0.5 flex items-center gap-1.5">
+            <Sparkles class="w-3 h-3 text-cyan-500 shrink-0" />
+            <span>{{ t('predictive.healthIndicator') }}</span>
+          </div>
+
           <div class="text-6xl sm:text-7xl font-black tracking-tighter text-slate-900 dark:text-white font-mono tabular-nums">
             {{ api }}
           </div>
@@ -325,31 +335,125 @@ const statusIcon = computed(() => {
       </div>
     </div>
 
-    <!-- Front & Center Primary Pollutants Telemetry Grid -->
-    <div v-if="station.pollutants" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5 relative z-10">
-      <div
-        v-for="(val, polKey) in station.pollutants"
-        :key="polKey"
-        class="p-2.5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-center"
+    <!-- 3-Hour Velocity Trajectory Pill -->
+    <div v-if="velocity && !station.isStale" class="flex justify-center -mt-2 mb-4 relative z-10">
+      <div 
+        :class="[
+          'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold border transition-colors shadow-sm',
+          velocityClass
+        ]"
       >
-        <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-          {{ polKey }}
-        </span>
-        <span class="text-base font-black font-mono tabular-nums text-slate-900 dark:text-white mt-0.5 block">
-          {{ val?.value ?? val }}
-        </span>
-        <span class="text-[9px] text-slate-400 font-mono block">
-          {{ val?.unit || (polKey.startsWith('pm') ? 'µg/m³' : 'ppm') }}
-        </span>
+        <component :is="velocityIcon" class="w-3.5 h-3.5 shrink-0" />
+        <span>{{ velocityText }}</span>
       </div>
     </div>
 
     <!-- Health Advice Context Banner -->
-    <div class="bg-slate-50 dark:bg-neutral-900/80 rounded-2xl p-4 border border-slate-200 dark:border-white/10 text-xs flex items-center gap-3 relative z-10 shadow-sm">
+    <div class="bg-slate-50 dark:bg-neutral-900/80 rounded-2xl p-4 border border-slate-200 dark:border-white/10 text-xs flex items-center gap-3 relative z-10 shadow-sm mb-3">
       <span class="text-2xl select-none shrink-0" role="img">{{ statusIcon }}</span>
       <p class="text-slate-700 dark:text-slate-200 leading-relaxed font-medium flex-1">
         {{ t(`advice.${category}`) }}
       </p>
+    </div>
+
+    <!-- Physically Separated Statutory / KPM Official Status Card -->
+    <div class="bg-slate-50 dark:bg-white/[0.03] rounded-2xl p-3.5 border border-slate-200/80 dark:border-white/10 text-xs flex items-center justify-between gap-3 relative z-10 shadow-sm mb-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="p-2 rounded-xl bg-slate-200/60 dark:bg-white/10 text-slate-700 dark:text-slate-200 shrink-0">
+          <Building2 class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+        </div>
+        <div class="min-w-0">
+          <div class="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold truncate">
+            {{ t('predictive.officialStatusTitle') }}
+          </div>
+          <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5 truncate flex items-center gap-1.5">
+            <span v-if="station.api > 200" class="text-rose-600 dark:text-rose-400">{{ t('predictive.schoolClosure') }}</span>
+            <span v-else-if="station.api > 100" class="text-amber-600 dark:text-amber-400">{{ t('predictive.schoolCaution') }}</span>
+            <span v-else class="text-emerald-600 dark:text-emerald-400">{{ t('predictive.schoolNormal') }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="text-right shrink-0 font-mono">
+        <div class="text-base font-black tabular-nums text-slate-900 dark:text-white">{{ station.api }}</div>
+        <div class="text-[9px] text-slate-400 uppercase tracking-wider">APIMS 24j</div>
+      </div>
+    </div>
+
+    <!-- Progressive Disclosure Toggle for Forecast & Chemical Pollutants -->
+    <button
+      @click="isForecastOpen = !isForecastOpen"
+      class="w-full py-2.5 px-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 text-xs font-semibold flex items-center justify-between text-slate-700 dark:text-slate-300 transition relative z-10 cursor-pointer"
+      :aria-expanded="isForecastOpen"
+    >
+      <div class="flex items-center gap-2">
+        <Clock class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
+        <span>{{ isForecastOpen ? t('predictive.hideForecastAndPollutants') : t('predictive.forecastAndPollutants') }}</span>
+      </div>
+      <ChevronDown :class="['w-4 h-4 transition-transform duration-200 text-slate-400', isForecastOpen ? 'rotate-180 text-indigo-500' : '']" />
+    </button>
+
+    <!-- Progressive Disclosure Container (v-if strictly skips mounting until requested) -->
+    <div v-if="isForecastOpen" class="space-y-4 pt-3 relative z-10">
+      <!-- Stale / Offline Alert if telemetry is > 60 mins old -->
+      <div v-if="station.isStale" class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs flex items-center gap-2">
+        <Clock class="w-4 h-4 shrink-0 text-amber-500" />
+        <span>{{ t('predictive.offlineForecastPaused') }}</span>
+      </div>
+
+      <!-- 6-Hour Predictive Horizon Strip -->
+      <div v-else-if="station.predictions6h && station.predictions6h.length" class="space-y-2">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+          <span class="flex items-center gap-1.5">
+            <Clock class="w-3.5 h-3.5 text-indigo-500" />
+            <span>{{ t('predictive.title') }}</span>
+          </span>
+          <span class="text-[10px] font-mono text-slate-400 dark:text-slate-500">{{ t('predictive.subtitle') }}</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div
+            v-for="pred in station.predictions6h"
+            :key="pred.hourOffset"
+            class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:border-indigo-500/30 transition-all text-center"
+          >
+            <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-medium">{{ pred.timeLabel }}</span>
+            <div class="flex items-center gap-1 my-1">
+              <span class="text-base sm:text-lg font-black font-mono tabular-nums text-slate-900 dark:text-white">{{ pred.projectedApi }}</span>
+              <component
+                :is="getPredictionTrendIcon(pred.trendDirection)"
+                :class="['w-3.5 h-3.5', getPredictionTrendColor(pred.trendDirection)]"
+              />
+            </div>
+            <span
+              :class="[
+                'text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border',
+                getPredictionBadgeClass(pred.projectedApi)
+              ]"
+            >
+              {{ getPredictionCategoryLabel(pred.projectedApi) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4-Cell Primary Pollutants Telemetry Grid -->
+      <div v-if="station.pollutants" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div
+          v-for="(val, polKey) in station.pollutants"
+          :key="polKey"
+          class="p-2.5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-center"
+        >
+          <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+            {{ polKey }}
+          </span>
+          <span class="text-base font-black font-mono tabular-nums text-slate-900 dark:text-white mt-0.5 block">
+            {{ val?.value ?? val }}
+          </span>
+          <span class="text-[9px] text-slate-400 font-mono block">
+            {{ val?.unit || (polKey.startsWith('pm') ? 'µg/m³' : 'ppm') }}
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
