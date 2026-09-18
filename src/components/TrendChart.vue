@@ -253,18 +253,18 @@ onUnmounted(() => {
     </div>
 
     <!-- Active Scrubber Readout Bar -->
-    <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/10 text-xs font-mono">
+    <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 text-xs font-mono">
       <div class="flex items-center gap-2">
         <span class="text-slate-500 dark:text-slate-400">{{ chartTab === 'forecast' ? t('trends.time') : t('trends.scrubTime') }}</span>
         <span class="text-slate-900 dark:text-white font-bold">{{ activePoint?.timeLabel || t('trends.now') }}</span>
       </div>
       <div class="flex items-center gap-3">
-        <span v-if="chartTab === 'forecast' && activePoint?.pm25" class="text-xs text-cyan-600 dark:text-cyan-300 hidden sm:inline font-semibold">
+        <span v-if="chartTab === 'forecast' && activePoint?.pm25" class="text-xs text-indigo-600 dark:text-indigo-400 hidden sm:inline font-semibold">
           {{ activePoint.pm25 }} µg/m³ PM2.5
         </span>
         <div class="flex items-center gap-1.5">
           <span class="text-slate-500 dark:text-slate-400">API:</span>
-          <span class="text-base font-black" :style="{ color: lineColor }">
+          <span class="text-base font-black tabular-nums" :style="{ color: lineColor }">
             {{ activePoint?.api ?? currentApi }}
           </span>
         </div>
@@ -281,7 +281,7 @@ onUnmounted(() => {
       @touchend="handleMouseLeave"
     >
       <!-- Horizontal Reference Threshold Grid -->
-      <div class="absolute inset-0 pointer-events-none flex flex-col justify-between text-[10px] font-mono text-slate-600 opacity-60">
+      <div class="absolute inset-0 pointer-events-none flex flex-col justify-between text-[10px] font-mono text-slate-500/80">
         <div class="border-b border-rose-500/20 w-full flex justify-between pr-1"><span>200 V. UNHEALTHY</span></div>
         <div class="border-b border-amber-500/20 w-full flex justify-between pr-1"><span>100 UNHEALTHY</span></div>
         <div class="border-b border-emerald-500/20 w-full flex justify-between pr-1"><span>50 MODERATE</span></div>
@@ -291,13 +291,9 @@ onUnmounted(() => {
       <svg class="w-full h-32 overflow-visible" :viewBox="`0 0 ${width} ${height}`" preserveAspectRatio="none">
         <defs>
           <linearGradient id="areaGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" :stop-color="lineColor" stop-opacity="0.45" />
-            <stop offset="60%" :stop-color="lineColor" stop-opacity="0.1" />
+            <stop offset="0%" :stop-color="lineColor" stop-opacity="0.25" />
             <stop offset="100%" :stop-color="lineColor" stop-opacity="0.0" />
           </linearGradient>
-          <filter id="lineGlowFilter" x="-10%" y="-20%" width="120%" height="140%">
-            <feDropShadow dx="0" dy="0" stdDeviation="3" :flood-color="lineColor" flood-opacity="0.6"/>
-          </filter>
         </defs>
 
         <!-- Area fill -->
@@ -308,10 +304,9 @@ onUnmounted(() => {
           :d="smoothPath"
           fill="none"
           :stroke="lineColor"
-          stroke-width="3"
+          stroke-width="2.5"
           stroke-linecap="round"
           stroke-linejoin="round"
-          filter="url(#lineGlowFilter)"
           class="transition-colors duration-500"
         />
 
