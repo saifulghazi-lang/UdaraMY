@@ -4,7 +4,9 @@ import {
   calculateNowCast,
   applyKalmanFilter1D,
   calculateHourlyVelocity,
-  generate6HourProjection
+  generate6HourProjection,
+  imputeMissingReadings,
+  isTelemetryStale
 } from '../mathematicsService.js';
 
 describe('mathematicsService', () => {
@@ -139,4 +141,78 @@ describe('mathematicsService', () => {
       }
     });
   });
+
+  describe('Reconstructed Hourly Math & Clamping', () => {
+    it('should strictly clamp instantaneous estimate to [0, 500] even with extreme upward jump', () => {
+      // Station reports 480 jumping from 400 (delta = +80). Without clamping, 480 + 8 * 80 = 1120!
+      const jumpSeries = [480, 400, 380, 350, 300];
+      const result = calculateNowCast(jumpSeries);
+
+      assert.ok(result.instantaneousEstimate <= 500, `Expected <= 500, got ${result.instantaneousEstimate}`);
+      assert.equal(result.instantaneousEstimate, 500);
+    });
+
+    it('should strictly clamp instantaneous estimate to 0 on extreme downward drop', () => {
+      // Station reports 10 dropping from 80 (delta = -70). Without clamping, 10 + 8 * (-70) = -550!
+      const dropSeries = [10, 80, 90, 85, 80];
+      const result = calculateNowCast(dropSeries);
+
+      assert.ok(result.instantaneousEstimate >= 0, `Expected >= 0, got ${result.instantaneousEstimate}`);
+      assert.equal(result.instantaneousEstimate, 0);
+    });
+
+    it('should apply non-linear alpha damping to attenuate momentum at higher API levels', () => {
+      // Low API: delta of +10 at API 50
+      const lowSeries = [50, 40, 40];
+      const lowResult = calculateNowCast(lowSeries);
+      const lowBoost = lowResult.instantaneousEstimate - 50;
+
+      // High API: same delta of +10 at API 350
+      const highSeries = [350, 340, 340];
+      const highResult = calculateNowCast(highSeries);
+      const highBoost = highResult.instantaneousEstimate - 350;
+
+      // High API boost must be smaller due to alpha damping (1 - 350/600 < 1 - 50/600)
+      assert.ok(highBoost < lowBoost, `Expected highBoost (${highBoost}) < lowBoost (${lowBoost})`);
+    });
+  });
+
+  describe('imputeMissingReadings (LOCF)', () => {
+    it('should impute <= 2 missing hours using LOCF without flagging as degraded', () => {
+      const gapped = [120, null, 110, undefined, 100, 95];
+      const { series, isDataDegraded, missingCount } = imputeMissingReadings(gapped, 2);
+
+      assert.equal(missingCount, 2);
+      assert.equal(isDataDegraded, false);
+      assert.equal(series[1], 120); // LOCF from index 0
+      assert.equal(series[3], 110); // LOCF from index 2
+    });
+
+    it('should flag as degraded when missing hours exceed threshold (> 2 hours)', () => {
+      const badlyGapped = [120, null, null, null, 100];
+      const { isDataDegraded, missingCount } = imputeMissingReadings(badlyGapped, 2);
+
+      assert.equal(missingCount, 3);
+      assert.equal(isDataDegraded, true);
+    });
+  });
+
+  describe('isTelemetryStale (Clock Drift Resilient)', () => {
+    it('should report fresh when elapsed time is within 60 minutes', () => {
+      const recentEpoch = Date.now() - (25 * 60 * 1000); // 25 mins ago
+      assert.equal(isTelemetryStale(recentEpoch, 3600000), false);
+    });
+
+    it('should report stale when elapsed time exceeds 60 minutes', () => {
+      const oldEpoch = Date.now() - (75 * 60 * 1000); // 75 mins ago
+      assert.equal(isTelemetryStale(oldEpoch, 3600000), true);
+    });
+
+    it('should gracefully handle null or invalid epoch', () => {
+      assert.equal(isTelemetryStale(null), true);
+      assert.equal(isTelemetryStale(undefined), true);
+      assert.equal(isTelemetryStale('invalid'), true);
+    });
+  });
 });
+

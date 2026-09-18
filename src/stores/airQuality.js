@@ -13,7 +13,8 @@ import { fetchAirQualityForecast } from '../services/airQualityForecastService.j
 import {
   calculateNowCast,
   calculateHourlyVelocity,
-  generate6HourProjection
+  generate6HourProjection,
+  isTelemetryStale
 } from '../services/mathematicsService.js';
 import {
   fetchRegionalWindGrid,
@@ -49,6 +50,7 @@ export const useAirQualityStore = defineStore('airQuality', {
       isRefreshing: false,
       isLive: false,
       lastUpdated: null,
+      fetchEpochMs: Date.now(),
       simulationApi: null,
       selectedRegion: 'All',
       searchQuery: '',
@@ -101,6 +103,8 @@ export const useAirQualityStore = defineStore('airQuality', {
         };
       }
 
+      const isStale = isTelemetryStale(state.fetchEpochMs);
+
       const recentSeries = result.history24h && result.history24h.length > 0
         ? [...result.history24h].reverse().map(h => (typeof h.api === 'number' ? h.api : result.api))
         : [result.api];
@@ -111,16 +115,19 @@ export const useAirQualityStore = defineStore('airQuality', {
         ? state.forecast.hourly.map(h => (typeof h?.api === 'number' ? h.api : (typeof h === 'number' ? h : null))).filter(v => v !== null)
         : [];
 
-      const predictions6h = generate6HourProjection(
-        nowCast.nowCastApi ?? result.api,
-        forecastSeries
-      );
+      const predictions6h = isStale
+        ? []
+        : generate6HourProjection(
+            nowCast.nowCastApi ?? result.api,
+            forecastSeries
+          );
 
       return {
         ...result,
         nowCast,
         velocity3h,
-        predictions6h
+        predictions6h,
+        isStale
       };
     },
 
@@ -348,6 +355,7 @@ export const useAirQualityStore = defineStore('airQuality', {
             this.stations = data.stations;
             this.lastUpdated = data.updatedAt;
             this.isLive = data.isLive;
+            this.fetchEpochMs = data.fetchEpochMs || Date.now();
           }),
           this.fetchHotspots(),
           this.fetchForecast()
@@ -382,6 +390,7 @@ export const useAirQualityStore = defineStore('airQuality', {
           this.stations = data.stations;
           this.lastUpdated = data.updatedAt || new Date().toISOString();
           this.isLive = data.isLive;
+          this.fetchEpochMs = data.fetchEpochMs || Date.now();
         }
         await this.loadRegionalWindGrid();
       } catch (err) {

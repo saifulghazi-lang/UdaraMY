@@ -9,37 +9,97 @@
  */
 
 /**
- * Calculates the US EPA / WMO NowCast responsive index from an array of hourly readings.
+ * Imputes missing readings in an hourly sequence using Last Observation Carried Forward (LOCF).
+ * Flags as degraded if missing count exceeds maxAllowedGap (default 2 hours).
  * 
- * Formula:
- * c_min = min(C_1..C_12), c_max = max(C_1..C_12)
- * omega = max(0.5, min(1.0, sqrt(c_min / c_max)))
- * NowCast = sum(omega^(i-1) * C_i) / sum(omega^(i-1))
+ * @param {Array<number|null|undefined>} readings 
+ * @param {number} [maxAllowedGap=2]
+ * @returns {{ series: number[], isDataDegraded: boolean, missingCount: number }}
+ */
+export function imputeMissingReadings(readings, maxAllowedGap = 2) {
+  if (!Array.isArray(readings) || readings.length === 0) {
+    return { series: [], isDataDegraded: true, missingCount: 0 };
+  }
+
+  const raw = readings.slice(0, 12);
+  let missingCount = 0;
+  const imputed = [];
+  let lastKnown = null;
+
+  for (const val of raw) {
+    if (typeof val === 'number' && !isNaN(val)) {
+      lastKnown = val;
+      break;
+    }
+  }
+
+  if (lastKnown === null) {
+    return { series: [], isDataDegraded: true, missingCount: raw.length };
+  }
+
+  for (let i = 0; i < raw.length; i++) {
+    const val = raw[i];
+    if (typeof val === 'number' && !isNaN(val)) {
+      imputed.push(val);
+      lastKnown = val;
+    } else {
+      missingCount++;
+      // Last Observation Carried Forward
+      imputed.push(lastKnown);
+    }
+  }
+
+  const isDataDegraded = missingCount > maxAllowedGap;
+  return { series: imputed, isDataDegraded, missingCount };
+}
+
+/**
+ * Checks if telemetry data has exceeded maximum allowed age (e.g. 60 minutes)
+ * based on elapsed fetch time, decoupled from wall-clock drift.
+ * 
+ * @param {number} fetchEpochMs 
+ * @param {number} [maxAgeMs=3600000] - Default 60 minutes
+ * @returns {boolean}
+ */
+export function isTelemetryStale(fetchEpochMs, maxAgeMs = 3600000) {
+  if (!fetchEpochMs || typeof fetchEpochMs !== 'number' || isNaN(fetchEpochMs)) {
+    return true;
+  }
+  return (Date.now() - fetchEpochMs) > maxAgeMs;
+}
+
+/**
+ * Calculates the US EPA / WMO NowCast responsive index and regularized instantaneous
+ * reconstructed estimate with non-linear damping and strict [0, 500] boundary clamping.
  * 
  * @param {number[]} hourlyReadings - Hourly values, most recent at index 0
- * @returns {{ nowCastApi: number, weightFactor: number, lagReductionHours: number, isHighVolatility: boolean }}
+ * @param {Object} [options]
+ * @param {number} [options.alpha=8.0] - Momentum weight factor
+ * @returns {{ nowCastApi: number, instantaneousEstimate: number, weightFactor: number, lagReductionHours: number, isHighVolatility: boolean, isDataDegraded: boolean }}
  */
-export function calculateNowCast(hourlyReadings) {
+export function calculateNowCast(hourlyReadings, options = {}) {
   if (!Array.isArray(hourlyReadings) || hourlyReadings.length === 0) {
     return {
       nowCastApi: 0,
+      instantaneousEstimate: 0,
       weightFactor: 1.0,
       lagReductionHours: 0,
-      isHighVolatility: false
+      isHighVolatility: false,
+      isDataDegraded: false
     };
   }
 
-  // Filter valid numbers and cap at 12 hours
-  const valid = hourlyReadings
-    .filter(val => typeof val === 'number' && !isNaN(val))
-    .slice(0, 12);
+  // Telemetry gap imputation (LOCF up to 2 gaps)
+  const { series: valid, isDataDegraded } = imputeMissingReadings(hourlyReadings, 2);
 
   if (valid.length === 0) {
     return {
       nowCastApi: 0,
+      instantaneousEstimate: 0,
       weightFactor: 1.0,
       lagReductionHours: 0,
-      isHighVolatility: false
+      isHighVolatility: false,
+      isDataDegraded: true
     };
   }
 
@@ -49,9 +109,11 @@ export function calculateNowCast(hourlyReadings) {
   if (cMax <= 0) {
     return {
       nowCastApi: 0,
+      instantaneousEstimate: 0,
       weightFactor: 1.0,
       lagReductionHours: 0,
-      isHighVolatility: false
+      isHighVolatility: false,
+      isDataDegraded
     };
   }
 
@@ -68,14 +130,33 @@ export function calculateNowCast(hourlyReadings) {
     denominator += weight;
   }
 
-  const nowCastApi = denominator > 0 ? Math.round(numerator / denominator) : valid[0];
+  let nowCastApi = denominator > 0 ? Math.round(numerator / denominator) : valid[0];
+
+  // Reconstructed Instantaneous Rate-of-Change with Clamping and Non-Linear Damping
+  const current = valid[0];
+  const previous = valid.length > 1 ? valid[1] : current;
+  const deltaRaw = current - previous;
+
+  // Non-linear damping: alpha attenuates as API approaches high values (prevents runaway overshoot)
+  const baseAlpha = typeof options.alpha === 'number' ? options.alpha : 8.0;
+  const alphaDamped = baseAlpha * Math.max(0.2, 1 - (current / 600));
+
+  // Clamped rate-of-change estimate
+  const instantaneousRaw = current + (alphaDamped * deltaRaw);
+  const instantaneousEstimate = Math.max(0, Math.min(500, Math.round(instantaneousRaw)));
+
+  // Boundary clamp NowCast API to [0, 500]
+  nowCastApi = Math.max(0, Math.min(500, nowCastApi));
+
   const lagReductionHours = +(((1 - omega) * 10).toFixed(1));
 
   return {
     nowCastApi,
+    instantaneousEstimate,
     weightFactor: +(omega.toFixed(3)),
     lagReductionHours,
-    isHighVolatility: omega < 0.75
+    isHighVolatility: omega < 0.75,
+    isDataDegraded
   };
 }
 

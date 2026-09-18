@@ -167,6 +167,7 @@ export async function getAirQualityData(forceRefresh = false) {
   }
 
   let liveJson = null;
+  let serverDateHeader = null;
   const endpoints = [
     '/api/apims', // Vercel Serverless Function proxy
     '/api3/publicportalapims/apitablehourly' // Vite dev server proxy / Netlify proxy
@@ -182,6 +183,7 @@ export async function getAirQualityData(forceRefresh = false) {
       });
 
       if (res.ok) {
+        serverDateHeader = res.headers.get('date');
         const json = await res.json();
         if (Array.isArray(json?.api_table_hourly) && json.api_table_hourly.length > 0) {
           liveJson = json;
@@ -224,8 +226,13 @@ export async function getAirQualityData(forceRefresh = false) {
       };
     });
 
+    const nowEpoch = Date.now();
+    const serverEpoch = serverDateHeader ? new Date(serverDateHeader).getTime() : nowEpoch;
+
     const payload = {
       isLive: true,
+      fetchEpochMs: nowEpoch,
+      serverEpochMs: isNaN(serverEpoch) ? nowEpoch : serverEpoch,
       updatedAt: rawRows[0]?.DATETIME || new Date().toISOString(),
       stations
     };
@@ -249,7 +256,12 @@ export async function getAirQualityData(forceRefresh = false) {
     if (cached) {
       const parsed = JSON.parse(cached);
       console.info('Serving air quality from local cache');
-      return { ...parsed.data, isLive: false, fromCache: true };
+      return {
+        ...parsed.data,
+        fetchEpochMs: parsed.timestamp || Date.now(),
+        isLive: false,
+        fromCache: true
+      };
     }
   } catch (e) {
     console.warn('LocalStorage cache read failed', e);
