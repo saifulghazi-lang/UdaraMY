@@ -12,7 +12,6 @@ import {
   Share2, 
   RefreshCw, 
   Activity, 
-  ChevronDown, 
   Sun,
   Moon,
   Clock,
@@ -22,14 +21,12 @@ import {
 import AtmosphericCard from './components/AtmosphericCard.vue';
 import HealthAdvicePanel from './components/HealthAdvicePanel.vue';
 import TrendChart from './components/TrendChart.vue';
-import PollutantBars from './components/PollutantBars.vue';
 import StationMapView from './components/StationMapView.vue';
 import StationListModal from './components/StationListModal.vue';
 import SettingsModal from './components/SettingsModal.vue';
 import WatchlistBar from './components/WatchlistBar.vue';
 import ShareCardModal from './components/ShareCardModal.vue';
 import HazeHotspotWidget from './components/HazeHotspotWidget.vue';
-import HazeCalendarGrid from './components/HazeCalendarGrid.vue';
 import NationalOverviewBar from './components/NationalOverviewBar.vue';
 import FaqModal from './components/FaqModal.vue';
 
@@ -41,7 +38,6 @@ const isStationModalOpen = ref(false);
 const isSettingsModalOpen = ref(false);
 const isShareModalOpen = ref(false);
 const isFaqModalOpen = ref(false);
-const isDeepAnalysisOpen = ref(false);
 
 // Theme state: Default is 'light' unless user explicitly saved 'dark'
 const isDarkMode = ref(localStorage.getItem('udaramy_theme') === 'dark');
@@ -318,53 +314,6 @@ onBeforeUnmount(() => {
             <HazeHotspotWidget
               :hotspots="store.hotspots"
               :trend-analysis="store.trend3hAnalysis"
-            />
-          </div>
-        </div>
-
-        <!-- Collapsible Progressive Disclosure: Detailed Chemical Pollutants & 365-Day Annual Seasonality -->
-        <div class="border border-slate-200 dark:border-white/10 rounded-3xl bg-white dark:bg-neutral-950/80 overflow-hidden shadow-sm transition-all">
-          <button
-            @click="isDeepAnalysisOpen = !isDeepAnalysisOpen"
-            class="w-full px-5 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-white/5 transition text-left cursor-pointer focus:outline-none"
-          >
-            <div class="flex items-center gap-3.5">
-              <div class="p-2.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 shrink-0">
-                <Activity class="w-4 h-4" />
-              </div>
-              <div>
-                <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
-                  <span>{{ t('app.detailedAnalysis') }}</span>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400">
-                    PM2.5, PM10, O₃, NO₂, SO₂, CO • 365 Hari
-                  </span>
-                </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {{ isDeepAnalysisOpen ? t('app.hideDetailedAnalysis') : t('app.detailedAnalysisDesc') }}
-                </p>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 text-slate-400 shrink-0 ml-2">
-              <span class="text-xs font-semibold hidden sm:inline">{{ isDeepAnalysisOpen ? 'Tutup' : 'Buka' }}</span>
-              <ChevronDown
-                :class="['w-5 h-5 transition-transform duration-300', isDeepAnalysisOpen ? 'rotate-180 text-indigo-600 dark:text-indigo-400' : '']"
-              />
-            </div>
-          </button>
-
-          <div v-if="isDeepAnalysisOpen" class="p-4 sm:p-6 border-t border-slate-200 dark:border-white/10 space-y-6 bg-slate-50/50 dark:bg-black/60">
-            <PollutantBars
-              :pollutants="store.currentStation.pollutants"
-              :dominant="store.currentStation.dominantPollutant"
-              :station-state="store.currentStation.state"
-              :station-name="store.currentStation.name"
-              :telemetry="store.forecast?.currentPollutants"
-            />
-            <HazeCalendarGrid
-              :current-api="store.currentStation.api"
-              :station-state="store.currentStation.state"
-              :station-name="store.currentStation.name"
-              :station-region="store.currentStation.region"
             />
           </div>
         </div>
