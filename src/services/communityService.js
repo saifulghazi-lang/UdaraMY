@@ -315,8 +315,7 @@ export async function fetchLiveOpenAqSensors() {
 
   // OpenAQ v3 Malaysia ID is 2
   const urls = [
-    '/openaq/locations?countries_id=2&limit=50',
-    'https://api.openaq.org/v3/locations?countries_id=2&limit=50'
+    '/openaq/locations?countries_id=2&limit=50'
   ];
 
   let response = null;
@@ -364,8 +363,7 @@ export async function fetchLiveOpenAqSensors() {
       targetNodes.map(async (loc) => {
         try {
           const lUrls = [
-            `/openaq/locations/${loc.id}/latest`,
-            `https://api.openaq.org/v3/locations/${loc.id}/latest`
+            `/openaq/locations/${loc.id}/latest`
           ];
           let lRes = null;
           for (const u of lUrls) {

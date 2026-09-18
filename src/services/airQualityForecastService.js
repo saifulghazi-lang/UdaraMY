@@ -23,8 +23,8 @@ export async function fetchAirQualityForecast(lat = 3.139, lng = 101.6869) {
   }
 
   try {
-    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${roundedLat}&longitude=${roundedLng}&hourly=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone&forecast_days=3`;
-    const response = await fetch(url);
+    const url = `/open-meteo/v1/air-quality?latitude=${roundedLat}&longitude=${roundedLng}&hourly=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone&forecast_days=3`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
     if (!response.ok) {
       throw new Error(`Open-Meteo API error: ${response.status}`);
     }
@@ -39,7 +39,7 @@ export async function fetchAirQualityForecast(lat = 3.139, lng = 101.6869) {
 
     return formatted;
   } catch (err) {
-    console.warn('Air quality forecast fetch error:', err.message);
+    console.debug('Air quality forecast fetch error, using fallback:', err.message);
     return getFallbackForecast(lat, lng);
   }
 }

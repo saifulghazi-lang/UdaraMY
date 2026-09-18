@@ -37,3 +37,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Knowledge graph & artifacts
+graphify-out/
+*.pdf

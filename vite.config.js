@@ -88,6 +88,12 @@ export default defineConfig({
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0'
         }
+      },
+      '/open-meteo': {
+        target: 'https://air-quality-api.open-meteo.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/open-meteo/, '')
       }
     }
   },
@@ -121,6 +127,12 @@ export default defineConfig({
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0'
         }
+      },
+      '/open-meteo': {
+        target: 'https://air-quality-api.open-meteo.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/open-meteo/, '')
       }
     }
   },

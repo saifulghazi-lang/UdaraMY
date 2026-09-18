@@ -251,7 +251,13 @@ const statusIcon = computed(() => {
     </div>
 
     <!-- Center Hero: Modern Radial Tachometer Gauge -->
-    <div class="my-6 flex flex-col items-center justify-center relative z-10">
+    <div class="my-5 flex flex-col items-center justify-center relative z-10">
+      <!-- Semantic Health Indicator Header -->
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/10 text-[11px] font-mono font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-3 shadow-xs">
+        <Sparkles class="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400 shrink-0" />
+        <span>{{ t('predictive.healthIndicator') }}</span>
+      </div>
+
       <div class="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
         <!-- SVG Radial Gauge -->
         <svg class="w-full h-full" viewBox="0 0 120 120">
@@ -305,19 +311,13 @@ const statusIcon = computed(() => {
 
         <!-- Center Readout with high-contrast tabular figures -->
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none">
-          <!-- Semantic Health Indicator Header -->
-          <div class="text-[10px] uppercase font-mono font-bold tracking-wider text-slate-500 dark:text-slate-400 mb-0.5 flex items-center gap-1.5">
-            <Sparkles class="w-3 h-3 text-cyan-500 shrink-0" />
-            <span>{{ t('predictive.healthIndicator') }}</span>
-          </div>
-
-          <div class="text-6xl sm:text-7xl font-black tracking-tighter text-slate-900 dark:text-white font-mono tabular-nums">
+          <div class="text-6xl sm:text-7xl font-black tracking-tighter text-slate-900 dark:text-white font-mono tabular-nums leading-none">
             {{ api }}
           </div>
           
           <!-- Category Status Pill -->
           <div
-            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border shadow-sm mt-1 transition-colors"
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border shadow-sm mt-2 transition-colors pointer-events-auto"
             :style="{ borderColor: categoryColor, color: categoryColor }"
           >
             <span :class="['w-2 h-2 rounded-full animate-pulse', statusBadgeDot]"></span>

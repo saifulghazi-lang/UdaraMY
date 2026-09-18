@@ -248,6 +248,7 @@
     "installButton": "Add to Home Screen",
     "installed": "App is installed",
     "notifications": "Haze Alerts",
+    "notificationDesc": "Receive instant notifications when air quality reaches unhealthy levels or triggers school advisories.",
     "alertThreshold": "Alert when API > 100 (Unhealthy)",
     "alertSchool": "School closure warning (API > 200)",
     "testNotification": "Send Test Alert",
