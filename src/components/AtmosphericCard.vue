@@ -367,9 +367,18 @@ const statusIcon = computed(() => {
             {{ t('predictive.officialStatusTitle') }}
           </div>
           <div class="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5 truncate flex items-center gap-1.5">
-            <span v-if="station.api > 200" class="text-rose-600 dark:text-rose-400">{{ t('predictive.schoolClosure') }}</span>
-            <span v-else-if="station.api > 100" class="text-amber-600 dark:text-amber-400">{{ t('predictive.schoolCaution') }}</span>
-            <span v-else class="text-emerald-600 dark:text-emerald-400">{{ t('predictive.schoolNormal') }}</span>
+            <span v-if="station.api > 200" class="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
+              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0"></span>
+              <span>{{ t('predictive.schoolClosure') }}</span>
+            </span>
+            <span v-else-if="station.api > 100" class="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
+              <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+              <span>{{ t('predictive.schoolCaution') }}</span>
+            </span>
+            <span v-else class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <span>{{ t('predictive.schoolNormal') }}</span>
+            </span>
           </div>
         </div>
       </div>
@@ -382,14 +391,19 @@ const statusIcon = computed(() => {
     <!-- Progressive Disclosure Toggle for Forecast & Chemical Pollutants -->
     <button
       @click="isForecastOpen = !isForecastOpen"
-      class="w-full py-2.5 px-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 text-xs font-semibold flex items-center justify-between text-slate-700 dark:text-slate-300 transition relative z-10 cursor-pointer"
+      class="w-full min-h-[44px] py-2.5 px-4 rounded-2xl bg-slate-50 hover:bg-slate-100 active:bg-slate-200 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] dark:active:bg-white/[0.08] border border-slate-200/80 dark:border-white/10 text-xs font-semibold flex items-center justify-between text-slate-700 dark:text-slate-300 transition-all duration-200 relative z-10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
       :aria-expanded="isForecastOpen"
     >
-      <div class="flex items-center gap-2">
-        <Clock class="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-        <span>{{ isForecastOpen ? t('predictive.hideForecastAndPollutants') : t('predictive.forecastAndPollutants') }}</span>
+      <div class="flex items-center gap-2.5">
+        <div class="p-1 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+          <Clock class="w-3.5 h-3.5" />
+        </div>
+        <span class="font-bold">{{ isForecastOpen ? t('predictive.hideForecastAndPollutants') : t('predictive.forecastAndPollutants') }}</span>
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-200/60 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200/80 dark:border-white/10 hidden sm:inline">
+          +6h • PM2.5, PM10, O₃, CO
+        </span>
       </div>
-      <ChevronDown :class="['w-4 h-4 transition-transform duration-200 text-slate-400', isForecastOpen ? 'rotate-180 text-indigo-500' : '']" />
+      <ChevronDown :class="['w-4 h-4 transition-transform duration-300 text-slate-400', isForecastOpen ? 'rotate-180 text-indigo-500 dark:text-indigo-400' : '']" />
     </button>
 
     <!-- Progressive Disclosure Container (v-if strictly skips mounting until requested) -->
@@ -402,7 +416,7 @@ const statusIcon = computed(() => {
 
       <!-- 6-Hour Predictive Horizon Strip -->
       <div v-else-if="station.predictions6h && station.predictions6h.length" class="space-y-2">
-        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400 px-1">
           <span class="flex items-center gap-1.5">
             <Clock class="w-3.5 h-3.5 text-indigo-500" />
             <span>{{ t('predictive.title') }}</span>
@@ -414,7 +428,7 @@ const statusIcon = computed(() => {
           <div
             v-for="pred in station.predictions6h"
             :key="pred.hourOffset"
-            class="flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 hover:border-indigo-500/30 transition-all text-center"
+            class="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 hover:border-indigo-500/30 dark:hover:border-indigo-500/30 transition-all text-center shadow-sm"
           >
             <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-medium">{{ pred.timeLabel }}</span>
             <div class="flex items-center gap-1 my-1">
