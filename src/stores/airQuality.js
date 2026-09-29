@@ -32,6 +32,8 @@ const DEFAULT_WATCHLIST = [
   { id: 'CA19B', label: 'School', icon: '🏫' }
 ];
 
+let isOnlineListenerBound = false;
+
 export const useAirQualityStore = defineStore('airQuality', {
   state: () => {
     let savedWatchlist = DEFAULT_WATCHLIST;
@@ -46,6 +48,8 @@ export const useAirQualityStore = defineStore('airQuality', {
       activeProfile: savedProfile,
       stations: [],
       selectedStationId: 'MCAQM001',
+      selectionRevision: 0,
+      refreshSeq: 0,
       isLoading: true,
       isRefreshing: false,
       isLive: false,
@@ -372,11 +376,15 @@ export const useAirQualityStore = defineStore('airQuality', {
         this.isLoading = false;
       }
 
-      window.addEventListener('online', () => { this.isOffline = false; });
-      window.addEventListener('offline', () => { this.isOffline = true; });
+      if (typeof window !== 'undefined' && !isOnlineListenerBound) {
+        window.addEventListener('online', () => { this.isOffline = false; });
+        window.addEventListener('offline', () => { this.isOffline = true; });
+        isOnlineListenerBound = true;
+      }
     },
 
     async refreshData(includeLocation = true) {
+      const currentSeq = ++this.refreshSeq;
       this.isRefreshing = true;
       try {
         this.refreshCommunitySensors();
@@ -386,6 +394,10 @@ export const useAirQualityStore = defineStore('airQuality', {
           this.fetchForecast(),
           includeLocation && navigator.geolocation ? this.detectUserLocation(false) : Promise.resolve()
         ]);
+
+        // Discard result if a newer refreshData has been initiated in the meantime
+        if (currentSeq !== this.refreshSeq) return;
+
         if (data && Array.isArray(data.stations)) {
           this.stations = data.stations;
           this.lastUpdated = data.updatedAt || new Date().toISOString();
@@ -394,9 +406,13 @@ export const useAirQualityStore = defineStore('airQuality', {
         }
         await this.loadRegionalWindGrid();
       } catch (err) {
-        console.error('Refresh air quality error:', err);
+        if (currentSeq === this.refreshSeq) {
+          console.error('Refresh air quality error:', err);
+        }
       } finally {
-        this.isRefreshing = false;
+        if (currentSeq === this.refreshSeq) {
+          this.isRefreshing = false;
+        }
       }
     },
 
@@ -506,6 +522,7 @@ export const useAirQualityStore = defineStore('airQuality', {
     },
 
     async detectUserLocation(autoSelect = true) {
+      const targetRevision = this.selectionRevision;
       this.isLocating = true;
       this.locationError = null;
       try {
@@ -513,9 +530,10 @@ export const useAirQualityStore = defineStore('airQuality', {
         this.userLocation = coords;
         this.refreshCommunitySensors();
 
-        if (autoSelect && this.stations.length > 0) {
+        // Only auto-select nearest station if user hasn't explicitly chosen a station while GPS was in flight
+        if (autoSelect && this.stations.length > 0 && targetRevision === this.selectionRevision) {
           const nearest = findNearestStation(coords.lat, coords.lng, this.stations);
-          if (nearest) {
+          if (nearest && targetRevision === this.selectionRevision) {
             this.selectedStationId = nearest.id;
           }
         }
@@ -533,6 +551,8 @@ export const useAirQualityStore = defineStore('airQuality', {
     },
 
     selectStation(id) {
+      // User manual choice wins: increment revision to invalidate pending GPS auto-selection
+      this.selectionRevision++;
       this.selectedStationId = id;
       this.simulationApi = null;
       const st = [...this.stations, ...this.communitySensors].find(s => s.id === id);
@@ -615,13 +635,6 @@ export const useAirQualityStore = defineStore('airQuality', {
     saveWatchlist() {
       try {
         localStorage.setItem(WATCHLIST_STORAGE_KEY, JSON.stringify(this.watchlist));
-      } catch (e) {}
-    },
-
-    setProfile(id) {
-      this.activeProfile = id;
-      try {
-        localStorage.setItem(PROFILE_STORAGE_KEY, id);
       } catch (e) {}
     }
   }

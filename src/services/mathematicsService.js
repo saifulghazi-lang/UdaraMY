@@ -23,6 +23,8 @@ export function imputeMissingReadings(readings, maxAllowedGap = 2) {
 
   const raw = readings.slice(0, 12);
   let missingCount = 0;
+  let maxConsecutiveGap = 0;
+  let currentGap = 0;
   const imputed = [];
   let lastKnown = null;
 
@@ -40,16 +42,25 @@ export function imputeMissingReadings(readings, maxAllowedGap = 2) {
   for (let i = 0; i < raw.length; i++) {
     const val = raw[i];
     if (typeof val === 'number' && !isNaN(val)) {
+      if (currentGap > 0) {
+        maxConsecutiveGap = Math.max(maxConsecutiveGap, currentGap);
+        currentGap = 0;
+      }
       imputed.push(val);
       lastKnown = val;
     } else {
       missingCount++;
+      currentGap++;
       // Last Observation Carried Forward
       imputed.push(lastKnown);
     }
   }
 
-  const isDataDegraded = missingCount > maxAllowedGap;
+  if (currentGap > 0) {
+    maxConsecutiveGap = Math.max(maxConsecutiveGap, currentGap);
+  }
+
+  const isDataDegraded = maxConsecutiveGap > maxAllowedGap;
   return { series: imputed, isDataDegraded, missingCount };
 }
 
@@ -132,17 +143,19 @@ export function calculateNowCast(hourlyReadings, options = {}) {
 
   let nowCastApi = denominator > 0 ? Math.round(numerator / denominator) : valid[0];
 
-  // Reconstructed Instantaneous Rate-of-Change with Clamping and Non-Linear Damping
+  // Reconstructed Instantaneous Rate-of-Change with bounded physical saturation
   const current = valid[0];
   const previous = valid.length > 1 ? valid[1] : current;
   const deltaRaw = current - previous;
 
-  // Non-linear damping: alpha attenuates as API approaches high values (prevents runaway overshoot)
-  const baseAlpha = typeof options.alpha === 'number' ? options.alpha : 8.0;
+  // Hyperbolic tangent saturation on hourly delta prevents runaway spikes
+  const baseAlpha = typeof options.alpha === 'number' ? options.alpha : 3.0;
+  const maxReasonableDelta = 42;
+  const saturatedDelta = maxReasonableDelta * Math.tanh(deltaRaw / maxReasonableDelta);
+
   const alphaDamped = baseAlpha * Math.max(0.2, 1 - (current / 600));
 
-  // Clamped rate-of-change estimate
-  const instantaneousRaw = current + (alphaDamped * deltaRaw);
+  const instantaneousRaw = current + (alphaDamped * saturatedDelta);
   const instantaneousEstimate = Math.max(0, Math.min(500, Math.round(instantaneousRaw)));
 
   // Boundary clamp NowCast API to [0, 500]
@@ -169,26 +182,28 @@ export function calculateNowCast(hourlyReadings, options = {}) {
  * @param {Object} [options]
  * @param {number} [options.R=4.0] - Measurement noise covariance (sensor variance)
  * @param {number} [options.Q=9.0] - Process noise covariance (model uncertainty)
+ * @param {number} [options.P_prior] - Prior error covariance from previous step
  * @returns {{ fusedEstimate: number, confidenceDelta: number, confidenceLower: number, confidenceUpper: number, posteriorVariance: number, priorVariance: number, kalmanGain: number }}
  */
 export function applyKalmanFilter1D(groundObservation, modelForecast, options = {}) {
   const z = typeof groundObservation === 'number' && !isNaN(groundObservation) ? groundObservation : 50;
   const xPrior = typeof modelForecast === 'number' && !isNaN(modelForecast) ? modelForecast : z;
 
-  const R = options.R || 4.0; // Measurement noise covariance
-  const Q = options.Q || 9.0; // Prior forecast error covariance
+  const R = typeof options.R === 'number' && !isNaN(options.R) && options.R > 0 ? options.R : 4.0;
+  const Q = typeof options.Q === 'number' && !isNaN(options.Q) && options.Q > 0 ? options.Q : 9.0;
+  const P_prior = typeof options.P_prior === 'number' && !isNaN(options.P_prior) && options.P_prior > 0 ? options.P_prior : Q;
 
   // Innovation
   const y = z - xPrior;
   // Innovation covariance
-  const S = Q + R;
+  const S = P_prior + R;
   // Optimal Kalman Gain
-  const K = Q / S;
+  const K = P_prior / S;
 
   // Posterior state estimate
   const xHat = xPrior + K * y;
   // Posterior error covariance
-  const P = (1 - K) * Q;
+  const P = (1 - K) * P_prior;
 
   // 95% Bayesian Confidence Band (1.96 * sigma)
   const confidenceDelta = +(1.96 * Math.sqrt(P)).toFixed(1);
@@ -196,7 +211,7 @@ export function applyKalmanFilter1D(groundObservation, modelForecast, options = 
   return {
     fusedEstimate: Math.round(xHat),
     rawEstimate: +(xHat.toFixed(1)),
-    priorVariance: Q,
+    priorVariance: P_prior,
     posteriorVariance: +(P.toFixed(2)),
     kalmanGain: +(K.toFixed(3)),
     confidenceDelta,

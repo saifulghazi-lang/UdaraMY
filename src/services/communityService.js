@@ -357,8 +357,8 @@ export async function fetchLiveOpenAqSensors() {
         return timeB - timeA;
       });
 
-    // Fetch live measurements for all active candidates (up to 25 concurrently)
-    const targetNodes = candidateNodes.slice(0, 25);
+    // Fetch live measurements for top active candidates (capped at 6 to prevent HTTP 429 rate limiting)
+    const targetNodes = candidateNodes.slice(0, 6);
     await Promise.allSettled(
       targetNodes.map(async (loc) => {
         try {

@@ -1,3 +1,5 @@
 /api3/*  https://eqms.doe.gov.my/api3/:splat  200!
 /asmc/*  https://asmc.asean.org/:splat  200!
+/openaq/*  https://api.openaq.org/v3/:splat  200!
+/open-meteo/*  https://air-quality-api.open-meteo.com/:splat  200!
 /*  /index.html  200

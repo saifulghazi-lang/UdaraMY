@@ -10,11 +10,24 @@
   headers = { Referer = "https://eqms.doe.gov.my/APIMS/main", User-Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0" }
 
 [[redirects]]
-  from = "/openaq/locations/*"
-  to = "https://api.openaq.org/v3/locations/:splat"
+  from = "/asmc/*"
+  to = "https://asmc.asean.org/:splat"
+  status = 200
+  force = true
+  headers = { Referer = "https://asmc.asean.org/home/", User-Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0" }
+
+[[redirects]]
+  from = "/openaq/*"
+  to = "https://api.openaq.org/v3/:splat"
   status = 200
   force = true
   headers = { User-Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) UdaraMY/1.0" }
+
+[[redirects]]
+  from = "/open-meteo/*"
+  to = "https://air-quality-api.open-meteo.com/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"

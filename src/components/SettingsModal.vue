@@ -23,6 +23,13 @@ const emit = defineEmits(['close', 'setSimulation', 'clearSimulation', 'toggleTh
 const { t, locale } = useI18n();
 const store = useAirQualityStore();
 
+function setLanguage(lang) {
+  locale.value = lang;
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('udaramy_locale', lang);
+  }
+}
+
 const deferredPrompt = ref(null);
 const isInstalled = ref(false);
 const testNotificationFeedback = ref('');
@@ -139,6 +146,30 @@ onMounted(() => {
                 :class="['px-3 py-1 rounded-full transition', isDarkMode ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
               >
                 🌙 Gelap (Dark)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Language Selector (Bahasa Melayu / English) -->
+        <div class="bg-slate-50 dark:bg-neutral-950 border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 dark:text-neutral-200 flex items-center gap-1.5">
+              <Globe class="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+              <span>{{ t('settings.language') }}</span>
+            </span>
+            <div class="flex bg-slate-200/80 dark:bg-black border border-slate-200 dark:border-white/10 rounded-full p-0.5 text-xs font-semibold">
+              <button
+                @click="setLanguage('ms')"
+                :class="['px-3 py-1 rounded-full transition', locale === 'ms' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+              >
+                🇲🇾 Melayu
+              </button>
+              <button
+                @click="setLanguage('en')"
+                :class="['px-3 py-1 rounded-full transition', locale === 'en' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-neutral-400 hover:text-slate-900 dark:hover:text-white']"
+              >
+                🇬🇧 English
               </button>
             </div>
           </div>

@@ -179,7 +179,7 @@ export async function getAirQualityData(forceRefresh = false) {
         headers: {
           'Accept': 'application/json, text/plain, */*'
         },
-        signal: AbortSignal.timeout(12000)
+        signal: AbortSignal.timeout(8000)
       });
 
       if (res.ok) {
@@ -189,9 +189,11 @@ export async function getAirQualityData(forceRefresh = false) {
           liveJson = json;
           break; // successfully retrieved live data
         }
+      } else {
+        console.debug(`APIMS fetch from ${endpoint} returned status ${res.status}`);
       }
     } catch (err) {
-      // try next endpoint candidate
+      console.debug(`APIMS fetch from ${endpoint} failed:`, err.message);
     }
   }
 

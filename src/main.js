@@ -6,13 +6,17 @@ import App from './App.vue';
 import './assets/main.css';
 
 import en from './locales/en.json';
+import ms from './locales/ms.json';
+
+const savedLocale = typeof localStorage !== 'undefined' ? (localStorage.getItem('udaramy_locale') || 'ms') : 'ms';
 
 const i18n = createI18n({
   legacy: false,
-  locale: 'en',
+  locale: savedLocale,
   fallbackLocale: 'en',
   messages: {
-    en
+    en,
+    ms
   }
 });
 

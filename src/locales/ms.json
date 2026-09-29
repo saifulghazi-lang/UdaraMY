@@ -1,0 +1,441 @@
+{
+  "app": {
+    "title": "UdaraMY",
+    "subtitle": "Pemantau Kualiti Udara & Jerebu Malaysia",
+    "live": "LANGSUNG",
+    "lastUpdated": "Kemaskini terakhir",
+    "dataSource": "Data Rasmi: JAS APIMS",
+    "searchStation": "Cari stesen atau negeri...",
+    "changeStation": "Tukar Stesen",
+    "viewAllStations": "Lihat Semua Stesen",
+    "offlineNotice": "Anda di luar talian. Memaparkan data simpanan sementara.",
+    "refresh": "Segarkan",
+    "refreshing": "Memuat semula data...",
+    "updatedJustNow": "Dikemaskini sebentar tadi",
+    "updatedAt": "Dikemaskini {time}",
+    "simulator": "Simulator Jerebu",
+    "simulatePrompt": "Seret untuk pratonton senario jerebu",
+    "resetSimulator": "Kembali ke Data Langsung",
+    "timelapse": "Masa Lalu 24 Jam",
+    "playTimelapse": "Mainkan 24j Masa Lalu",
+    "pauseTimelapse": "Jeda Masa Lalu",
+    "detailedAnalysis": "Analisis Terperinci & Sejarah",
+    "detailedAnalysisSubtitle": "Pecahan kimia (PM2.5, PM10, O₃, NO₂, SO₂, CO) & kitaran bermusim tahunan 365 hari",
+    "detailedAnalysisDesc": "Klik untuk buka telemetri atmosfera mendalam",
+    "hideDetailedAnalysis": "Klik untuk tutup data terperinci"
+  },
+  "location": {
+    "locateMe": "Kesan Lokasi Saya",
+    "locating": "Mencari stesen terdekat...",
+    "nearest": "Stesen Terdekat",
+    "distanceAway": "{km} km dari anda",
+    "denied": "Akses lokasi dinafikan",
+    "unavailable": "Lokasi tidak tersedia"
+  },
+  "predictive": {
+    "title": "Unjuran Prediktif (6 Jam Akan Datang)",
+    "subtitle": "Model Fizik + Hibrid NowCast",
+    "realtimeIndex": "Indeks Responsif",
+    "realtimeTooltip": "US EPA / WMO NowCast: Siri harmonik berwajaran 12 jam yang mengesan lonjakan jerebu beberapa jam sebelum purata statutori",
+    "statutoryIndex": "Rasmi APIMS 24j",
+    "statutoryTooltip": "Purata bergerak 24 jam statutori yang dilaporkan oleh JAS APIMS",
+    "velocity": "Kelajuan 3 Jam",
+    "surging": "Melonjak Pantas",
+    "deteriorating": "Merosot",
+    "steady": "Stabil",
+    "improving": "Semakin Baik",
+    "rapidClearing": "Pembersihan Pantas",
+    "healthIndicator": "Petunjuk Kesihatan Masa Nyata (NowCast)",
+    "officialStatusTitle": "JAS APIMS Rasmi — Penanda Aras Statutori / Garis Panduan Sekolah KPM",
+    "forecastAndPollutants": "Unjuran 6 Jam & Pecahan Pencemar",
+    "hideForecastAndPollutants": "Sembunyikan Unjuran & Pencemar",
+    "schoolNormal": "Sesi persekolahan berjalan biasa (IPU ≤ 100)",
+    "schoolCaution": "Sukan & aktiviti luar bilik darjah ditangguhkan (IPU > 100)",
+    "schoolClosure": "Penutupan sekolah wajib mengikut garis panduan KPM (IPU > 200)",
+    "offlineForecastPaused": "Telemetri dicache (> 60m). Unjuran dijeda."
+  },
+  "nav": {
+    "home": "Utama",
+    "map": "Peta Nasional",
+    "stations": "Stesen",
+    "settings": "Tetapan"
+  },
+  "categories": {
+    "good": "Baik",
+    "moderate": "Sederhana",
+    "unhealthy": "Tidak Sihat",
+    "veryUnhealthy": "Sangat Tidak Sihat",
+    "hazardous": "Berbahaya",
+    "emergency": "Kecemasan"
+  },
+  "advice": {
+    "good": "Kualiti udara memuaskan. Sesuai untuk aktiviti riadah luar seperti biasa!",
+    "moderate": "Kualiti udara sederhana. Individu yang amat sensitif dinasihatkan memantau sebarang ketidakselesaan.",
+    "unhealthy": "Kurangkan aktiviti luar. Kumpulan berisiko disarankan memakai pelitup muka N95 di luar rumah.",
+    "veryUnhealthy": "Elakkan sebarang aktiviti luar! Pakai pelitup muka N95, tutup tingkap dan pasang penapis udara.",
+    "hazardous": "BAHAYA: Kekal di dalam bangunan! Tutup rapat pintu dan tingkap. Ikuti arahan rasmi kecemasan."
+  },
+  "guidance": {
+    "title": "Panduan Kesihatan",
+    "outdoorSports": "Aktiviti Luar",
+    "maskProtection": "Pelitup Muka",
+    "indoorAir": "Udara Dalaman",
+    "schoolStatus": "Status Sekolah",
+    "sports": {
+      "good": "Selamat untuk semua",
+      "moderate": "Secara amnya selamat",
+      "unhealthy": "Elakkan senaman berat",
+      "veryUnhealthy": "Batalkan sukan luar",
+      "hazardous": "Kekal di dalam rumah"
+    },
+    "mask": {
+      "good": "Tidak diperlukan",
+      "moderate": "Pilihan bagi kumpulan sensitif",
+      "unhealthy": "Pakai N95 / KF94 di luar",
+      "veryUnhealthy": "Wajibkan N95 di luar bangunan",
+      "hazardous": "Respirator industri diperlukan"
+    },
+    "windows": {
+      "good": "Selamat untuk pengudaraan",
+      "moderate": "Selamat membuka tingkap",
+      "unhealthy": "Pastikan tingkap ditutup",
+      "veryUnhealthy": "Tutup rapat & hidupkan penulen udara",
+      "hazardous": "Tutup celah & tapis udara aktif"
+    },
+    "schools": {
+      "good": "Operasi biasa",
+      "moderate": "Operasi biasa",
+      "unhealthy": "Aktiviti luar digantung",
+      "veryUnhealthy": "Ditutup (Garis Panduan KPM IPU > 200)",
+      "hazardous": "Semua sekolah ditutup"
+    },
+    "schoolsClosedAlert": "Penutupan Sekolah KPM (IPU > 200)",
+    "schoolsOutdoorSuspended": "Aktiviti Luar Bilik Darjah Digantung (IPU > 100)",
+    "schoolsOpenNormal": "Sekolah Beroperasi Biasa",
+    "tapToInteractMap": "Ketik peta untuk gerak & zum",
+    "clearSearch": "Kosongkan Carian",
+    "moreOptions": "Pilihan Lain"
+  },
+  "personas": {
+    "general": {
+      "label": "Aktif & Kardio",
+      "sub": "Aktiviti Luar & Kecergasan"
+    },
+    "toddler": {
+      "label": "Sekolah & Kanak-kanak",
+      "sub": "Waktu Rehat & Riadah"
+    },
+    "asthma": {
+      "label": "Saluran Pernafasan Sensitif",
+      "sub": "Asma & Penjagaan"
+    },
+    "elderly": {
+      "label": "Warga Emas & Kediaman",
+      "sub": "Pengudaraan & Rehat"
+    }
+  },
+  "personaAdvice": {
+    "asthma": {
+      "danger": {
+        "badge": "Amaran Tinggi",
+        "title": "Sensitiviti respiratori tinggi",
+        "text": "Sediakan ubat pelega (inhaler) berdekatan dan kekal di dalam rumah. Tutup tingkap dan gunakan penulen udara jika ada."
+      },
+      "warning": {
+        "badge": "Waspada Tambahan",
+        "title": "Zarah halus merengsakan saluran pernafasan",
+        "text": "Hadkan aktiviti lasak di luar. Pastikan ubat pencegah atau pelega sedia ada sekiranya dada berasa ketat."
+      },
+      "good": {
+        "badge": "Udara Nyaman",
+        "title": "Keadaan pernafasan baik",
+        "text": "Paras zarah dalam julat normal. Teruskan rutin harian anda seperti biasa."
+      }
+    },
+    "toddler": {
+      "danger": {
+        "badge": "Nasihat Sekolah",
+        "title": "Ambang penutupan KPM tercapai",
+        "text": "Kanak-kanak wajib kekal di dalam bangunan. Tutup tingkap bilik darjah dan elakkan pergerakan di luar kawasan bertutup."
+      },
+      "warning": {
+        "badge": "Hadkan Waktu Rehat",
+        "title": "Aktiviti luar dihadkan",
+        "text": "Sekolah dan tadika dinasihatkan memindahkan aktiviti jasmani, rombongan dan sesi padang ke dalam dewan/kelas."
+      },
+      "good": {
+        "badge": "Rehat Selamat",
+        "title": "Aktiviti padang selamat",
+        "text": "Kanak-kanak bebas bermain di luar semasa pendidikan jasmani dan waktu rehat."
+      }
+    },
+    "elderly": {
+      "warning": {
+        "badge": "Kekal Di Rumah",
+        "title": "Tempoh waspada kardiovaskular",
+        "text": "Hadkan aktiviti berjalan pagi atau petang ketika asap jerebu mendap di permukaan bumi. Banyakkan minum air kosong di rumah."
+      },
+      "good": {
+        "badge": "Udara Segar",
+        "title": "Sesuai untuk jalan pagi dan berkebun",
+        "text": "Kualiti udara amat bersih. Masa terbaik untuk warga emas bersiar-siar dan beriadah di luar."
+      }
+    },
+    "general": {
+      "danger": {
+        "badge": "Dalaman Sahaja",
+        "title": "Tangguhkan senaman lasak di luar",
+        "text": "Pernafasan kencang menyedut partikel asap ke dasar paru-paru. Alihkan larian, kayuhan basikal atau bola ke gimnasium bertutup."
+      },
+      "warning": {
+        "badge": "Kadar Sederhana",
+        "title": "Kurangkan intensiti senaman luar",
+        "text": "Hadkan larian di bawah 30 minit dengan rentak santai, atau tukar latihan intensif ke dalam kawasan bertutup."
+      },
+      "good": {
+        "badge": "Kondisi Terbaik",
+        "title": "Udara optimum untuk latihan luar",
+        "text": "Tiada halangan respiratori. Kondisi terbaik untuk larian jarak jauh, kayuhan basikal dan rekreasi luar."
+      }
+    }
+  },
+  "trends": {
+    "title": "Trajektori 24 Jam",
+    "subtitle": "Perkembangan Indeks Pencemaran Udara mengikut jam",
+    "dominant": "Pencemar Dominan",
+    "keyPollutants": "Kepekatan Bahan Pencemar",
+    "pm25": "PM2.5 (Habuk Halus)",
+    "pm10": "PM10 (Debu Kasar)",
+    "o3": "Ozon (O₃)",
+    "co": "Karbon Monoksida (CO)",
+    "no2": "Nitrogen Dioksida (NO₂)",
+    "so2": "Sulfur Dioksida (SO₂)",
+    "scrubTime": "Masa Terpilih:",
+    "time": "Masa:",
+    "now": "Kini",
+    "liveNow": "Langsung Kini",
+    "hoursAgo": "{n}j lalu",
+    "hours": "{n}j"
+  },
+  "map": {
+    "title": "Peta Kualiti Udara Nasional",
+    "sub": "68 Stesen Pemantauan Rasmi Seluruh Negara",
+    "filterAll": "Semua",
+    "filterPeninsular": "Semenanjung",
+    "filterSabah": "Sabah",
+    "filterSarawak": "Sarawak",
+    "filterBorneo": "Sabah & Sarawak",
+    "layers": "Lapisan",
+    "region": "Wilayah",
+    "layersAndRegions": "Lapisan & Wilayah",
+    "closeFilters": "Tutup Penapis",
+    "community": "Komuniti",
+    "selectPrompt": "Ketik penanda stesen untuk butiran segera",
+    "select": "Pilih",
+    "dashboard": "Papan Pemuka ↗",
+    "viewFullDashboard": "Buka Papan Pemuka Penuh →",
+    "pinWatchlist": "Pin Lokasi",
+    "pinnedToast": "Disimpan ke senarai pantau keluarga!",
+    "noStationsFound": "Tiada stesen dijumpai bagi \"{query}\"",
+    "resetFilters": "Tetapkan Semula Penapis",
+    "distanceAway": " • {km} km dari anda"
+  },
+  "settings": {
+    "title": "Tetapan Aplikasi & PWA",
+    "language": "Bahasa / Language",
+    "pwa": "Pasang Aplikasi",
+    "pwaDesc": "Pasang UdaraMY pada skrin utama telefon anda untuk akses pantas luar talian sewaktu musim jerebu.",
+    "installButton": "Tambah ke Skrin Utama",
+    "installed": "Aplikasi telah dipasang",
+    "notifications": "Amaran Jerebu",
+    "notificationDesc": "Terima pemberitahuan segera apabila kualiti udara mencecah paras tidak sihat atau amaran persekolahan KPM dikeluarkan.",
+    "alertThreshold": "Amaran apabila IPU > 100 (Tidak Sihat)",
+    "alertSchool": "Amaran penutupan sekolah (IPU > 200)",
+    "testNotification": "Hantar Amaran Ujian",
+    "testNotificationSent": "Amaran ujian telah dihantar ke sistem anda!",
+    "notificationPermissionDenied": "Kebenaran pemberitahuan disekat dalam tetapan pelayar anda.",
+    "simulation": "Mod Simulasi (Demo)",
+    "simulationDesc": "Uji transisi antaramuka pada pelbagai tahap keamatan jerebu",
+    "communitySensors": "Penderia Komuniti & Warga",
+    "communitySensorsDesc": "PurpleAir, AirVisual & OpenAQ (Ditentukur EPA)",
+    "communitySensorsDetail": "Paparkan stesen komuniti sekolah dan kejiranan di peta. Dilengkapi pembetulan kelembapan tropika US-EPA bagi mengelakkan amaran palsu akibat kabus pagi.",
+    "communityLiveStatusOpenAq": "OpenAQ v3 Langsung ({count} nod aktif)",
+    "communityLiveStatusCached": "Data Simpanan OpenAQ ({count} nod)",
+    "communityLiveStatusPreset": "Pratetap Terpilih Malaysia ({count} nod)",
+    "openaqApiKeyLabel": "Kunci API OpenAQ (Pilihan / Percuma)",
+    "openaqApiKeyPlaceholder": "Tampal kunci API OpenAQ anda...",
+    "openaqApiKeyHelp": "Daftar percuma di explore.openaq.org untuk membaca nod langsung PurpleAir, AirVisual dan Clarity di seluruh Malaysia.",
+    "saveApiKey": "Simpan Kunci",
+    "savedApiKey": "Disimpan!",
+    "clearApiKey": "Padam",
+    "epaFormulaNote": "Formula Penentukuran EPA: PM2.5 = 0.524 × PM2.5 - 0.0862 × RH + 5.75",
+    "disclaimerTitle": "Penafian & Penghargaan",
+    "disclaimerText": "Semua bacaan kualiti udara rasmi diperoleh daripada rangkaian APIMS Jabatan Alam Sekitar (JAS) Malaysia. Aplikasi ini dibangunkan sebagai inisiatif komuniti sumber terbuka demi kesedaran awam dan bukan pengganti siaran kecemasan rasmi kerajaan."
+  },
+  "watchlist": {
+    "title": "Senarai Pantau Keluarga",
+    "addCurrent": "Pin ke Senarai Pantau",
+    "remove": "Buang",
+    "pinned": "Dipin",
+    "customLabel": "Label (cth. Rumah, Pejabat, Sekolah Anak)",
+    "save": "Simpan Lokasi",
+    "empty": "Tiada lokasi dipin lagi. Simpan stesen untuk memantau keselamatan keluarga!",
+    "manage": "Urus",
+    "add": "Tambah",
+    "addNew": "Tambah Lokasi Baharu",
+    "editLocation": "Kemaskini Lokasi",
+    "locationName": "Nama Lokasi",
+    "chooseIcon": "Pilih Ikon",
+    "chooseStation": "Stesen Pemantauan",
+    "searchStationPlaceholder": "Cari stesen atau negeri...",
+    "cancel": "Batal",
+    "saveChanges": "Simpan Perubahan",
+    "deleteConfirm": "Buang lokasi ini daripada senarai pantau?"
+  },
+  "profiles": {
+    "title": "Profil Kerentanan Kesihatan",
+    "general": "Dewasa Aktif",
+    "toddler": "Kanak-kanak / Sekolah",
+    "asthma": "Asma / Respiratori",
+    "elderly": "Warga Emas",
+    "outdoor": "Pekerja Luar Bangunan"
+  },
+  "share": {
+    "button": "Kongsi Kad",
+    "title": "Kongsi Kad Kualiti Udara",
+    "formatStory": "Story (9:16)",
+    "formatSquare": "Segi Empat (1:1)",
+    "download": "Simpan Gambar",
+    "shareNative": "Kongsi ke WhatsApp / Aplikasi",
+    "copied": "Gambar disalin ke papan keratan!"
+  },
+  "hotspots": {
+    "title": "Titik Panas Serantau (ASMC)",
+    "subtitle": "Kiraan titik panas satelit & pemantauan jerebu rentas sempadan",
+    "howItWorks": "Cara ia berfungsi",
+    "sumatra": "Sumatera",
+    "sumatraImpact": "Mempengaruhi Pantai Barat & Lembah Klang",
+    "kalimantan": "Kalimantan",
+    "kalimantanImpact": "Mempengaruhi Sarawak & Sabah",
+    "malaysia": "Malaysia",
+    "malaysiaImpact": "Kebakaran terbuka tempatan",
+    "wind": "Angin Monsun",
+    "swMonsoon": "Monsun Barat Daya (Meniup ke Timur Laut)",
+    "trendWarning": "Trajektori jerebu merosot dalam tempoh 3 jam lalu",
+    "trendImproving": "Trajektori jerebu bertambah baik dalam tempoh 3 jam lalu",
+    "trendStable": "Trajektori jerebu stabil",
+    "practicalTipTitle": "Tindakan Harian Praktikal",
+    "practicalTipElevated": "💨 Angin Barat Daya sedang menolak asap tanah gambut Sumatera merentasi Selat Melaka. Jemur pakaian di dalam rumah & sediakan pelitup muka N95.",
+    "practicalTipModerate": "⚠️ Aktiviti kebakaran sederhana dikesan di rantau ini. Pantau pergerakan arah angin jika anda mempunyai alahan saluran pernafasan.",
+    "practicalTipLow": "✅ Aktiviti kebakaran serantau rendah dan serakan udara memuaskan. Selamat untuk rutin luar biasa.",
+    "guideTitle": "Panduan Titik Panas & Angin Jerebu",
+    "guideSubtitle": "Bagaimana pengesanan satelit meramal ketibaan jerebu di Malaysia",
+    "whatIsAsmc": "Apakah itu ASMC & Titik Panas?",
+    "whatIsAsmcDesc": "Pusat Meteorologi Khusus ASEAN (ASMC) menggunakan satelit cuaca NOAA dan NASA yang dilengkapi kamera inframerah terma untuk mengesan kebakaran hutan dan tanah gambut aktif ('titik panas') di seluruh Asia Tenggara.",
+    "hotspotScaleTitle": "Skala Ancaman Titik Panas",
+    "scaleLow": "< 50: Pembakaran rendah (Bersih / Normal)",
+    "scaleMod": "100 - 300: Pembakaran aktif (Asap jerebu berkemungkinan tiba dalam 24-48j)",
+    "scaleHigh": "500+: Krisis serantau serius (Asap tebal & amaran sekolah meluas)",
+    "whyWindMatters": "Mengapa Arah Angin Monsun Penting",
+    "whyWindMattersDesc": "Titik panas kebakaran semata-mata tidak menyebabkan jerebu melainkan angin menolak asap ke arah kita. Semasa Monsun Barat Daya (Jun–Oktober), angin lazim bertindak seperti tali sawat atmosfera, meniup asap gambut tebal dari Sumatera terus ke Lembah Klang, Pulau Pinang dan Pantai Barat.",
+    "decisionsTitle": "Panduan Perancangan Seharian",
+    "decisionLaundry": "Menjemur Pakaian",
+    "decisionLaundryDesc": "Jemur pakaian di dalam rumah apabila kebakaran Sumatera tinggi dan angin bertiup dari Barat Daya; jika tidak pakaian menyerap bau asap yang kuat.",
+    "decisionSports": "Latihan Sukan Luar",
+    "decisionSportsDesc": "Trajektori IPU menaik + angin Barat Daya memberi tekanan kepada paru-paru. Alihkan aktiviti larian dan bola sepak ke dalam dewan.",
+    "decisionMasks": "Pembelian Pelitup Muka N95",
+    "decisionMasksDesc": "Memberi anda amaran awal 24 jam untuk mendapatkan pelitup muka N95/KF94 dan menggantikan penapis udara sebelum kehabisan stok di farmasi.",
+    "decisionSchools": "Sekolah & Anak-anak",
+    "decisionSchoolsDesc": "Membantu ibu bapa menjangka sama ada aktiviti luar ditangguhkan atau peraturan penutupan sekolah KPM (IPU > 200) akan berkuat kuasa tidak lama lagi."
+  },
+  "calendar": {
+    "title": "Kalendar Peta Haba Jerebu",
+    "subtitle": "Kitaran tahunan Monsun Barat Daya (365 hari)",
+    "hazeSeason": "Musim Jerebu (Ogo - Okt)",
+    "cleanSeason": "Musim Hujan Bersih (Nov - Feb)",
+    "stateProfile": "Profil Bermusim Sejarah {state}",
+    "westCoastBadge": "Asap Gambut Sumatera (Monsun Barat Daya)",
+    "sarawakBadge": "Jerebu Rentas Sempadan Kalimantan Barat",
+    "sabahBadge": "Zon Maritim Bersih",
+    "northBadge": "Pembakaran Pertanian Mekong & Lonjakan Kering",
+    "eastCoastBadge": "Basuhan Hujan Lebat Monsun Timur Laut",
+    "hoverPrompt": "Layangkan atau sentuh mana-mana tarikh untuk melihat corak IPU bermusim",
+    "today": "HARI INI"
+  },
+  "community": {
+    "badge": "Nod Sains Warga",
+    "unvalidated": "Belum Disahkan",
+    "rawPm25": "PM2.5 Mentah",
+    "calibratedPm25": "Ditentukur EPA",
+    "humidity": "Kelembapan Relatif",
+    "equivApi": "IPU Setara",
+    "layerTitle": "Penderia Komuniti Kejiranan",
+    "layerDesc": "Penderia komuniti setempat (PurpleAir / AirVisual) dengan pembetulan kelembapan tropika."
+  },
+  "forecast": {
+    "title": "Tinjauan Jerebu 48 Jam",
+    "subtitle": "Unjuran model kimia Copernicus CAMS setiap jam",
+    "historyTab": "24 Jam Lalu (JAS)",
+    "forecastTab": "Unjuran 48 Jam (CAMS)",
+    "trendImproving": "Semakin Baik",
+    "trendDeteriorating": "Merosot",
+    "trendSteady": "Stabil",
+    "peakHaze": "Puncak Jerebu",
+    "scrubTime": "Waktu Unjuran"
+  },
+  "national": {
+    "title": "Gambaran Harian Malaysia",
+    "viewLeaderboard": "Carta Kedudukan 16 Negeri",
+    "leaderboard": "Carta Negeri",
+    "worstStation": "Paling Terjejas Hari Ini",
+    "cleanestStation": "Paling Bersih Hari Ini",
+    "schoolRule": "Amaran Sekolah KPM",
+    "schoolNormal": "Sekolah Beroperasi Biasa",
+    "nationalAverage": "Purata Nasional"
+  },
+  "leaderboard": {
+    "title": "Kedudukan Kualiti Udara Negeri",
+    "subtitle": "Kedudukan merentas 16 negeri & wilayah persekutuan berdasarkan bacaan langsung",
+    "copyWhatsApp": "Salin Laporan WhatsApp",
+    "copied": "Disalin untuk WhatsApp!",
+    "sortPeak": "Puncak Tertinggi",
+    "sortAverage": "Purata",
+    "sortName": "A-Z",
+    "peak": "Puncak",
+    "average": "Purata",
+    "stationsIn": "Stesen Pemantauan di {state}",
+    "selectToMonitor": "Pilih untuk pantau",
+    "trend24h": "Aliran 24 Jam (Pagi→Malam)",
+    "active": "Aktif"
+  },
+  "windOverlay": {
+    "toggle": "Arah Angin & Kepulan Asap",
+    "active": "Angin & Asap ✓",
+    "showOverlay": "Papar garisan angin rentas sempadan & kon kepulan asap",
+    "hideOverlay": "Sembunyi lapisan angin & asap",
+    "viewDriftOnMap": "📍 Lihat Pergerakan di Peta ↗",
+    "threatCone": "Kon Ancaman Asap",
+    "severe": "Kritikal — laluan terus ke Malaysia",
+    "elevated": "Waspada — berhampiran pesisir pantai",
+    "safe": "Luar Pesisir — bergerak menjauhi daratan"
+  },
+  "faq": {
+    "title": "Soalan Lazim (FAQ)",
+    "subtitle": "Memahami Kualiti Udara Malaysia, Perbezaan Penderia & Standard Kesihatan",
+    "q1": "Data mana yang tepat? JAS (APIMS) berbeza dengan OpenAQ / PurpleAir — mana yang boleh dipercayai?",
+    "a1_p1": "Stesen rasmi APIMS Jabatan Alam Sekitar (JAS) adalah standard rujukan perundangan di Malaysia. Stesen ini menggunakan penganalisis gravimetrik redaman-beta (BAM-1020 / TEOM) yang diperakui dan mematuhi Standard Kualiti Udara Ambien Malaysia (MCG 2020). Keputusan rasmi kerajaan—seperti arahan penutupan sekolah apabila IPU melebihi 200—hanya bersandarkan bacaan stesen JAS APIMS.",
+    "a1_p2": "Penderia komuniti (seperti PurpleAir, AirVisual dan penderia warga OpenAQ) menggunakan pengira zarah laser optik kos rendah. Dalam iklim tropika lembap di Malaysia dengan kelembapan relatif kerap mencecah 75–90%, wap air mikroskopik melekat pada zarah habuk (pembengkakan higroskopik). Penderia laser biasa tersilap mengira titisan air sebagai asap jerebu, lalu menggandakan bacaan PM2.5 sebanyak 30% hingga 70%!",
+    "a1_p3": "Bagi membetulkan ralat ini, UdaraMY menggunakan Persamaan Pembetulan Kelembapan Tropika US-EPA (PM2.5 = 0.524 × Mentah - 0.0862 × RH + 5.75) pada setiap penderia komuniti. Ringkasnya: Gunakan stesen JAS APIMS sebagai rujukan rasmi kesihatan dan undang-undang; gunakan penderia komuniti tertentukur untuk mengetahui keadaan mikro kejiranan anda.",
+    "q2": "Mengapa aplikasi cuaca di telefon saya memaparkan nombor AQI yang berbeza?",
+    "a2_p1": "Kebanyakan telefon pintar (cth. Apple Weather, Google Weather) menggunakan standard US AQI (EPA Amerika Syarikat), manakala UdaraMY memaparkan Indeks Pencemaran Udara (IPU / API) rasmi Malaysia mengikut sukatan JAS.",
+    "a2_p2": "Di bawah standard US AQI, kepekatan PM2.5 serendah 12.1 µg/m³ sudah pun memasuki kategori 'Sederhana' (AQI 51). Sebaliknya, standard Jabatan Alam Sekitar Malaysia menetapkan sehingga 35.0 µg/m³ sebagai kategori 'Baik' (IPU 0–50). Oleh yang demikian, nombor US AQI sentiasa kelihatan jauh lebih tinggi dan mencemaskan berbanding IPU Malaysia bagi sampel udara yang sama.",
+    "q3": "Berapa kerap data kualiti udara dikemaskini?",
+    "a3_p1": "• JAS APIMS: Dikemaskini setiap jam (:00) di kesemua 68 stesen pemantauan seluruh negara.\n• Titik Panas Satelit ASMC: Diperoleh daripada satelit inframerah terma ASEAN Specialised Meteorological Centre (NOAA-20 / Suomi-NPP), dikemaskini dua kali sehari.\n• Ramalan 48 Jam: Dikuasakan oleh model kimia Copernicus Atmosphere Monitoring Service (CAMS) ECMWF, dikira semula setiap 6 jam.",
+    "q4": "Apakah tindakan keselamatan yang perlu diambil mengikut tahap IPU?",
+    "a4_p1": "• 0–50 (Baik): Semua aktiviti luar selamat dijalankan.\n• 51–100 (Sederhana): Aktiviti biasa dibenarkan; individu hipersensitif perlu memantau pernafasan.\n• 101–200 (Tidak Sihat): Hadkan senaman berat di luar. Kumpulan berisiko (pesakit asma, warga emas, kanak-kanak) disyorkan memakai pelitup muka N95/KF94 di luar.\n• 201–300 (Sangat Tidak Sihat): Kementerian Pendidikan menangguhkan semua aktiviti luar bilik darjah. Elakkan pendedahan di luar.\n• 301+ (Berbahaya): Penutupan sekolah wajib mengikut garis panduan KPM. Kekal di dalam rumah dengan pintu/tingkap bertutup dan penulen udara diaktifkan.",
+    "q5": "Bagaimana Pemberitahuan Jerebu berfungsi pada aplikasi PWA ini?",
+    "a5_p1": "UdaraMY berfungsi sebagai Aplikasi Web Progresif (PWA). Apabila anda mengaktifkan Amaran Jerebu dalam Tetapan dan membenarkan kebenaran pemberitahuan, pelayar web atau sistem operasi telefon anda akan menghantar notifikasi automatik sekiranya stesen terpilih melepasi paras Tidak Sihat (IPU > 100) atau amaran penutupan sekolah (IPU > 200).",
+    "q6": "Adakah UdaraMY berfungsi sekiranya tiada sambungan internet?",
+    "a6_p1": "Ya! UdaraMY dilengkapi keupayaan simpanan Service Worker canggih. Sekiranya sambungan internet terputus semasa musim jerebu, aplikasi ini akan memuatkan data stesen dan jubin peta yang terkini disimpan, lengkap dengan masa pengesahan terakhir."
+  }
+}

@@ -214,5 +214,46 @@ describe('mathematicsService', () => {
       assert.equal(isTelemetryStale('invalid'), true);
     });
   });
+
+  describe('Mathematical Audit Refinement Verifications', () => {
+    it('should distinguish non-consecutive missing gaps from consecutive gaps in imputeMissingReadings', () => {
+      // 3 isolated missing readings across 12 hours: [50, null, 52, null, 54, null, 56, 58, 60, 62, 64, 66]
+      // Max consecutive gap is only 1 hour. This should NOT be marked as degraded even if total missing is 3.
+      const isolatedGaps = [50, null, 52, null, 54, null, 56, 58, 60, 62, 64, 66];
+      const result = imputeMissingReadings(isolatedGaps, 2);
+
+      assert.equal(result.isDataDegraded, false, 'Isolated gaps should not degrade data when max consecutive gap <= 2');
+      assert.equal(result.series.length, 12);
+      assert.equal(result.series[1], 50);
+      assert.equal(result.series[3], 52);
+    });
+
+    it('should flag data as degraded only when consecutive gap exceeds maxAllowedGap', () => {
+      // 3 consecutive missing readings: [50, null, null, null, 55, 60]
+      const consecutiveGaps = [50, null, null, null, 55, 60];
+      const result = imputeMissingReadings(consecutiveGaps, 2);
+
+      assert.equal(result.isDataDegraded, true, 'Consecutive gaps > 2 must be flagged as degraded');
+    });
+
+    it('should update and propagate prior variance P_prior properly in applyKalmanFilter1D', () => {
+      // Step 1: Initial estimate with prior variance 9.0, observation noise 4.0
+      const step1 = applyKalmanFilter1D(120, 100, { Q: 9.0, R: 4.0 });
+      assert.ok(step1.posteriorVariance < 9.0);
+
+      // Step 2: Feed step1.posteriorVariance as P_prior into step 2
+      const step2 = applyKalmanFilter1D(125, step1.fusedEstimate, { P_prior: step1.posteriorVariance, R: 4.0 });
+      // Posterior variance must continue to decrease as more sensor evidence arrives
+      assert.ok(step2.posteriorVariance < step1.posteriorVariance, 'Posterior variance must decrease iteratively with new observations');
+    });
+
+    it('should bound extreme instantaneous rate-of-change to prevent unrealistic runaway spikes', () => {
+      // Spike of +100 in 1 hour from 50 to 150
+      const spike = [150, 50, 48, 45];
+      const result = calculateNowCast(spike);
+      // Instantaneous estimate should be reasonably bounded and not blow up to 500+
+      assert.ok(result.instantaneousEstimate <= 250, `Instantaneous estimate ${result.instantaneousEstimate} should be damped reasonably`);
+    });
+  });
 });
 

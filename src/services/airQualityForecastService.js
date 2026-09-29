@@ -5,6 +5,7 @@
 
 import { convertPm25ToApi, getCategoryFromApi } from './communityService.js';
 
+const FORECAST_CACHE_PREFIX = 'udaramy_forecast_cache_';
 const cache = new Map();
 
 /**
@@ -14,11 +15,22 @@ export async function fetchAirQualityForecast(lat = 3.139, lng = 101.6869) {
   const roundedLat = typeof lat === 'number' ? lat.toFixed(2) : '3.14';
   const roundedLng = typeof lng === 'number' ? lng.toFixed(2) : '101.69';
   const cacheKey = `${roundedLat},${roundedLng}`;
-  const cached = cache.get(cacheKey);
   const now = Date.now();
+
+  // Check in-memory cache first
+  let cached = cache.get(cacheKey);
+
+  // If not in memory, check localStorage for offline PWA resilience
+  if (!cached && typeof localStorage !== 'undefined') {
+    try {
+      const raw = localStorage.getItem(FORECAST_CACHE_PREFIX + cacheKey);
+      if (raw) cached = JSON.parse(raw);
+    } catch (e) {}
+  }
 
   // Return cached result if fresh (< 45 mins)
   if (cached && (now - cached.timestamp < 45 * 60 * 1000)) {
+    cache.set(cacheKey, cached);
     return cached.data;
   }
 
@@ -32,14 +44,21 @@ export async function fetchAirQualityForecast(lat = 3.139, lng = 101.6869) {
     const data = await response.json();
     const formatted = processForecastData(data);
 
-    cache.set(cacheKey, {
-      timestamp: now,
-      data: formatted
-    });
+    const cacheEntry = { timestamp: now, data: formatted };
+    cache.set(cacheKey, cacheEntry);
+
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem(FORECAST_CACHE_PREFIX + cacheKey, JSON.stringify(cacheEntry));
+      } catch (e) {}
+    }
 
     return formatted;
   } catch (err) {
     console.debug('Air quality forecast fetch error, using fallback:', err.message);
+    if (cached && cached.data) {
+      return cached.data;
+    }
     return getFallbackForecast(lat, lng);
   }
 }
